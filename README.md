@@ -15,8 +15,41 @@ Scavenger provides the following features and more out of the box.
     - eg. You may call a paraphrase service from a model or package of your choice on data attributes before saving them to your database.
 - Data integrity constraints
     - Scavanger uses a hashing algorithm of your choice to maintain data integrity. This hash is used to ensure that one scrap (source article) is not converted to multiple output objects (model duplicates).
+- Console Command
+    - Once scavenger is configured, a simple artisan command launches the seeker. Since this is a console command it is more efficient and timeouts are less likely to occur.
+    - Artisan command: `php artisan scavenger:seek`
+- Schedule ready
+    - Scavenger can easily be set to scrape on a schedule. Hence, creating a someone autonomous website is super easy!
+
+## Installation
+
+1. Download Package ZIP and extract to your premium packages folder or folder of your choice.
+
+2. Update your `composer.json` to load package.
+    - Add local `vcs` repository. See composer [doc](https://getcomposer.org/doc/05-repositories.md#loading-a-package-from-a-vcs-repository) for more info.
+
+    eg.
+    ```js
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "./packages/laravel-scavenger/"
+        }
+    ],
+    ```
+
+    - Requeire the package.
+    ```js
+    "require": {
+        ...
+        "reliqarts/scavenger": "~1.0"
+        ...
+    },
+    ```
 
 ## Configuration
+
+Scavenger is highly configurable. These configurations remain for use the next time around. 
 
 
 ### Structure
@@ -31,7 +64,7 @@ return [
     'debug' => false,
     
     // whther log file should be written
-    'log' => false,
+    'log' => true,
 
     // How much detail is expected in output, 1 being the lowest, 3 being highest.
     'verbosity' => 1,
@@ -73,12 +106,13 @@ return [
 
     // Different entities and mapping information
     'targets' => [
-        'states' => [
-            'model' => 'App\\Status',
+        'articles' => [
+            'model' => 'App\\Article',
+            // example source url
             'source' => 'http://gleanerclassifieds.com/showads/section/Real+Estate-10100',
             'search' => [
                 // keywords
-                'keywords' => ['utech'],
+                'keywords' => ['room'],
                 // input element name for search term/keyword
                 'keyword_input' => 'keyword',
                 // form markup, used to locate search form
@@ -86,7 +120,9 @@ return [
                 // text on submit button
                 'submit_button_text' => 'Search'
             ],
+            // next link markup
             'pager' => 'div.content #page .pagingnav',
+            // main list markup
             'markup' => [
                 'title' => 'div.content section > table tr h3',
                 // content to be found upon clicking title link
@@ -97,7 +133,7 @@ return [
                     '_focus' => 'section section > .content #ad-detail > article'
                 ],
             ],
-            // split single attributes into multiple based on regex
+            // split single attributes into multiple attributes based on regex
             'dissect' => [
                 'body' => [
                     'email' => '(([eE]mail)*:*\s*\w+\@(\s*\w)*\.(net|com))',
@@ -105,6 +141,7 @@ return [
                     'money' => '((US)*\$[,\d\.]+[Kk]*)',
                     'beds' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]edroom|b\/r|[Bb]ed)s?)',
                     'baths' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]athroom|bth|[Bb]ath)s?)',
+                    // whether carved property should remain in source field.
                     '_retain' => true
                 ],
             ],
@@ -112,25 +149,16 @@ return [
             'preprocess' => [
                 // takes a callable
                 // optional third parameter of array if callable method needs an instance
-                'title' => ['App\\Status', 'haha', true],
-                'body' => 'bumbo'
+                'title' => ['App\\Utility', 'prepareTitle', false],
+                'beds' => 'strtolower'
             ],
-            // remap entity attributes to model properties
+            // remap/rename entity attributes to model properties
             'remap' => [
                 'title' => 'name',
                 'body' => 'description'
             ],
             // scraps containing any of these words will be rejected
             'bad_words' => [
-                'car',
-                'bar',
-                'land',
-                'loan',
-                'club',
-                'shop',
-                'sale',
-                'store',
-                'lease',
                 'plaza',
                 'condo',
                 'seeks',
@@ -151,6 +179,32 @@ return [
 
 ```
 
+#### Target Breakdown
+
+The `targets` array is to contain a list of scrapable entities keyed by a unique target identifier. The structure is as follows.
+
+- `model`: Laravel DB model to create from target.
+- `source`: Source URL to scrape.
+- `search`: Search settings. Use if a search is to be performed before target data is shown. (optional)
+    - `keywords`: Array of keywords to search for.
+    - `keyword_input`: Keyword input text markup.
+    - `form_markup`: CSS selector for search form.
+    - `submit_button_text`: The text on the form's submit button.
+- `pager`: Next button CSS selector. To skip to next page.
+- `markup`: Array of attributes to scrape from main list. `[attributeName => CSS selector]`
+    - `_inside`: Sub markup for detail page. Markeup for page which shows when article title is clicked/opened. (optional)
+- `dissect`: Split compound attributes into smaller attributes via REGEX. (optional)
+- `preprocess`: Array of attributes which need to be preprocessed. `[attributeName => callable]` (optional)
+- `remap`: Array of attributes which need to be renamed in order to be saved as target objects. `[attributeName => newName]` (optional)
+- `bad_words`: Any scraps found containing these words will be discarded. (optional)
+
+## Glossary of Terms
+The following words may appear in context above.
+
+- `Daemon`: User instance to be used by the scavenger service.
+- `Scrap`: Scraped data before being converted to the target object.
+- `Target`: Configured source-model mapping for a single entity. 
+- `Target Object`: Eloquent model object to be generated from scrap. 
 
 ## Author
 

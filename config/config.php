@@ -5,7 +5,7 @@ return [
     'debug' => false,
     
     // whther log file should be written
-    'log' => false,
+    'log' => true,
 
     // How much detail is expected in output, 1 being the lowest, 3 being highest.
     'verbosity' => 1,
