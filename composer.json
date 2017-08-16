@@ -2,6 +2,7 @@
     "name": "reliqarts/scavenger",
     "description": "Highly configurable Laravel 5 scraper package.",
     "keywords": ["scraper", "package", "generation", "laravel", "scavenger", "laravel5", "seek", "content", "data" , "web"],
+    "version": "1.0.0",
     "type": "library",
     "license": "MIT",
     "authors": [
