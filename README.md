@@ -32,7 +32,7 @@ Scavenger provides the following features and more out of the box.
     ```js
     "repositories": [
         {
-            "type": "vcs",
+            "type": "path",
             "url": "./packages/laravel-scavenger/"
         }
     ],
