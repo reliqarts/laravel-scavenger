@@ -1,5 +1,8 @@
 # Laravel Scavenger
 
+![Laravel Scavenger](./docs/images/inline-preview.png "Laravel Scavenger")
+
+
 A highly flexible Laravel 5.x scraper package.
 
 ## Top Features
