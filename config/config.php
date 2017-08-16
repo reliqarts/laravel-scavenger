@@ -5,18 +5,15 @@ return [
     'debug' => false,
     
     // whther log file should be written
-    'log' => false,
+    'log' => true,
 
     // How much detail is expected in output, 1 being the lowest, 3 being highest.
     'verbosity' => 1,
 
-    // Set the model to be guided.
+    // Set the database config
     'database' => [
-        // Guided image table.
-        'image_table' => env('SCAVENGER_TABLE', 'images'),
-
-        // Guided imageables table.
-        'imageables_table' => env('SCAVENGERABLES_TABLE', 'imageables'),
+        // Scraps table
+        'scraps_table' => env('SCAVENGER_SCRAPS_TABLE', 'scavenger_scraps'),
     ],
 
     // Daemon config - used to build daemon user
@@ -30,7 +27,7 @@ return [
         // Daemon ID
         'id' => 'daemon@scavenger.reliqarts.com',
 
-        // any additional information required to create a user
+        // Any additional information required to create a user:
         // NB. this is only used when creating a daemon user, there is no "safe" way 
         // to change the daemon's password once he has been created.
         'info' => [

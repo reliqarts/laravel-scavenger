@@ -17,7 +17,7 @@ class Seek extends Command
      */
     protected $signature = 'scavenger:seek 
                             {target? : Target. Optionally specify a single target from list of available targets}
-                            {--w|keywords=? : Comma seperated keywords}
+                            {--w|keywords= : Comma seperated keywords}
                             {--k|keep : Whether to save found scraps}
                             {--c|convert : Whether to convert found scraps to target objects}
                             {--y|y : Whether to skip confirmation}
