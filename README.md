@@ -119,13 +119,12 @@ return [
 
     // Different entities and mapping information
     'targets' => [
-        'articles' => [
-            'model' => 'App\\Article',
-            // example source url
-            'source' => 'http://gleanerclassifieds.com/showads/section/Real+Estate-10100',
+        'rooms' => [
+            'model' => 'App\\Room',
+            'source' => 'http://roomssite.demo.com/showads/section/rooms',
             'search' => [
                 // keywords
-                'keywords' => ['room'],
+                'keywords' => ['school'],
                 // input element name for search term/keyword
                 'keyword_input' => 'keyword',
                 // form markup, used to locate search form
@@ -133,9 +132,7 @@ return [
                 // text on submit button
                 'submit_button_text' => 'Search'
             ],
-            // next link markup
             'pager' => 'div.content #page .pagingnav',
-            // main list markup
             'markup' => [
                 'title' => 'div.content section > table tr h3',
                 // content to be found upon clicking title link
@@ -146,7 +143,7 @@ return [
                     '_focus' => 'section section > .content #ad-detail > article'
                 ],
             ],
-            // split single attributes into multiple attributes based on regex
+            // split single attributes into multiple based on regex
             'dissect' => [
                 'body' => [
                     'email' => '(([eE]mail)*:*\s*\w+\@(\s*\w)*\.(net|com))',
@@ -154,7 +151,6 @@ return [
                     'money' => '((US)*\$[,\d\.]+[Kk]*)',
                     'beds' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]edroom|b\/r|[Bb]ed)s?)',
                     'baths' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]athroom|bth|[Bb]ath)s?)',
-                    // whether carved property should remain in source field.
                     '_retain' => true
                 ],
             ],
@@ -162,16 +158,25 @@ return [
             'preprocess' => [
                 // takes a callable
                 // optional third parameter of array if callable method needs an instance
-                'title' => ['App\\Utility', 'prepareTitle', false],
-                'beds' => 'strtolower'
+                'title' => ['App\\Status', 'foo', true],
+                'body' => 'bar'
             ],
-            // remap/rename entity attributes to model properties
+            // remap entity attributes to model properties
             'remap' => [
                 'title' => 'name',
                 'body' => 'description'
             ],
             // scraps containing any of these words will be rejected
             'bad_words' => [
+                'car',
+                'bar',
+                'land',
+                'loan',
+                'club',
+                'shop',
+                'sale',
+                'store',
+                'lease',
                 'plaza',
                 'condo',
                 'seeks',

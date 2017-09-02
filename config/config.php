@@ -47,12 +47,12 @@ return [
 
     // Different entities and mapping information
     'targets' => [
-        'states' => [
-            'model' => 'App\\Status',
-            'source' => 'http://gleanerclassifieds.com/showads/section/Real+Estate-10100',
+        'rooms' => [
+            'model' => 'App\\Room',
+            'source' => 'http://roomssite.demo.com/showads/section/rooms',
             'search' => [
                 // keywords
-                'keywords' => ['utech'],
+                'keywords' => ['school'],
                 // input element name for search term/keyword
                 'keyword_input' => 'keyword',
                 // form markup, used to locate search form
@@ -86,8 +86,8 @@ return [
             'preprocess' => [
                 // takes a callable
                 // optional third parameter of array if callable method needs an instance
-                'title' => ['App\\Status', 'haha', true],
-                'body' => 'bumbo'
+                'title' => ['App\\Status', 'foo', true],
+                'body' => 'bar'
             ],
             // remap entity attributes to model properties
             'remap' => [
