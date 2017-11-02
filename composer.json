@@ -2,7 +2,7 @@
     "name": "reliqarts/scavenger",
     "description": "Highly configurable Laravel 5 scraper package.",
     "keywords": ["scraper", "package", "generation", "laravel", "scavenger", "laravel5", "seek", "content", "data" , "web"],
-    "version": "1.0.4",
+    "version": "1.0.5-alpha.2",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -25,5 +25,17 @@
         "psr-4": {
             "ReliQArts\\Scavenger\\": "src/"
         }
-    }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ReliQArts\\Scavenger\\ScavengerServiceProvider"
+            ],
+            "aliases": {
+                "ScavengerService": "ReliQArts\\Scavenger\\Services\\Scavenger"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

@@ -4,6 +4,7 @@ namespace ReliQArts\Scavenger\Helpers;
 
 use Hash;
 use Config;
+use ReliQArts\Scavenger\Exceptions\DaemonException;
 
 class CoreHelper
 {
@@ -83,5 +84,29 @@ class CoreHelper
             $info['password'] = Hash::make($infoConfig['password']);
         }
         return $info;
+    }
+
+    /**
+     * Get scavenger daemon (user) instance. Creates daemon if he doesn't exist.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     * @throws \ReliQArts\Scavenger\Exceptions\DaemonException
+     */
+    public static function getDaemon()
+    {        
+        if (!$daemon = self::getDaemonModel()->where(
+                self::getDaemonModelIdProp(), 
+                self::getDaemonModelId())->first()
+            ) {
+            // attempt to create
+            try {
+                $daemon = self::getDaemonModel()->create(self::getDaemonInfo());
+            } catch (PDOException $e) {
+                // fail, could not create daemon user
+                throw new DaemonException('Scavenger daemon does not exist and could not be created. Ensure your database is set up and accessible.');
+            }
+        }
+
+        return $daemon;
     }
 }

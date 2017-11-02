@@ -65,16 +65,15 @@ class Seek extends Command
         $this->comment(PHP_EOL."<info>♣♣♣</info> Scavenger Seek v1.0 \nHelp is here, try: php artisan scavenger:seek --help");
 
         if ($skipConfirmation || $this->confirm("Scavenger will scour a resource for scraps and make model records, performing HTTP, DB and I/O operations. \n Ensure your internet connection is stable. Ready?")) {
-            if (!$daemon = Helper::getDaemonModel()->where(Helper::getDaemonModelIdProp(), Helper::getDaemonModelId())->first()) {
-                // attempt to create
-                try {
-                    $daemon = Helper::getDaemonModel()->create(Helper::getDaemonInfo());
-                    $this->info("♦ Scavenger daemon now lives!\n");
-                } catch (PDOException $e) {
-                    // fail, could not create daemon user
-                    return $this->line(PHP_EOL."<error>✘ Woe there! Scavenger daemon doesn't live in your database and couldn't be created. You sure you know what yer doin'?</error>\n► " . $e->getMessage());
-                }
+            
+            try {
+                // get scavenger daemon
+                $daemon = Helper::getDaemon();
+            } catch (DaemonException $e) {
+                // fail, could not create daemon user
+                return $this->line(PHP_EOL."<error>✘ Woe there! Scavenger daemon doesn't live in your database and couldn't be created. You sure you know what yer doin'?</error>\n► " . $e->getMessage());
             }
+
             // log in as daemon
             auth()->login($daemon);
 

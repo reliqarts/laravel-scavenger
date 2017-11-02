@@ -41,7 +41,7 @@ Scavenger provides the following features and more out of the box.
     ],
     ```
 
-    - Requeire the package.
+    - Require the package.
     ```js
     "require": {
         //...
