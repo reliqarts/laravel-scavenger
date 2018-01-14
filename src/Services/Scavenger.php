@@ -49,7 +49,7 @@ class Scavenger implements SeekerInterface
     /**
      * Event logger.
      *
-     * @var Monolog\Logger
+     * @var \Monolog\Logger
      */
     private $log = null;
 
@@ -84,7 +84,7 @@ class Scavenger implements SeekerInterface
     /**
      * HTTP Client instance.
      *
-     * @var Goute\Client
+     * @var \Goute\Client
      */
     protected $client = null;
 
@@ -98,16 +98,16 @@ class Scavenger implements SeekerInterface
     /**
      * Paraphrase Service instance.
      *
-     * @var App\Contracts\ParaphraseInterface
+     * @var \App\Contracts\ParaphraseInterface
      */
     protected $paraphraserService;
 
     /**
      * Result of operation.
      *
-     * @var ReliQArts\Scavenger\ViewModels\Result
+     * @var \ReliQArts\Scavenger\ViewModels\Result
      */
-    public $result;
+    public $result = null;
 
     /**
      * Create a new seeker.
@@ -155,10 +155,9 @@ class Scavenger implements SeekerInterface
         $scraps = collect([]);
         $data = [];
         $new = 0;
-        
-        $keywords = $keywords ? array_map('trim', 
-            explode(',', $keywords)
-        ) : [];
+
+        // assert keywords
+        $keywords = $keywords ? array_map('trim', explode(',', $keywords)) : [];
 
         if ($target && array_key_exists($target, $targets)) {
             $targets = [$target => $targets[$target]];
@@ -168,6 +167,10 @@ class Scavenger implements SeekerInterface
 
         if (!$result->error) {
             foreach ($targets as $targetName => $currentTarget) {
+                if (!empty($currentTarget['_example']) && $currentTarget['_example']) {
+                    $this->tell("Target `$targetName` is for example purposes. Skipped.");
+                    continue;
+                }
                 // ensure all is well with target
                 try {
                     $currentTarget['model'] = resolve($currentTarget['model']);

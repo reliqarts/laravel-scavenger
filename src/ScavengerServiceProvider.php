@@ -43,13 +43,7 @@ class ScavengerServiceProvider extends ServiceProvider
      */
     protected function handleAssets()
     {
-        $this->publishes([
-            "$this->assetsDir/config/config.php" => config_path('scavenger.php'),
-        ], 'config');
-
-        $this->publishes([
-            "$this->assetsDir/database/migrations/" => database_path('migrations'),
-        ], 'migrations');
+        // ...
     }
 
     /**
@@ -70,6 +64,11 @@ class ScavengerServiceProvider extends ServiceProvider
     {
         // merge config
         $this->mergeConfigFrom("$this->assetsDir/config/config.php", 'scavenger');
+
+        // allow publishing config
+        $this->publishes([
+            "$this->assetsDir/config/config.php" => config_path('scavenger.php'),
+        ], 'scavenger:config');
     }
 
     /**
@@ -79,6 +78,11 @@ class ScavengerServiceProvider extends ServiceProvider
     {
         // Load the migrations...
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
+        // allow publishing of migrations
+        $this->publishes([
+            "$this->assetsDir/database/migrations/" => database_path('migrations'),
+        ], 'scaveneger:migrations');
     }
 
     /**

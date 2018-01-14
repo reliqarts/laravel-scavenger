@@ -45,9 +45,11 @@ return [
         'dir' => env('SCAVENGER_STORAGE_DIR', 'scavenger'),
     ],
 
-    // Different entities and mapping information
+    // different model entities and mapping information
     'targets' => [
+        // NB. the "rooms" target shown below is for example purposes only.
         'rooms' => [
+            '_example' => true,
             'model' => 'App\\Room',
             'source' => 'http://roomssite.demo.com/showads/section/rooms',
             'search' => [
@@ -96,20 +98,6 @@ return [
             ],
             // scraps containing any of these words will be rejected
             'bad_words' => [
-                'car',
-                'bar',
-                'land',
-                'loan',
-                'club',
-                'shop',
-                'sale',
-                'store',
-                'lease',
-                'plaza',
-                'condo',
-                'seeks',
-                'garage',
-                'barber',
                 'office',
                 'company',
                 'mortgage',
