@@ -391,7 +391,6 @@ class Scavenger implements SeekerInterface
      * @param array $markup Target markup.
      * @param array $scrap
      * @param array $target
-     * 
      * @return array
      */
     private function buildScrap(&$crawler, &$markup, &$scrap = [], $target = false)

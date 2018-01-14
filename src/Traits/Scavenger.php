@@ -72,7 +72,6 @@ trait Scavenger
      * @param string $string The string to be scoured.
      * @param array $map Map to use for detail scouring.
      * @param boolean $leaveInString Whether to leave match in source string.
-     * 
      * @return array Details found array.
      */
     protected function carve(&$string, $map = [], $retain = false)
