@@ -107,14 +107,17 @@ trait Scavenger
     {
         $invalid = false;
         $badWords = array_merge($this->badWords, $badWords);
-        $badWordsRegex = '/('.implode(')|(', $badWords).')/i';
 
-        // check for bad words
-        foreach ($scrap as $attr) {
-            if ($attr[0] != '_') {
-                if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
-                    $invalid = true;
-                    break;
+        if (count($badWords)) {
+            $badWordsRegex = '/('.implode(')|(', $badWords).')/i';
+    
+            // check for bad words
+            foreach ($scrap as $attr) {
+                if ($attr[0] != '_') {
+                    if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
+                        $invalid = true;
+                        break;
+                    }
                 }
             }
         }
