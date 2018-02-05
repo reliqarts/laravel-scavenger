@@ -2,6 +2,7 @@
 
 namespace ReliQArts\Scavenger\Console\Commands;
 
+use Exception;
 use PDOException;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -85,12 +86,17 @@ class Seek extends Command
                 $this->info(PHP_EOL.'----------');
                 $this->comment('<info>✔</info> Done. Scavenger daemon now goes to sleep...');
 
-                // Display results
-                $this->line('');
-                $headers = ['Time', 'Scraps Found', 'New', 'Saved?', 'Converted?'];
-                $data = [[$seek->extra->executionTime, $seek->extra->total, $seek->extra->new, $keep ? 'true' : 'false', $convert ? 'true' : 'false']];
-                $this->table($headers, $data);
-                $this->line(PHP_EOL);
+                try {
+                    // Display results
+                    $this->line('');
+                    $headers = ['Time', 'Scraps Found', 'New', 'Saved?', 'Converted?'];
+                    $data = [[$seek->extra->executionTime, $seek->extra->total, $seek->extra->new, $keep ? 'true' : 'false', $convert ? 'true' : 'false']];
+                    $this->table($headers, $data);
+                    $this->line(PHP_EOL);
+                } catch (Exception $ex) {
+                    $this->line(PHP_EOL . "<error>✘</error> Something strange happened at the end there... {$ex->getMessage()}");
+                }
+
             } else {
                 $this->line(PHP_EOL."<error>✘</error> $seek->error");
             }

@@ -1,4 +1,12 @@
 <?php
+/**
+ * Laravel Scavenger Configuration
+ * 
+ * NB: Special keys start with an "_". 
+ * Please refer to the documentation found at http://scavenger.reliqarts.com for more info.
+ * 
+ * Ps. Thank you for choosing Scavenger!
+ */
 
 return [
     // debug mode?
@@ -36,7 +44,7 @@ return [
         ]
     ],
 
-    // Hashing algorithm to use
+    // hashing algorithm to use
     'hash_algorithm' => 'sha512',
 
     // storage
@@ -55,14 +63,24 @@ return [
             'search' => [
                 // keywords
                 'keywords' => ['school'],
-                // input element name for search term/keyword
-                'keyword_input' => 'keyword',
-                // form markup, used to locate search form
-                'form_markup' => 'div.content',
-                // text on submit button
-                'submit_button_text' => 'Search'
+                // form markup
+                'form' => [
+                    // search form selector (important)
+                    'selector' => '#form',
+                    // input element name for search term/keyword
+                    'keyword_input_name' => 'keyword',
+                    // 'submit_button' => [
+                    //     // text on submit button (optional)
+                    //     'text' => 'Search',
+                    //     // submit element id, use if button doesn't have text (optional)
+                    //     'id' => 'submit-search',
+                    // ],
+                ],
             ],
-            'pager' => 'div.content #page .pagingnav',
+            'pager' => [
+                'selector' => 'div.content #page .pagingnav',
+                'text' => '>',
+            ],
             'markup' => [
                 'title' => 'div.content section > table tr h3',
                 // content to be found upon clicking title link

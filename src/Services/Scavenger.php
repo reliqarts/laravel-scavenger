@@ -269,30 +269,54 @@ class Scavenger implements SeekerInterface
 
         // do search if search is enabled for target
         if (!empty($target['search'])) {
-            $searchSetup = &$target['search'];
-            // determine keywords
-            $keywords = !empty($keywords) ? $keywords : $searchSetup['keywords'];
+            // ensure form requirements are set
+            if (empty($target['search']['form']['selector'])) {
+                // form selector
+                $this->tell("[!] aborted - Search is enabled however form selector config is not set! Please set [search][form][selector] for target ({$target['name']}).", 'out');
+            } elseif (empty($target['search']['form']['keyword_input_name'])) {
+                // form keyword input name
+                $this->tell("[!] aborted - Search is enabled however keyword input name is not set! Please set [search][form][keyword_input_name] for target ({$target['name']}).", 'out');
+            } else {
+                $searchSetup = &$target['search'];
+                // determine keywords
+                $keywords = !empty($keywords) ? $keywords : $searchSetup['keywords'];
+                // Grab search form to search for key phrase.
+                $form = $crawler->filter($searchSetup['form']['selector']);
+                $submitBtn = null;
+    
+                // check if submit button was defined
+                if (!empty($searchSetup['form']['submit_button']['id'])) {
+                    $submitBtn = $searchSetup['form']['submit_button']['id'];
+                } elseif (!empty($searchSetup['form']['submit_button']['text'])) {
+                    $submitBtn = $searchSetup['form']['submit_button']['text'];
+                }
+    
+                // grab form
+                if (empty($submitBtn)) {
+                    $form = $form->form();
+                } else {
+                    $form = $form->selectButton($submitBtn)->form();
+                }
+    
+                // Search each phrase/keyword one at a time.
+                foreach ($keywords as $word) {
+                    // set keyword
+                    $form[$searchSetup['form']['keyword_input_name']] = $word;
+    
+                    $this->tell("Search keyword: $word", 'in');
+                    // submit search form
+                    $resultCrawler = $this->client->submit($form);
+                    // scav
+                    $this->scav($resultCrawler, $target, 1, $word);
+                }
 
-            // Search each phrase/keyword one at a time.
-            foreach ($keywords as $word) {
-                // Grab search form and search for key phrase.
-                $form = $crawler->filter($searchSetup['form_markup'])->selectButton($searchSetup['submit_button_text'])->form();
-                $form[$searchSetup['keyword_input']] = $word;
-
-                $this->tell("Search keyword: $word", 'in');
-
-                // submit search form
-                $resultCrawler = $this->client->submit($form);
-
-                // scav
-                $this->scav($resultCrawler, $target, 1, $word);
+                $this->tell("\n", 'none');
             }
         } else {
             // scav
             $this->scav($crawler, $target);
+            $this->tell("\n", 'none');
         }
-
-        $this->tell("\n", 'none');
 
         return $this->scrapsGathered;
     }
@@ -328,7 +352,7 @@ class Scavenger implements SeekerInterface
                 if (!empty($markup['_inside'])) {
                     $crawler
                         ->filter($markup['title_link'])
-                        ->each(function ($titleLinkCrawler) use (&$client, &$totalFound, &$scrapsGathered, $backOff, $markup) {
+                        ->each(function ($titleLinkCrawler) use (&$client, &$totalFound, &$scrapsGathered, &$log, $backOff, $markup) {
                             $totalFound++;
                             $titleLinkText = $this->cleanText($titleLinkCrawler->text());
 
@@ -364,20 +388,25 @@ class Scavenger implements SeekerInterface
                     $scrap = $this->buildScrap($crawler, $markup);
                 }
                 
-                
-                // Look for next page.
-                // An InvalidArgumentException may be thrown if a 'next' link does not exist.
-                try {
-                    // Find next link
-                    $nextLink = $crawler->filter($target['pager'])->selectLink('>')->Link();
-                    // Click it!
-                    $crawler = $client->click($nextLink);
-                } catch (InvalidArgumentException $e) {
-                    // Next link doesn't exist
+                if (empty($target['pager']['selector']) || empty($target['pager']['text'])) {
                     $crawler = false;
+                } else {
+                    // Look for next page.
+                    // An InvalidArgumentException may be thrown if a 'next' link does not exist.
+                    try {
+                        // Select pager
+                        $pager = $crawler->filter($target['pager']['selector']);
+                        // Grab pager/next link
+                        $nextLink = $pager->selectLink($target['pager']['text'])->Link();
+                        // Click it!
+                        $crawler = $client->click($nextLink);
+                    } catch (InvalidArgumentException $e) {
+                        // Next link doesn't exist
+                        $crawler = false;
+                    }
+                    
+                    $page++;
                 }
-
-                $page++;
             } while ($crawler); // Crawler died...
         } else {
             $result->error = "Missing title link in configuration for target `{$target['name']}`.";

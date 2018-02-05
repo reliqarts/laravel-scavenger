@@ -118,21 +118,34 @@ return [
     ],
 
     // Different entities and mapping information
+    // different model entities and mapping information
     'targets' => [
+        // NB. the "rooms" target shown below is for example purposes only.
         'rooms' => [
+            '_example' => true,
             'model' => 'App\\Room',
             'source' => 'http://roomssite.demo.com/showads/section/rooms',
             'search' => [
                 // keywords
                 'keywords' => ['school'],
-                // input element name for search term/keyword
-                'keyword_input' => 'keyword',
-                // form markup, used to locate search form
-                'form_markup' => 'div.content',
-                // text on submit button
-                'submit_button_text' => 'Search'
+                // form markup
+                'form' => [
+                    // search form selector (important)
+                    'selector' => '#form',
+                    // input element name for search term/keyword
+                    'keyword_input_name' => 'keyword',
+                    // 'submit_button' => [
+                    //     // text on submit button (optional)
+                    //     'text' => 'Search',
+                    //     // submit element id, use if button doesn't have text (optional)
+                    //     'id' => 'submit-search',
+                    // ],
+                ],
             ],
-            'pager' => 'div.content #page .pagingnav',
+            'pager' => [
+                'selector' => 'div.content #page .pagingnav',
+                'text' => '>',
+            ],
             'markup' => [
                 'title' => 'div.content section > table tr h3',
                 // content to be found upon clicking title link
@@ -168,20 +181,6 @@ return [
             ],
             // scraps containing any of these words will be rejected
             'bad_words' => [
-                'car',
-                'bar',
-                'land',
-                'loan',
-                'club',
-                'shop',
-                'sale',
-                'store',
-                'lease',
-                'plaza',
-                'condo',
-                'seeks',
-                'garage',
-                'barber',
                 'office',
                 'company',
                 'mortgage',
