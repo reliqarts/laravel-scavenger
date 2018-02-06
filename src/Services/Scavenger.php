@@ -185,8 +185,14 @@ class Scavenger implements SeekerInterface
 
                 // all is well, proceed...
                 $currentTarget['name'] = $targetName;
-                $targetScraps = $this->crawl($currentTarget, $keywords, $backOff);
-                $scraps = $scraps->merge($targetScraps);
+
+                try {
+                    $targetScraps = $this->crawl($currentTarget, $keywords, $backOff);
+                    $scraps = $scraps->merge($targetScraps);
+                } catch (Exception $e) {
+                    $this->tell("[!] exception - Target `$targetName` resulted in exception: ".$e->getMessage(), 'out');
+                    $this->tell('Please check target configuration.', 'out');
+                }
             }
         }
 
@@ -276,6 +282,9 @@ class Scavenger implements SeekerInterface
             } elseif (empty($target['search']['form']['keyword_input_name'])) {
                 // form keyword input name
                 $this->tell("[!] aborted - Search is enabled however keyword input name is not set! Please set [search][form][keyword_input_name] for target ({$target['name']}).", 'out');
+            } elseif (empty($keywords) && empty($target['search']['keywords'])) {
+                // search keyword list empty
+                $this->tell("[!] aborted - Search keywords not set! Please set [search][keywords] for target ({$target['name']}).", 'out');
             } else {
                 $searchSetup = &$target['search'];
                 // determine keywords

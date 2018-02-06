@@ -78,7 +78,9 @@ return [
                 ],
             ],
             'pager' => [
+                // link (a tag) selector
                 'selector' => 'div.content #page .pagingnav',
+                // link (or element within link text)
                 'text' => '>',
             ],
             'markup' => [
