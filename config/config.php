@@ -2,7 +2,7 @@
 /**
  * Laravel Scavenger Configuration
  * 
- * NB: Special keys start with an "_". 
+ * NB: Special keys start with an "__". 
  * Please refer to the documentation found at http://scavenger.reliqarts.com for more info.
  * 
  * Ps. Thank you for choosing Scavenger!
@@ -57,7 +57,7 @@ return [
     'targets' => [
         // NB. the "rooms" target shown below is for example purposes only.
         'rooms' => [
-            '_example' => true,
+            'example' => true,
             'model' => 'App\\Room',
             'source' => 'http://roomssite.demo.com/showads/section/rooms',
             'search' => [
@@ -69,12 +69,12 @@ return [
                     'selector' => '#form',
                     // input element name for search term/keyword
                     'keyword_input_name' => 'keyword',
-                    // 'submit_button' => [
-                    //     // text on submit button (optional)
-                    //     'text' => 'Search',
-                    //     // submit element id, use if button doesn't have text (optional)
-                    //     'id' => 'submit-search',
-                    // ],
+                    'submit_button' => [
+                        // text on submit button (optional)
+                        'text' => null,
+                        // submit element id, use if button doesn't have text (optional)
+                        'id' => null,
+                    ],
                 ],
             ],
             'pager' => [
@@ -85,13 +85,15 @@ return [
             ],
             'markup' => [
                 'title' => 'div.content section > table tr h3',
-                // content to be found upon clicking title link
-                '_inside' => [
+                // inside: content to be found upon clicking title link
+                '__inside' => [
                     'title' => '#ad-title > h1 > a',
                     'body' => 'article .adcontent > p[align="LEFT"]:last-of-type',
-                    // focus detail on the following section
-                    '_focus' => 'section section > .content #ad-detail > article'
+                    // focus: focus detail on the following section
+                    '__focus' => 'section section > .content #ad-detail > article'
                 ],
+                // wrapper: wrapping selector for each item on single page. If inside special key is set this key becomes invalid (i.e. inside takes preference)
+                '__wrapper' => null,
             ],
             // split single attributes into multiple based on regex
             'dissect' => [
@@ -101,30 +103,25 @@ return [
                     'money' => '((US)*\$[,\d\.]+[Kk]*)',
                     'beds' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]edroom|b\/r|[Bb]ed)s?)',
                     'baths' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]athroom|bth|[Bb]ath)s?)',
-                    '_retain' => true
+                    // retain:  whether details should be left in source attribute after extraction
+                    '__retain' => true,
                 ],
             ],
             // modify attributes by calling functions
             'preprocess' => [
-                // takes a callable
+                // takes a callable 
                 // optional third parameter of array if callable method needs an instance
-                'title' => ['App\\Status', 'foo', true],
-                'body' => 'bar'
+                // e.g. ['App\\Item', 'foo', true] or 'bar'
+                'title' => null,
             ],
-            // remap entity attributes to model properties
+            // remap entity attributes to model properties (optional)
             'remap' => [
-                'title' => 'name',
-                'body' => 'description'
+                'title' => null,
+                'body' => null,
             ],
-            // scraps containing any of these words will be rejected
+            // scraps containing any of these words will be rejected (optional)
             'bad_words' => [
                 'office',
-                'company',
-                'mortgage',
-                'business',
-                'wholesale',
-                'commercial',
-                'short term',
             ],
         ],
     ],

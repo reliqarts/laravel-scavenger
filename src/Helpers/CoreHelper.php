@@ -9,6 +9,11 @@ use ReliQArts\Scavenger\Exceptions\DaemonException;
 class CoreHelper
 {
     /**
+     * Directive used for special keys in config.
+     */
+    public const SPECIAL_KEY_PREFIX = '__';
+
+    /**
      * Get config.
      * 
      * @return array
@@ -108,5 +113,31 @@ class CoreHelper
         }
 
         return $daemon;
+    }
+
+    /**
+     * Convert config key name to special key.
+     *
+     * @param string $keyName
+     * @return mixed
+     */
+    public static function specialKey($keyName)
+    {
+        if (!empty($keyName)) {
+            $keyName = self::SPECIAL_KEY_PREFIX . $keyName;
+        }
+
+        return $keyName;
+    }
+
+    /**
+     * Check if key name is config key/special key name.
+     *
+     * @param string $keyName
+     * @return bool
+     */
+    public static function isSpecialKey($keyName)
+    {
+        return (strpos($keyName, self::SPECIAL_KEY_PREFIX) === 0);
     }
 }

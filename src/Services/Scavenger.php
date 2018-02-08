@@ -14,7 +14,7 @@ use ReliQArts\Scavenger\Models\Scrap;
 use GuzzleHttp\Client as GuzzleClient;
 use ReliQArts\Scavenger\Traits\Timeable;
 use ReliQArts\Scavenger\ViewModels\Result;
-use ReliQArts\Scavenger\Helpers\CoreHelper as Helper;
+use ReliQArts\Scavenger\Helpers\CoreHelper as H;
 use ReliQArts\Scavenger\Traits\Scavenger as ScavengerTrait;
 use ReliQArts\Scavenger\Contracts\Seeker as SeekerInterface;
 use ReliQArts\Scavenger\Services\Paraphraser as ParaphraserService;
@@ -116,7 +116,7 @@ class Scavenger implements SeekerInterface
      */
     public function __construct()
     {
-        $this->config = Helper::getConfig();
+        $this->config = H::getConfig();
         $this->targets = $this->config['targets'];
         $this->client = new Client();
         $this->client->setClient(new GuzzleClient($this->guzzleSettings));
@@ -167,7 +167,7 @@ class Scavenger implements SeekerInterface
 
         if (!$result->error) {
             foreach ($targets as $targetName => $currentTarget) {
-                if (!empty($currentTarget['_example']) && $currentTarget['_example']) {
+                if (!empty($currentTarget['example']) && $currentTarget['example']) {
                     $this->tell("Target `$targetName` is for example purposes. Skipped.");
                     continue;
                 }
@@ -200,21 +200,21 @@ class Scavenger implements SeekerInterface
         if ($scraps->count() && $keep) {
             $related = [];
             $scraps->each(function ($psuedoScrap, $key) use (&$new, $convert, &$related) {
-                if ($scrap = Scrap::whereHash($psuedoScrap['_id'])->first()) {
+                if ($scrap = Scrap::whereHash($psuedoScrap[H::specialKey('id')])->first()) {
                     // scrap found
                 } else {
                     $new++;
                     $scrap = new Scrap();
                     $scrapData = [];
                     foreach ($psuedoScrap as $attr => $val) {
-                        if ($attr[0] != '_') {
+                        if (!H::isSpecialKey($attr)) {
                             $scrapData[$attr] = $val;
                         }
                     }
                     // build scrap info
-                    $scrap->hash = $psuedoScrap['_id'];
-                    $scrap->model = $psuedoScrap['_model'];
-                    $scrap->source = $psuedoScrap['_source'];
+                    $scrap->hash = $psuedoScrap[H::specialKey('id')];
+                    $scrap->model = $psuedoScrap[H::specialKey('model')];
+                    $scrap->source = $psuedoScrap[H::specialKey('source')];
                     $scrap->data = json_encode($scrapData);
                     // attempt to guess a title
                     $scrap->title = !empty($scrapData['title']) ? $scrapData['title'] : (!empty($scrapData['name']) ? $scrapData['name'] : null);
@@ -358,7 +358,7 @@ class Scavenger implements SeekerInterface
                 $this->tell("\nProcessing page $page" . ($word ? " in $word:" : ":"), 'none');
 
                 // Get scraps.
-                if (!empty($markup['_inside'])) {
+                if (!empty($markup[H::specialKey('inside')])) {
                     $crawler
                         ->filter($markup['title_link'])
                         ->each(function ($titleLinkCrawler) use (&$client, &$totalFound, &$scrapsGathered, &$log, $backOff, $markup) {
@@ -380,15 +380,15 @@ class Scavenger implements SeekerInterface
                             $detailCrawler = $client->click($scrapLink);
 
                             // focus detail crawler on section if specified
-                            if (!empty($markup['_inside']['_focus'])) {
-                                $detailCrawler = $detailCrawler->filter($markup['_inside']['_focus']);
+                            if (!empty($markup[H::specialKey('inside')][H::specialKey('focus')])) {
+                                $detailCrawler = $detailCrawler->filter($markup[H::specialKey('inside')][H::specialKey('focus')]);
                             }
 
                             // build the scrap...
                             $scrap = [];
                             $scrap['title'] = $titleLinkText;
-                            $scrap['_source'] = $scrapLink->getUri();
-                            $scrap = $this->buildScrap($detailCrawler, $markup['_inside'], $scrap);
+                            $scrap[H::specialKey('source')] = $scrapLink->getUri();
+                            $scrap = $this->buildScrap($detailCrawler, $markup[H::specialKey('inside')], $scrap);
 
                             // backoff
                             sleep($backOff);
@@ -441,7 +441,7 @@ class Scavenger implements SeekerInterface
 
         // build initial scrap from markup and dissect
         foreach ($markup as $attr => $path) {
-            if ($attr[0] != '_') {
+            if (!H::isSpecialKey($attr)) {
                 $scrap[$attr] = $this->cleanText($crawler->filter($path)->text());
                 
                 // split single attributes into multiple based on regex
@@ -450,8 +450,8 @@ class Scavenger implements SeekerInterface
 
                     // check _retain meta property 
                     // to determine whether details should be left in source attribute after extraction
-                    $retain = empty($dissectMap['_retain']) ? false : $dissectMap['_retain'];
-                    unset($dissectMap['_retain']);
+                    $retain = empty($dissectMap[H::specialKey('retain')]) ? false : $dissectMap[H::specialKey('retain')];
+                    unset($dissectMap[H::specialKey('retain')]);
                     
                     // Extract details into scrap
                     $scrap = array_merge($scrap, $this->carve($scrap[$attr], $dissectMap, $retain));
@@ -497,11 +497,11 @@ class Scavenger implements SeekerInterface
         } 
 
         // build scrap pre identifier
-        $scrap['_model'] = get_class($target['model']);
-        $scrap['_id'] = hash($this->hashAlgo, json_encode($scrap));
+        $scrap[H::specialKey('model')] = get_class($target['model']);
+        $scrap[H::specialKey('id')] = hash($this->hashAlgo, json_encode($scrap));
         // affirm link
-        if (empty($scrap['_source'])) {
-            $scrap['_source'] = $this->client->getRequest()->getUri();
+        if (empty($scrap[H::specialKey('source')])) {
+            $scrap[H::specialKey('source')] = $this->client->getRequest()->getUri();
         }
 
         // check for bad words
@@ -515,7 +515,8 @@ class Scavenger implements SeekerInterface
             return false;
         }
 
-        $this->tell("Scrap gathered: {$scrap['_id']}" . ($this->verbosity >= 3 ? "-- " . json_encode($scrap) : null));
-        return $this->scrapsGathered[$scrap['_id']] = $scrap;
+        $this->tell("Scrap gathered: {$scrap[H::specialKey('id')]}" . ($this->verbosity >= 3 ? "-- " . json_encode($scrap) : null));
+        
+        return $this->scrapsGathered[$scrap[H::specialKey('id')]] = $scrap;
     }
 }

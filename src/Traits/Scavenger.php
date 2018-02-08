@@ -6,6 +6,7 @@ use App;
 use Log;
 use Exception;
 use Carbon\Carbon;
+use ReliQArts\Scavenger\Helpers\CoreHelper as Helper;
 
 /**
  * Scavenger trait.
@@ -113,7 +114,7 @@ trait Scavenger
     
             // check for bad words
             foreach ($scrap as $attr) {
-                if ($attr[0] != '_') {
+                if (!Helper::isSpecialKey($attr)) {
                     if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
                         $invalid = true;
                         break;
@@ -150,6 +151,7 @@ trait Scavenger
         } else {
             print "$nl$dirSymbol$text";
         }
+
         return $text;
     }
 }
