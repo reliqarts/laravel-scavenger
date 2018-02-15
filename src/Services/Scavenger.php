@@ -14,6 +14,7 @@ use ReliQArts\Scavenger\Models\Scrap;
 use GuzzleHttp\Client as GuzzleClient;
 use ReliQArts\Scavenger\Traits\Timeable;
 use ReliQArts\Scavenger\ViewModels\Result;
+use Symfony\Component\DomCrawler\Form as Form;
 use ReliQArts\Scavenger\Helpers\CoreHelper as H;
 use ReliQArts\Scavenger\Traits\Scavenger as ScavengerTrait;
 use ReliQArts\Scavenger\Contracts\Seeker as SeekerInterface;
@@ -29,6 +30,13 @@ class Scavenger implements SeekerInterface
      * @var array
      */
     private $config = null;
+
+    /**
+     * Current page.
+     *
+     * @var int
+     */
+    private $page = 1;
 
     /**
      * Current loaded target configurations.
@@ -63,14 +71,21 @@ class Scavenger implements SeekerInterface
     /**
      * Wait time between each scrape.
      *
-     * @var integer
+     * @var int
      */
     protected $backOff = 0;
 
     /**
+     * Max. number of pages to scrape.
+     *
+     * @var int
+     */
+    protected $pageLimit = 0;
+
+    /**
      * Total amount of scraps found.
      *
-     * @var integer
+     * @var int
      */
     protected $totalFound = 0;
 
@@ -144,9 +159,10 @@ class Scavenger implements SeekerInterface
     /**
      * {@inheritdoc}
      */
-    public function seek($target = null, $keep = true, $keywords = null, $convert = true, $backOff = 3, &$callingCommand = null)
+    public function seek($target = null, $keep = true, $keywords = null, $convert = true, $backOff = 3, $pageLimit = 0, &$callingCommand = null)
     {
         $this->callingCommand = $callingCommand;
+        $this->pageLimit = $pageLimit;
         $result = &$this->result;
         $startTime = microtime(true);
         $config = $this->config;
@@ -171,6 +187,7 @@ class Scavenger implements SeekerInterface
                     $this->tell("Target `$targetName` is for example purposes. Skipped.");
                     continue;
                 }
+
                 // ensure all is well with target
                 try {
                     $currentTarget['model'] = resolve($currentTarget['model']);
@@ -181,6 +198,11 @@ class Scavenger implements SeekerInterface
                 } catch (ReflectionException $e) {
                     $result->error = "Could not find model for target `$targetName`. {$e->getMessage()}";
                     break;
+                }
+                
+                // finalize page limit
+                if (empty($pageLimit) && is_numeric($currentTarget['pages'])) {
+                    $this->pageLimit = (int) $currentTarget['pages'];
                 }
 
                 // all is well, proceed...
@@ -193,6 +215,9 @@ class Scavenger implements SeekerInterface
                     $this->tell("[!] exception - Target `$targetName` resulted in exception: ".$e->getMessage(), 'out');
                     $this->tell('Please check target configuration.', 'out');
                 }
+
+                // reset page limit
+                $this->pageLimit = $pageLimit;
             }
         }
 
@@ -205,12 +230,7 @@ class Scavenger implements SeekerInterface
                 } else {
                     $new++;
                     $scrap = new Scrap();
-                    $scrapData = [];
-                    foreach ($psuedoScrap as $attr => $val) {
-                        if (!H::isSpecialKey($attr)) {
-                            $scrapData[$attr] = $val;
-                        }
-                    }
+                    $scrapData = $psuedoScrap;
                     // build scrap info
                     $scrap->hash = $psuedoScrap[H::specialKey('id')];
                     $scrap->model = $psuedoScrap[H::specialKey('model')];
@@ -299,24 +319,32 @@ class Scavenger implements SeekerInterface
                 } elseif (!empty($searchSetup['form']['submit_button']['text'])) {
                     $submitBtn = $searchSetup['form']['submit_button']['text'];
                 }
-    
-                // grab form
-                if (empty($submitBtn)) {
-                    $form = $form->form();
-                } else {
-                    $form = $form->selectButton($submitBtn)->form();
+                
+                try {
+                    // grab form
+                    if (empty($submitBtn)) {
+                        $form = $form->form();
+                    } else {
+                        $form = $form->selectButton($submitBtn)->form();
+                    }
+                } catch (InvalidArgumentException $e) {
+                    $log->error($e);
                 }
     
-                // Search each phrase/keyword one at a time.
-                foreach ($keywords as $word) {
-                    // set keyword
-                    $form[$searchSetup['form']['keyword_input_name']] = $word;
-    
-                    $this->tell("Search keyword: $word", 'in');
-                    // submit search form
-                    $resultCrawler = $this->client->submit($form);
-                    // scav
-                    $this->scav($resultCrawler, $target, 1, $word);
+                if ($form instanceof Form) {
+                    // Search each phrase/keyword one at a time.
+                    foreach ($keywords as $word) {
+                        // set keyword
+                        $form[$searchSetup['form']['keyword_input_name']] = $word;
+        
+                        $this->tell("Search keyword: $word", 'in');
+                        // submit search form
+                        $resultCrawler = $this->client->submit($form);
+                        // scav
+                        $this->scav($resultCrawler, $target, $word);
+                    }
+                } else {
+                    $this->tell("Could not retrieve form. Please check target configuration.");
                 }
 
                 $this->tell("\n", 'none');
@@ -335,22 +363,34 @@ class Scavenger implements SeekerInterface
      *
      * @param Symfony\Component\DomCrawler\Crawler $crawler
      * @param array $target Target resource.
-     * @param integer $page Current page.
      * @param mixed $word Current keyword, if any.
      * @return void
      */
-    private function scav(&$crawler, &$target, $page = 1, $word = false)
+    private function scav(&$crawler, &$target, $word = false)
     {
         $log = &$this->log;
+        $page = &$this->page;
         $client = &$this->client;
         $result = &$this->result;
         $backOff = &$this->backOff;
+        $pageLimit = &$this->pageLimit;
         $totalFound = &$this->totalFound;
         $scrapsGathered = &$this->scrapsGathered;
 
         // finalize scraping markup
         $markup = $target['markup'];
-        $markup['title_link'] = !empty($markup['link']) ? $markup['link'] : $markup['title'];
+        // determine title link
+        $markup['title_link'] = (!(empty($markup['link']) || H::isSpecialKey($markup['link']))) ? $markup['link'] : $markup['title'];
+
+        // determine what item wrapper is
+        if (empty($markup[H::specialKey('item_wrapper')])) {
+            // find first non-empty value from possible keys
+            $markup[H::specialKey('item_wrapper')] = $this->firstNonEmpty($markup, [
+                H::specialKey('result'),
+                H::specialKey('item'),
+                H::specialKey('wrapper'),
+            ]);
+        }
 
         if (!empty($markup['title_link'])) {
             // Page by page we go...
@@ -359,6 +399,7 @@ class Scavenger implements SeekerInterface
 
                 // Get scraps.
                 if (!empty($markup[H::specialKey('inside')])) {
+                    // scrape each by carving the insides
                     $crawler
                         ->filter($markup['title_link'])
                         ->each(function ($titleLinkCrawler) use (&$client, &$totalFound, &$scrapsGathered, &$log, $backOff, $markup) {
@@ -389,15 +430,37 @@ class Scavenger implements SeekerInterface
                             $scrap['title'] = $titleLinkText;
                             $scrap[H::specialKey('source')] = $scrapLink->getUri();
                             $scrap = $this->buildScrap($detailCrawler, $markup[H::specialKey('inside')], $scrap);
-
-                            // backoff
-                            sleep($backOff);
                         });
-                } else {
-                    $scrap = $this->buildScrap($crawler, $markup);
+                } elseif (!empty($markup[H::specialKey('item_wrapper')])) {
+                    // scrape each by wrapper, ideal for scraping a single list, e.g. SERP
+                    $crawler
+                        ->filter($markup[H::specialKey('item_wrapper')])
+                        ->each(function ($resultCrawler) use (&$client, &$totalFound, &$scrapsGathered, &$log, $backOff, $markup) {
+                            $totalFound++;
+                            $titleLinkCrawler = $resultCrawler->filter($markup['title_link']);
+                            $titleLinkText = $this->cleanText($titleLinkCrawler->text());
+                            
+                            // Print to output
+                            $this->tell("{$titleLinkText}", 'flat');
+                            
+                            try {
+                                $resultLink = $titleLinkCrawler->selectLink($titleLinkText)->link();
+                            } catch (InvalidArgumentException $e) {
+                                $this->tell("No link found for result : {$titleLinkText}");
+                                $log->error($e);
+
+                                return;
+                            }
+
+                            // build the scrap...
+                            $scrap = [];
+                            $scrap['title'] = $titleLinkText;
+                            $scrap[H::specialKey('link')] = $resultLink->getUri();
+                            $scrap = $this->buildScrap($resultCrawler, $markup, $scrap);
+                        });
                 }
                 
-                if (empty($target['pager']['selector']) || empty($target['pager']['text'])) {
+                if ($page >= $pageLimit || empty($target['pager']['selector']) || empty($target['pager']['text'])) {
                     $crawler = false;
                 } else {
                     // Look for next page.
@@ -416,6 +479,9 @@ class Scavenger implements SeekerInterface
                     
                     $page++;
                 }
+
+                // backoff
+                sleep($backOff);
             } while ($crawler); // Crawler died...
         } else {
             $result->error = "Missing title link in configuration for target `{$target['name']}`.";
@@ -439,25 +505,37 @@ class Scavenger implements SeekerInterface
             $target = $this->currentTarget;
         }
 
+        // initialize scrap
+        $this->initializeScrap($scrap, $target);
+
         // build initial scrap from markup and dissect
         foreach ($markup as $attr => $path) {
-            if (!H::isSpecialKey($attr)) {
-                $scrap[$attr] = $this->cleanText($crawler->filter($path)->text());
-                
-                // split single attributes into multiple based on regex
-                if (!empty($target['dissect'][$attr])) {
-                    $dissectMap = $target['dissect'][$attr];
-
-                    // check _retain meta property 
-                    // to determine whether details should be left in source attribute after extraction
-                    $retain = empty($dissectMap[H::specialKey('retain')]) ? false : $dissectMap[H::specialKey('retain')];
-                    unset($dissectMap[H::specialKey('retain')]);
+            if (H::isSpecialKey($path)) {
+                // path is special key, use special key value from scrap
+                $scrap[$attr] = !empty($scrap[$path]) ? $scrap[$path] : '!#ERR - S.Key not valid!';
+            } elseif (!H::isSpecialKey($attr)) {
+                try {
+                    $scrap[$attr] = $this->cleanText($crawler->filter($path)->text());
                     
-                    // Extract details into scrap
-                    $scrap = array_merge($scrap, $this->carve($scrap[$attr], $dissectMap, $retain));
+                    // split single attributes into multiple based on regex
+                    if (!empty($target['dissect'][$attr])) {
+                        $dissectMap = $target['dissect'][$attr];
 
-                    // unset dissectMap
-                    unset($dissectMap);
+                        // check _retain meta property 
+                        // to determine whether details should be left in source attribute after extraction
+                        $retain = empty($dissectMap[H::specialKey('retain')]) ? false : $dissectMap[H::specialKey('retain')];
+                        unset($dissectMap[H::specialKey('retain')]);
+                        
+                        // Extract details into scrap
+                        $scrap = array_merge($scrap, $this->carve($scrap[$attr], $dissectMap, $retain));
+
+                        // unset dissectMap
+                        unset($dissectMap);
+                    }
+                } catch (InvalidArgumentException $e) {
+                    $exMessage = "[!] Exception thrown for attribute '{$attr}' on target '{$target['name']}': {$e->getMessage()}";
+                    $this->tell($exMessage);
+                    $log->warning($exMessage, [$markup[$attr]]);
                 }
             }
             unset($path);
@@ -494,14 +572,6 @@ class Scavenger implements SeekerInterface
                 $scrap[$newAttrName] = !empty($scrap[$attr]) ? $scrap[$attr] : null;
                 unset($scrap[$attr], $newAttrName);
             }
-        } 
-
-        // build scrap pre identifier
-        $scrap[H::specialKey('model')] = get_class($target['model']);
-        $scrap[H::specialKey('id')] = hash($this->hashAlgo, json_encode($scrap));
-        // affirm link
-        if (empty($scrap[H::specialKey('source')])) {
-            $scrap[H::specialKey('source')] = $this->client->getRequest()->getUri();
         }
 
         // check for bad words
@@ -515,8 +585,48 @@ class Scavenger implements SeekerInterface
             return false;
         }
 
+        // make it pretty
+        $this->finalizeScrap($scrap, $target);
+
         $this->tell("Scrap gathered: {$scrap[H::specialKey('id')]}" . ($this->verbosity >= 3 ? "-- " . json_encode($scrap) : null));
         
         return $this->scrapsGathered[$scrap[H::specialKey('id')]] = $scrap;
+    }
+
+    /**
+     * Initialize scrap.
+     *
+     * @param array $scrap Scrap reference.
+     * @param array $target Target reference.
+     * @return void
+     */
+    private function initializeScrap(array &$scrap, array &$target)
+    {
+        $clientLocation = $this->client->getRequest()->getUri();
+        
+        $scrap[H::specialKey('page')] = $this->page;
+        $scrap[H::specialKey('position')] = $this->totalFound;
+        $scrap[H::specialKey('model')] = get_class($target['model']);
+        
+        // affirm link
+        if (empty($scrap[H::specialKey('link')])) {
+            $scrap[H::specialKey('link')] = $clientLocation;
+        }
+        if (empty($scrap[H::specialKey('source')])) {
+            $scrap[H::specialKey('source')] = $clientLocation;
+        }
+    }
+
+    /**
+     * Finalize scrap.
+     *
+     * @param array $scrap Scrap reference.
+     * @param array $target Target reference.
+     * @return void
+     */
+    private function finalizeScrap(array &$scrap, array &$target)
+    {
+        $scrap[H::specialKey('id')] = hash($this->hashAlgo, json_encode($scrap));
+        ksort($scrap);
     }
 }

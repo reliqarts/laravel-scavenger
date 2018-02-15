@@ -17,12 +17,13 @@ class Seek extends Command
      * @var string
      */
     protected $signature = 'scavenger:seek 
-                            {target? : Target. Optionally specify a single target from list of available targets}
+                            {target? : Optionally specify a single target from list of available targets}
                             {--w|keywords= : Comma seperated keywords}
                             {--k|keep : Whether to save found scraps}
                             {--c|convert : Whether to convert found scraps to target objects}
                             {--y|y : Whether to skip confirmation}
                             {--b|backoff=0 : Wait time after each scrape}
+                            {--p|pages=2 : Max. number of pages to scrape}
                             ';
 
     /**
@@ -61,6 +62,7 @@ class Seek extends Command
         $keywords = $this->option('keywords');
         $skipConfirmation = $this->option('y');
         $backOff = (int) $this->option('backoff');
+        $pageLimit = (int) $this->option('pages');
         $convert = $this->option('convert');
 
         $this->comment(PHP_EOL."<info>♣♣♣</info> Scavenger Seek v1.0 \nHelp is here, try: php artisan scavenger:seek --help");
@@ -81,7 +83,7 @@ class Seek extends Command
             $this->info("Scavenger is seeking. Output is shown below.\nT: ".Carbon::now()->toCookieString()."\n----------");
 
             // Seek
-            $seek = $this->seeker->seek($target, $keep, $keywords, $convert, $backOff, $this);
+            $seek = $this->seeker->seek($target, $keep, $keywords, $convert, $backOff, $pageLimit, $this);
             if ($seek->success) {
                 $this->info(PHP_EOL.'----------');
                 $this->comment('<info>✔</info> Done. Scavenger daemon now goes to sleep...');

@@ -83,6 +83,9 @@ return [
                 // link (or element within link text)
                 'text' => '>',
             ],
+            // max. number of pages to scrape (0 is unlimited)
+            'pages' => 0,
+            // content markup: actual data to be scraped
             'markup' => [
                 'title' => 'div.content section > table tr h3',
                 // inside: content to be found upon clicking title link
@@ -92,8 +95,8 @@ return [
                     // focus: focus detail on the following section
                     '__focus' => 'section section > .content #ad-detail > article'
                 ],
-                // wrapper: wrapping selector for each item on single page. If inside special key is set this key becomes invalid (i.e. inside takes preference)
-                '__wrapper' => null,
+                // wrapper/item/result: wrapping selector for each item on single page. If inside special key is set this key becomes invalid (i.e. inside takes preference)
+                '__result' => null,
             ],
             // split single attributes into multiple based on regex
             'dissect' => [

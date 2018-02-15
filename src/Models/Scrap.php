@@ -5,7 +5,6 @@ namespace ReliQArts\Scavenger\Models;
 use Schema;
 use Illuminate\Database\Eloquent\Model;
 use ReliQArts\Scavenger\Helpers\SchemaHelper;
-
 /**
  *  Scavenger Scrap model.
  */
@@ -47,7 +46,7 @@ class Scrap extends Model
                 // Fill model data with scrap data if attributes exist
                 foreach (json_decode($this->data, true) as $attr => $val) {
                     $targetTable = $targetObject->getTable();
-                    if (Schema::hasColumn($targetTable, $attr)) {
+                    if (!SchemaHelper::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
                         $targetObject->{$attr} = $val;
                     }
                 }

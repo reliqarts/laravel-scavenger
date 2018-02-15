@@ -98,6 +98,37 @@ trait Scavenger
     }
 
     /**
+     * Searches array for needles. The first one found is returned.
+     * If needles aren't supplied the first non-empty item in array is returned.
+     *
+     * @param array $haystack Array to search.
+     * @param array $needles Optional list of items to check for.
+     * @return mixed
+     */
+    protected function firstNonEmpty(array &$haystack, array $needles = [])
+    {
+        $found = false;
+
+        if (!empty($needles)) {
+            foreach ($needles as $value) {
+                if(!empty($haystack[$value])) {
+                    $found = $haystack[$value];
+                    break;
+                }
+            }
+        } else {
+            foreach ($haystack as $value) {
+                if (!empty($value)) {
+                    $found = $value;
+                    break;
+                }
+            }
+        }
+
+        return $found;
+    }
+
+    /**
      * Determine whether a scrap is has bad words and therefore is unwanted.
      *
      * @param array $scrap
