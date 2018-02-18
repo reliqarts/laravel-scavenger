@@ -55,14 +55,15 @@ return [
 
     // different model entities and mapping information
     'targets' => [
-        // NB. the "rooms" target shown below is for example purposes only.
+        // NB. the "rooms" target shown below is for example purposes only. It has all posible keys explicitly.
         'rooms' => [
             'example' => true,
+            'serp' => false,
             'model' => 'App\\Room',
-            'source' => 'http://roomssite.demo.com/showads/section/rooms',
+            'source' => 'http://myroomslistingsite.1demo/section/rooms',
             'search' => [
                 // keywords
-                'keywords' => ['school'],
+                'keywords' => ['professional'],
                 // form markup
                 'form' => [
                     // search form selector (important)
@@ -103,7 +104,6 @@ return [
                 'body' => [
                     'email' => '(([eE]mail)*:*\s*\w+\@(\s*\w)*\.(net|com))',
                     'phone' => '((([cC]all|[[tT]el|[Pp][Hh](one)*)[:\d\-,\sDL\/]*\d)|(\d{3}\-?\d{4}))',
-                    'money' => '((US)*\$[,\d\.]+[Kk]*)',
                     'beds' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]edroom|b\/r|[Bb]ed)s?)',
                     'baths' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]athroom|bth|[Bb]ath)s?)',
                     // retain:  whether details should be left in source attribute after extraction
@@ -125,6 +125,61 @@ return [
             // scraps containing any of these words will be rejected (optional)
             'bad_words' => [
                 'office',
+            ],
+        ],
+
+        // Google SERP example:
+        'google' => [
+            'example' => false,
+            'serp' => true,
+            'model' => 'App\\GoogleResult',
+            'source' => 'https://www.google.com',
+            'search' => [
+                'keywords' => ['dog'],
+                'form' => [
+                    'selector' => 'form[name="f"]',
+                    'keyword_input_name' => 'q',
+                ]
+            ],
+            'pages' => 2,
+            'pager' => [
+                'selector' => '#foot > table > tr > td.b:last-child',
+                'text' => 'Next',
+            ],
+            'markup' => [
+                '__result' => 'div.g',
+                'title' => 'h3 > a',
+                'description' => '.st',
+                // the 'link' and 'position' attributes make use of some of Scavengers available properties
+                'link' => '__link',
+                'position' => '__position',
+            ],
+        ],
+
+        // Bing SERP example:
+        'bing' => [
+            'example' => false,
+            'serp' => true,
+            'model' => 'App\\BingResult',
+            'source' => 'https://www.bing.com',
+            'search' => [
+                'keywords' => ['dog'],
+                'form' => [
+                    'selector' => 'form#sb_form',
+                    'keyword_input_name' => 'q',
+                ]
+            ],
+            'pages' => 3,
+            'pager' => [
+                'selector' => '.sb_pagN',
+                'text' => 'Next',
+            ],
+            'markup' => [
+                '__result' => '.b_algo',
+                'title' => 'h2 a',
+                'description' => '.b_caption p',
+                'link' => '__link',
+                'position' => '__position',
             ],
         ],
     ],

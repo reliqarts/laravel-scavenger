@@ -9,7 +9,7 @@ use ReliQArts\Scavenger\Helpers\SchemaHelper;
  *  Scavenger Scrap model.
  */
 class Scrap extends Model
-{   
+{
     /**
      * Get the scraps table.
      *
@@ -19,23 +19,23 @@ class Scrap extends Model
     {
         return SchemaHelper::getScrapsTable();
     }
-    
+
     /**
      * Convert scrap to target model.
      * 
-     * @param boolean $force Whether to force conversion even if model already exists.
+     * @param boolean $convertDuplicates Whether to force conversion even if model already exists.
      *
      * @return Model
      */
-    public function convert($force = false)
+    public function convert($convertDuplicates = false)
     {
         $targetObject = false;
         $convert = true;
-        if ($this->model) {
 
+        if ($this->model) {
             if ($existingRelated = $this->getRelated()) {
                 $targetObject = $existingRelated;
-                if (!$force) {
+                if (!$convertDuplicates) {
                     $convert = false;
                 }
             }
