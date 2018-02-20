@@ -130,7 +130,7 @@ return [
 
         // Google SERP example:
         'google' => [
-            'example' => false,
+            'example' => true,
             'serp' => true,
             'model' => 'App\\GoogleResult',
             'source' => 'https://www.google.com',
@@ -158,7 +158,7 @@ return [
 
         // Bing SERP example:
         'bing' => [
-            'example' => false,
+            'example' => true,
             'serp' => true,
             'model' => 'App\\BingResult',
             'source' => 'https://www.bing.com',
