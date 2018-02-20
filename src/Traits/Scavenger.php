@@ -6,6 +6,7 @@ use App;
 use Log;
 use Exception;
 use Carbon\Carbon;
+use ReliQArts\Scavenger\Helpers\CoreHelper as Helper;
 
 /**
  * Scavenger trait.
@@ -72,7 +73,6 @@ trait Scavenger
      * @param string $string The string to be scoured.
      * @param array $map Map to use for detail scouring.
      * @param boolean $leaveInString Whether to leave match in source string.
-     * 
      * @return array Details found array.
      */
     protected function carve(&$string, $map = [], $retain = false)
@@ -98,6 +98,37 @@ trait Scavenger
     }
 
     /**
+     * Searches array for needles. The first one found is returned.
+     * If needles aren't supplied the first non-empty item in array is returned.
+     *
+     * @param array $haystack Array to search.
+     * @param array $needles Optional list of items to check for.
+     * @return mixed
+     */
+    protected function firstNonEmpty(array &$haystack, array $needles = [])
+    {
+        $found = false;
+
+        if (!empty($needles)) {
+            foreach ($needles as $value) {
+                if(!empty($haystack[$value])) {
+                    $found = $haystack[$value];
+                    break;
+                }
+            }
+        } else {
+            foreach ($haystack as $value) {
+                if (!empty($value)) {
+                    $found = $value;
+                    break;
+                }
+            }
+        }
+
+        return $found;
+    }
+
+    /**
      * Determine whether a scrap is has bad words and therefore is unwanted.
      *
      * @param array $scrap
@@ -108,14 +139,17 @@ trait Scavenger
     {
         $invalid = false;
         $badWords = array_merge($this->badWords, $badWords);
-        $badWordsRegex = '/('.implode(')|(', $badWords).')/i';
 
-        // check for bad words
-        foreach ($scrap as $attr) {
-            if ($attr[0] != '_') {
-                if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
-                    $invalid = true;
-                    break;
+        if (count($badWords)) {
+            $badWordsRegex = '/('.implode(')|(', $badWords).')/i';
+    
+            // check for bad words
+            foreach ($scrap as $attr) {
+                if (!Helper::isSpecialKey($attr)) {
+                    if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
+                        $invalid = true;
+                        break;
+                    }
                 }
             }
         }
@@ -148,6 +182,7 @@ trait Scavenger
         } else {
             print "$nl$dirSymbol$text";
         }
+
         return $text;
     }
 }
