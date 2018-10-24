@@ -2,8 +2,8 @@
 
 namespace ReliQArts\Scavenger\Helpers;
 
-use Hash;
 use Config;
+use Hash;
 use ReliQArts\Scavenger\Exceptions\DaemonException;
 
 class CoreHelper
@@ -15,7 +15,7 @@ class CoreHelper
 
     /**
      * Get config.
-     * 
+     *
      * @return array
      */
     public static function getConfig()
@@ -25,7 +25,7 @@ class CoreHelper
 
     /**
      * Get targets.
-     * 
+     *
      * @return array
      */
     public static function getTargets()
@@ -35,7 +35,7 @@ class CoreHelper
 
     /**
      * Get daemon model name.
-     * 
+     *
      * @return string
      */
     public static function getDaemonModelName()
@@ -45,7 +45,7 @@ class CoreHelper
 
     /**
      * Get daemon model.
-     * 
+     *
      * @return mixed
      */
     public static function getDaemonModel()
@@ -55,7 +55,7 @@ class CoreHelper
 
     /**
      * Get ID property  for daemon.
-     * 
+     *
      * @return string
      */
     public static function getDaemonModelIdProp()
@@ -65,7 +65,7 @@ class CoreHelper
 
     /**
      * Get ID property value for daemon.
-     * 
+     *
      * @return string
      */
     public static function getDaemonModelId()
@@ -75,33 +75,36 @@ class CoreHelper
 
     /**
      * Get attribute values for daemon.
-     * 
+     *
      * @return array
      */
     public static function getDaemonInfo()
-    {   
+    {
         $infoConfig = Config::get('scavenger.daemon.info', []);
-        $info = array_merge($infoConfig, [
-            static::getDaemonModelIdProp() => static::getDaemonModelId()
+        $info       = array_merge($infoConfig, [
+            static::getDaemonModelIdProp() => static::getDaemonModelId(),
         ]);
         if (!empty($infoConfig['password'])) {
             // hash password
             $info['password'] = Hash::make($infoConfig['password']);
         }
+
         return $info;
     }
 
     /**
      * Get scavenger daemon (user) instance. Creates daemon if he doesn't exist.
      *
-     * @return \Illuminate\Database\Eloquent\Model
      * @throws \ReliQArts\Scavenger\Exceptions\DaemonException
+     *
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public static function getDaemon()
-    {        
+    {
         if (!$daemon = self::getDaemonModel()->where(
-                self::getDaemonModelIdProp(), 
-                self::getDaemonModelId())->first()
+                self::getDaemonModelIdProp(),
+                self::getDaemonModelId()
+        )->first()
             ) {
             // attempt to create
             try {
@@ -119,6 +122,7 @@ class CoreHelper
      * Convert config key name to special key.
      *
      * @param string $keyName
+     *
      * @return mixed
      */
     public static function specialKey($keyName)
@@ -134,10 +138,11 @@ class CoreHelper
      * Check if key name is config key/special key name.
      *
      * @param string $keyName
+     *
      * @return bool
      */
     public static function isSpecialKey($keyName)
     {
-        return (strpos($keyName, self::SPECIAL_KEY_PREFIX) === 0);
+        return strpos($keyName, self::SPECIAL_KEY_PREFIX) === 0;
     }
 }

@@ -2,12 +2,9 @@
 
 namespace ReliQArts\Scavenger;
 
-use Illuminate\Routing\Router;
-use ReliQArts\Scavenger\Models;
-use ReliQArts\Scavenger\Contracts;
 use Illuminate\Foundation\AliasLoader;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
-use ReliQArts\Scavenger\Helpers\RouteHelper;
 use ReliQArts\Scavenger\Console\Commands\Seek;
 
 /**
@@ -25,7 +22,7 @@ class ScavengerServiceProvider extends ServiceProvider
     /**
      * Assets location.
      */
-    protected $assetsDir = __DIR__.'/..';
+    protected $assetsDir = __DIR__ . '/..';
 
     /**
      * List of commands.
@@ -37,58 +34,7 @@ class ScavengerServiceProvider extends ServiceProvider
     ];
 
     /**
-     * Publish assets.
-     *
-     * @return void
-     */
-    protected function handleAssets()
-    {
-        // ...
-    }
-
-    /**
-     * Command files.
-     */
-    private function handleCommands()
-    {
-        // Register the commands...
-        if ($this->app->runningInConsole()) {
-            $this->commands($this->commands);
-        }
-    }
-
-    /**
-     * Register Configuraion.
-     */
-    protected function handleConfig()
-    {
-        // merge config
-        $this->mergeConfigFrom("$this->assetsDir/config/config.php", 'scavenger');
-
-        // allow publishing config
-        $this->publishes([
-            "$this->assetsDir/config/config.php" => config_path('scavenger.php'),
-        ], 'scavenger:config');
-    }
-
-    /**
-     * Migration files.
-     */
-    private function handleMigrations()
-    {
-        // Load the migrations...
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-
-        // allow publishing of migrations
-        $this->publishes([
-            "$this->assetsDir/database/migrations/" => database_path('migrations'),
-        ], 'scaveneger:migrations');
-    }
-
-    /**
      * Perform post-registration booting of services.
-     *
-     * @return void
      */
     public function boot(Router $router)
     {
@@ -104,8 +50,6 @@ class ScavengerServiceProvider extends ServiceProvider
 
     /**
      * Register bindings in the container.
-     *
-     * @return void
      */
     public function register()
     {
@@ -131,5 +75,52 @@ class ScavengerServiceProvider extends ServiceProvider
         return [
             Contracts\Seeker::class,
         ];
+    }
+
+    /**
+     * Publish assets.
+     */
+    protected function handleAssets()
+    {
+        // ...
+    }
+
+    /**
+     * Register Configuraion.
+     */
+    protected function handleConfig()
+    {
+        // merge config
+        $this->mergeConfigFrom("{$this->assetsDir}/config/config.php", 'scavenger');
+
+        // allow publishing config
+        $this->publishes([
+            "{$this->assetsDir}/config/config.php" => config_path('scavenger.php'),
+        ], 'scavenger:config');
+    }
+
+    /**
+     * Command files.
+     */
+    private function handleCommands()
+    {
+        // Register the commands...
+        if ($this->app->runningInConsole()) {
+            $this->commands($this->commands);
+        }
+    }
+
+    /**
+     * Migration files.
+     */
+    private function handleMigrations()
+    {
+        // Load the migrations...
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        // allow publishing of migrations
+        $this->publishes([
+            "{$this->assetsDir}/database/migrations/" => database_path('migrations'),
+        ], 'scaveneger:migrations');
     }
 }

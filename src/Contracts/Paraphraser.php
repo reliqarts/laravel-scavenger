@@ -9,7 +9,7 @@ interface Paraphraser
      *
      * @param string $text text to paraphase
      *
-     * @return String paraphrased text.
+     * @return string paraphrased text.
      */
     public function paraphrase($text);
 }

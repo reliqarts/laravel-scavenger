@@ -11,13 +11,13 @@ use Illuminate\Contracts\Support\Jsonable;
 class Result implements Arrayable, Jsonable
 {
     public $success = false;
-    public $error = null;
-    public $extra = null;
-    public $message = null;
-    public $reused = null;
+    public $error;
+    public $extra;
+    public $message;
+    public $reused;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @return array
      */
@@ -27,9 +27,10 @@ class Result implements Arrayable, Jsonable
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
-     * @param int $options 
+     * @param int $options
+     *
      * @return string
      */
     public function toJson($options = 0)
