@@ -2,16 +2,12 @@
 
 namespace ReliQArts\Scavenger\Traits;
 
-use App;
-use Log;
-use Exception;
-use Carbon\Carbon;
-use ReliQArts\Scavenger\Helpers\CoreHelper as Helper;
+use ReliQArts\Scavenger\Helpers\Config;
 
 /**
  * Scavenger trait.
  */
-trait Scavenger
+trait Scanner
 {
 
     /**
@@ -22,60 +18,42 @@ trait Scavenger
     protected $badWords = [];
 
     /**
-     * Calling command if running in console.
-     *
-     * @var Illuminate\Console\Command
-     */
-    protected $callingCommand = null;
-
-    /**
-     * Level of detail.
-     *
-     * @var integer
-     */
-    protected $verbosity = 0;
-
-    /**
-     * Hashing algorithm in use.
-     *
-     * @var string
-     */
-    protected $hashAlgo = 'sha512';
-
-    /**
      * Remove tabs and newlines from text.
      *
      * @param string $text
+     *
      * @return string Clean text; without newlines and tabs.
      */
-    protected function cleanText($text)
+    protected function removeReturnsAndTabs(string $text): string
     {
-        $t = preg_replace("/\s{2,}/", ' ', preg_replace("/[\r\n\t]+/", '', $text));
-        $t = str_replace(' / ', null, $t);
+        $cleanedText = preg_replace("/\s{2,}/", ' ', preg_replace("/[\r\n\t]+/", '', $text));
+        $cleanedText = str_replace(' / ', null, $cleanedText);
 
-        return $t;
+        return $cleanedText;
     }
 
     /**
      * Convert <br/> to newlines.
      *
      * @param string $text
+     *
      * @return string
      */
-    protected function br2nl($text)
+    protected function br2nl(string $text): string
     {
         return preg_replace("/<br[\/]?>/", "\n", $text);
     }
 
     /**
-     * Salvage a string for details. These details are also removed/plucked from the string.
+     * Scour a string and pluck details.
      *
-     * @param string $string The string to be scoured.
-     * @param array $map Map to use for detail scouring.
-     * @param boolean $leaveInString Whether to leave match in source string.
-     * @return array Details found array.
+     * @param string  $string The string to be scoured.
+     * @param array   $map    Map to use for detail scouring.
+     * @param boolean $retain Whether to leave match in source string.
+     *
+     * @return array
      */
-    protected function carve(&$string, $map = [], $retain = false)
+    protected function pluckDetails(string &$string, array $map = [], bool $retain = false): array
     {
         $details = [];
 
@@ -90,6 +68,7 @@ trait Scavenger
                 if ($retain) {
                     return $match;
                 }
+                /** @noinspection PhpInconsistentReturnPointsInspection */
                 return;
             }, $string);
         }
@@ -102,7 +81,8 @@ trait Scavenger
      * If needles aren't supplied the first non-empty item in array is returned.
      *
      * @param array $haystack Array to search.
-     * @param array $needles Optional list of items to check for.
+     * @param array $needles  Optional list of items to check for.
+     *
      * @return mixed
      */
     protected function firstNonEmpty(array &$haystack, array $needles = [])
@@ -111,7 +91,7 @@ trait Scavenger
 
         if (!empty($needles)) {
             foreach ($needles as $value) {
-                if(!empty($haystack[$value])) {
+                if (!empty($haystack[$value])) {
                     $found = $haystack[$value];
                     break;
                 }
@@ -133,19 +113,20 @@ trait Scavenger
      *
      * @param array $scrap
      * @param array $badWords List of words (regex) we don't want in our scraps.'.
+     *
      * @return mixed
      */
-    protected function hasBadWords(&$scrap, array $badWords = [])
+    protected function hasBadWords(array &$scrap, array $badWords = [])
     {
         $invalid = false;
         $badWords = array_merge($this->badWords, $badWords);
 
         if (count($badWords)) {
-            $badWordsRegex = '/('.implode(')|(', $badWords).')/i';
-    
+            $badWordsRegex = '/(' . implode(')|(', $badWords) . ')/i';
+
             // check for bad words
             foreach ($scrap as $attr) {
-                if (!Helper::isSpecialKey($attr)) {
+                if (!Config::isSpecialKey($attr)) {
                     if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
                         $invalid = true;
                         break;
@@ -155,34 +136,5 @@ trait Scavenger
         }
 
         return $invalid;
-    }
-
-    /**
-     * Print to console or screen.
-     *
-     * @param string $text
-     * @param string $direction in|out
-     * @return string
-     */
-    protected function tell($text, $direction = 'out')
-    {
-        $direction = strtolower($direction);
-        $nl = App::runningInConsole() ? "\n" : '<br/>';
-        $dirSymbol = ($direction == 'in' ? '>> ' : ($direction == 'flat' ? '-- ' : '<< '));
-        if ($direction == 'none') {
-            $dirSymbol = '';
-        }
-
-        if (App::runningInConsole() && $this->callingCommand) {
-            if ($direction == 'out') {
-                $this->callingCommand->line("<info>\<\< {$text}</info>");
-            } else {
-                $this->callingCommand->line("$dirSymbol$text");
-            }
-        } else {
-            print "$nl$dirSymbol$text";
-        }
-
-        return $text;
     }
 }

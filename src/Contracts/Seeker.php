@@ -2,19 +2,23 @@
 
 namespace ReliQArts\Scavenger\Contracts;
 
+use Illuminate\Console\Command;
+use ReliQArts\Scavenger\DTOs\OptionSet;
+use ReliQArts\Scavenger\DTOs\Result;
+
 /**
  * A service that abstracts seeker related methods.
  */
 interface Seeker
 {
+    /** @noinspection PhpTooManyParametersInspection */
     /**
      * Search target site(s) for listings and collect relevant data.
      *
-     * @param string $target   Target site
-     * @param bool   $keep     Whether found listings should be kept.
-     * @param string $keywords List of keywords to search (comma separated).
+     * @param string|null  $targetName     Target site
+     * @param Command|null $callingCommand Calling Command
      *
-     * @return Illuminate\Support\Collection Retrived data.
+     * @return Result
      */
-    public function seek($target, $keep, $keywords);
+    public function seek(?string $targetName = null, ?Command &$callingCommand = null): Result;
 }

@@ -5,11 +5,11 @@ namespace ReliQArts\Scavenger\Contracts;
 interface Paraphraser
 {
     /**
-     * Paraprase text.
+     * Paraphrase text.
      *
-     * @param string $text text to paraphase
+     * @param string $text text to paraphrase
      *
      * @return string paraphrased text.
      */
-    public function paraphrase($text);
+    public function paraphrase(string $text): string;
 }

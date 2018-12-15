@@ -2,7 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use ReliQArts\Scavenger\Helpers\SchemaHelper;
+use Illuminate\Support\Facades\Schema;
+use ReliQArts\Scavenger\Helpers\Config;
 
 class CreateScavengerScrapsTable extends Migration
 {
@@ -11,7 +12,8 @@ class CreateScavengerScrapsTable extends Migration
      */
     public function up()
     {
-        $table = SchemaHelper::getScrapsTable();
+        $table = Config::getScrapsTable();
+        /** @noinspection PhpUndefinedMethodInspection */
         if (!Schema::hasTable($table)) {
             Schema::create($table, function (Blueprint $table) {
                 $table->increments('id');
@@ -31,7 +33,7 @@ class CreateScavengerScrapsTable extends Migration
      */
     public function down()
     {
-        $table = SchemaHelper::getScrapsTable();
+        $table = Config::getScrapsTable();
         Schema::dropIfExists($table);
     }
 }

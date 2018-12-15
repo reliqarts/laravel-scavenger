@@ -4,13 +4,13 @@ namespace ReliQArts\Scavenger;
 
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use ReliQArts\Scavenger\Console\Commands\Seek;
 
 /**
- *  ScavengerServiceProvider.
+ *  Service Provider
  */
-class ScavengerServiceProvider extends ServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
     /**
      * Indicates if loading of the provider is deferred.
@@ -35,6 +35,8 @@ class ScavengerServiceProvider extends ServiceProvider
 
     /**
      * Perform post-registration booting of services.
+     *
+     * @param Router $router
      */
     public function boot(Router $router)
     {
@@ -58,11 +60,11 @@ class ScavengerServiceProvider extends ServiceProvider
         // bind contract to service model
         $this->app->bind(
             Contracts\Seeker::class,
-            Services\Scavenger::class
+            Services\Seeker::class
         );
 
         // Register facades...
-        $loader->alias('ScavengerService', Services\Scavenger::class);
+        $loader->alias('ScavengerService', Services\Seeker::class);
     }
 
     /**

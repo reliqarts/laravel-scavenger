@@ -1,14 +1,13 @@
 <?php
 
 $header = <<<'EOF'
-This file is part of Scavenger
-
-(c) ReliQ <reliq@reliqarts.com>
+@author    ReliQ <reliq@reliqarts.com>
+@copyright 2018
 EOF;
 
 $finder = PhpCsFixer\Finder::create()
     ->exclude('docs')
-    ->notPath('src/Traits/Scavenger.php')
+    ->notPath('src/Traits/Seekerp')
     ->in(__DIR__);
 
 $config = PhpCsFixer\Config::create()
@@ -22,7 +21,7 @@ $config = PhpCsFixer\Config::create()
         'array_indentation' => true,
         'array_syntax' => ['syntax' => 'short'],
         'blank_line_before_statement' => true,
-        'binary_operator_spaces' => ['default' => 'align'],
+        'binary_operator_spaces' => ['default' => 'single_space'],
         'combine_consecutive_issets' => true,
         'combine_consecutive_unsets' => true,
         'comment_to_phpdoc' => true,
@@ -34,7 +33,7 @@ $config = PhpCsFixer\Config::create()
         'final_internal_class' => true,
         'fully_qualified_strict_types' => true,
         'function_to_constant' => ['functions' => ['get_class', 'get_called_class', 'php_sapi_name', 'phpversion', 'pi']],
-        // 'header_comment' => ['header' => $header],
+        'header_comment' => ['header' => $header],
         'heredoc_to_nowdoc' => true,
         'list_syntax' => ['syntax' => 'long'],
         'logical_operators' => true,

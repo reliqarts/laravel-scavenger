@@ -7,6 +7,6 @@ use Exception;
 /**
  * {@inheritdoc}
  */
-class DaemonException extends Exception
+class BadDaemonConfig extends Exception
 {
 }
