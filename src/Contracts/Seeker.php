@@ -1,9 +1,12 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger\Contracts;
 
-use Illuminate\Console\Command;
-use ReliQArts\Scavenger\DTOs\OptionSet;
 use ReliQArts\Scavenger\DTOs\Result;
 
 /**
@@ -11,14 +14,12 @@ use ReliQArts\Scavenger\DTOs\Result;
  */
 interface Seeker
 {
-    /** @noinspection PhpTooManyParametersInspection */
     /**
      * Search target site(s) for listings and collect relevant data.
      *
-     * @param string|null  $targetName     Target site
-     * @param Command|null $callingCommand Calling Command
+     * @param null|string $targetName Target
      *
      * @return Result
      */
-    public function seek(?string $targetName = null, ?Command &$callingCommand = null): Result;
+    public function seek(?string $targetName = null): Result;
 }

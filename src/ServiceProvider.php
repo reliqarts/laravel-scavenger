@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger;
 
 use Illuminate\Foundation\AliasLoader;
@@ -8,7 +13,7 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use ReliQArts\Scavenger\Console\Commands\Seek;
 
 /**
- *  Service Provider
+ *  Service Provider.
  */
 class ServiceProvider extends BaseServiceProvider
 {
@@ -88,7 +93,7 @@ class ServiceProvider extends BaseServiceProvider
     }
 
     /**
-     * Register Configuraion.
+     * Register Configuration.
      */
     protected function handleConfig()
     {
@@ -123,6 +128,6 @@ class ServiceProvider extends BaseServiceProvider
         // allow publishing of migrations
         $this->publishes([
             "{$this->assetsDir}/database/migrations/" => database_path('migrations'),
-        ], 'scaveneger:migrations');
+        ], 'scavenger:migrations');
     }
 }

@@ -1,15 +1,16 @@
 <?php
 
-namespace ReliQArts\Scavenger\Traits;
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
+namespace ReliQArts\Scavenger\Services;
 
 use ReliQArts\Scavenger\Helpers\Config;
 
-/**
- * Scavenger trait.
- */
-trait Scanner
+class Scanner
 {
-
     /**
      * List of words (regex) we don't want in our scraps.'.
      *
@@ -18,18 +19,27 @@ trait Scanner
     protected $badWords = [];
 
     /**
+     * Scanner constructor.
+     *
+     * @param array $badWords
+     */
+    public function __construct(array $badWords = [])
+    {
+        $this->badWords = $badWords;
+    }
+
+    /**
      * Remove tabs and newlines from text.
      *
      * @param string $text
      *
-     * @return string Clean text; without newlines and tabs.
+     * @return string clean text; without newlines and tabs
      */
-    protected function removeReturnsAndTabs(string $text): string
+    public function removeReturnsAndTabs(string $text): string
     {
-        $cleanedText = preg_replace("/\s{2,}/", ' ', preg_replace("/[\r\n\t]+/", '', $text));
-        $cleanedText = str_replace(' / ', null, $cleanedText);
+        $cleanedText = preg_replace('/\\s{2,}/', ' ', preg_replace("/[\r\n\t]+/", '', $text));
 
-        return $cleanedText;
+        return str_replace(' / ', null, $cleanedText);
     }
 
     /**
@@ -39,21 +49,21 @@ trait Scanner
      *
      * @return string
      */
-    protected function br2nl(string $text): string
+    public function br2nl(string $text): string
     {
-        return preg_replace("/<br[\/]?>/", "\n", $text);
+        return preg_replace('/<br[\\/]?>/', "\n", $text);
     }
 
     /**
      * Scour a string and pluck details.
      *
-     * @param string  $string The string to be scoured.
-     * @param array   $map    Map to use for detail scouring.
-     * @param boolean $retain Whether to leave match in source string.
+     * @param string $string the string to be scoured
+     * @param array  $map    map to use for detail scouring
+     * @param bool   $retain whether to leave match in source string
      *
      * @return array
      */
-    protected function pluckDetails(string &$string, array $map = [], bool $retain = false): array
+    public function pluckDetails(string &$string, array $map = [], bool $retain = false): array
     {
         $details = [];
 
@@ -80,12 +90,12 @@ trait Scanner
      * Searches array for needles. The first one found is returned.
      * If needles aren't supplied the first non-empty item in array is returned.
      *
-     * @param array $haystack Array to search.
-     * @param array $needles  Optional list of items to check for.
+     * @param array $haystack array to search
+     * @param array $needles  optional list of items to check for
      *
      * @return mixed
      */
-    protected function firstNonEmpty(array &$haystack, array $needles = [])
+    public function firstNonEmpty(array &$haystack, array $needles = [])
     {
         $found = false;
 
@@ -93,6 +103,7 @@ trait Scanner
             foreach ($needles as $value) {
                 if (!empty($haystack[$value])) {
                     $found = $haystack[$value];
+
                     break;
                 }
             }
@@ -100,6 +111,7 @@ trait Scanner
             foreach ($haystack as $value) {
                 if (!empty($value)) {
                     $found = $value;
+
                     break;
                 }
             }
@@ -109,14 +121,14 @@ trait Scanner
     }
 
     /**
-     * Determine whether a scrap is has bad words and therefore is unwanted.
+     * Determine whether a scrap data has bad words and therefore is unwanted.
      *
-     * @param array $scrap
+     * @param array $data
      * @param array $badWords List of words (regex) we don't want in our scraps.'.
      *
      * @return mixed
      */
-    protected function hasBadWords(array &$scrap, array $badWords = [])
+    public function hasBadWords(array $data, array $badWords = [])
     {
         $invalid = false;
         $badWords = array_merge($this->badWords, $badWords);
@@ -125,10 +137,11 @@ trait Scanner
             $badWordsRegex = '/(' . implode(')|(', $badWords) . ')/i';
 
             // check for bad words
-            foreach ($scrap as $attr) {
+            foreach ($data as $attr) {
                 if (!Config::isSpecialKey($attr)) {
                     if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
                         $invalid = true;
+
                         break;
                     }
                 }

@@ -30,7 +30,7 @@ class OptionSet
     private $pages;
 
     /**
-     * @var string|null
+     * @var null|string
      */
     private $keywords;
 
@@ -90,7 +90,7 @@ class OptionSet
     }
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function getKeywords(): ?string
     {

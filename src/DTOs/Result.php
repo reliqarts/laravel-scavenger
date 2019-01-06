@@ -1,12 +1,17 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger\DTOs;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 
 /**
- * Result
+ * Result.
  */
 class Result implements Arrayable, Jsonable
 {
@@ -21,11 +26,6 @@ class Result implements Arrayable, Jsonable
     private $errors;
 
     /**
-     * @var mixed
-     */
-    private $extra;
-
-    /**
      * @var string
      */
     private $message;
@@ -36,23 +36,32 @@ class Result implements Arrayable, Jsonable
     private $data;
 
     /**
+     * @var mixed
+     */
+    private $extra;
+
+    /**
      * Result constructor.
      *
-     * @param bool   $success
-     * @param mixed  $error
-     * @param mixed  $extra
-     * @param string $message
-     * @param mixed  $data
+     * @param bool     $success
+     * @param string[] $errors
+     * @param string   $message
+     * @param mixed    $data
+     * @param mixed    $extra
      */
-    public function __construct(bool $success = false, $error = null, $extra = null, string $message = '', $data = null)
-    {
+    public function __construct(
+        bool $success = false,
+        array $errors = [],
+        string $message = '',
+        $data = null,
+        $extra = null
+    ) {
         $this->success = $success;
-        $this->error = $error;
-        $this->extra = $extra;
+        $this->errors = $errors;
         $this->message = $message;
         $this->data = $data;
+        $this->extra = $extra;
     }
-
 
     /**
      * @return bool
@@ -92,6 +101,19 @@ class Result implements Arrayable, Jsonable
     {
         $clone = clone $this;
         $clone->errors[] = $error;
+
+        return $clone;
+    }
+
+    /**
+     * @param string[] $errors
+     *
+     * @return Result
+     */
+    public function addErrors(array $errors): self
+    {
+        $clone = clone $this;
+        $clone->errors = array_merge($clone->errors, $errors);
 
         return $clone;
     }
@@ -174,7 +196,7 @@ class Result implements Arrayable, Jsonable
      */
     public function toArray()
     {
-        return (array)$this;
+        return (array) $this;
     }
 
     /**

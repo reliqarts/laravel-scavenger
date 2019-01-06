@@ -7,9 +7,6 @@
 
 namespace ReliQArts\Scavenger\Exceptions;
 
-/**
- * {@inheritdoc}
- */
-class BadDaemonConfig extends Exception
+class InvalidTargetDefinition extends Exception
 {
 }

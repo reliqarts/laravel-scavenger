@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger\Services;
 
 use Exception;
@@ -29,7 +34,7 @@ class Paraphraser implements ParaphraserInterface
      * @var array
      */
     private $guzzleSettings = [
-        'timeout'  => -1,
+        'timeout' => -1,
         'defaults' => [
             'verify' => false,
         ],
@@ -37,8 +42,6 @@ class Paraphraser implements ParaphraserInterface
 
     /**
      * Create a new seeker.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -63,8 +66,10 @@ class Paraphraser implements ParaphraserInterface
             );
 
             return $response->getBody()->getContents();
-        } catch (GuzzleException|Exception $e) {
+        } catch (GuzzleException | Exception $e) {
             Log::error($e);
         }
+
+        return $text;
     }
 }

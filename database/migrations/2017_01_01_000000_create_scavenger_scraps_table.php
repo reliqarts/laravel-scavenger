@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +18,7 @@ class CreateScavengerScrapsTable extends Migration
     public function up()
     {
         $table = Config::getScrapsTable();
-        /** @noinspection PhpUndefinedMethodInspection */
+        // @noinspection PhpUndefinedMethodInspection
         if (!Schema::hasTable($table)) {
             Schema::create($table, function (Blueprint $table) {
                 $table->increments('id');

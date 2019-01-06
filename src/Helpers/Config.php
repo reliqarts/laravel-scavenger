@@ -14,12 +14,10 @@ use Illuminate\Support\Facades\Config as BaseConfig;
 use Illuminate\Support\Facades\Hash;
 use ReliQArts\Scavenger\Exceptions\BadDaemonConfig;
 
-class Config extends BaseConfig
+final class Config extends BaseConfig
 {
-    /**
-     * Directive used for special keys in config.
-     */
-    private const SPECIAL_KEY_PREFIX = '__';
+    public const SPECIAL_KEY_PREFIX = '__';
+
     private const DEFAULT_GUZZLE_SETTINGS = [
         'timeout' => 60,
     ];
@@ -114,7 +112,7 @@ class Config extends BaseConfig
     /**
      * Get scavenger daemon (user) instance. Creates daemon if he doesn't exist.
      *
-     * @throws \ReliQArts\Scavenger\Exceptions\BadDaemonConfig
+     * @throws BadDaemonConfig
      *
      * @return Authenticatable
      */
@@ -153,15 +151,11 @@ class Config extends BaseConfig
      *
      * @param string $keyName
      *
-     * @return mixed
+     * @return string
      */
-    public static function specialKey($keyName)
+    public static function specialKey(string $keyName): string
     {
-        if (!empty($keyName)) {
-            $keyName = self::SPECIAL_KEY_PREFIX . $keyName;
-        }
-
-        return $keyName;
+        return self::SPECIAL_KEY_PREFIX . $keyName;
     }
 
     /**

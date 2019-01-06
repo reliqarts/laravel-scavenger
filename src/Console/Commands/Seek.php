@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger\Console\Commands;
 
 use Carbon\Carbon;
@@ -19,7 +24,7 @@ class Seek extends Command
      */
     protected $signature = 'scavenger:seek 
                             {target? : Optionally specify a single target from list of available targets}
-                            {--w|keywords= : Comma seperated keywords}
+                            {--w|keywords= : Comma separated keywords}
                             {--k|keep : Whether to save found scraps}
                             {--c|convert : Whether to convert found scraps to target objects}
                             {--y|y : Whether to skip confirmation}
@@ -37,21 +42,20 @@ class Seek extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
      * @throws Exception
      */
-    public function handle()
+    public function handle(): void
     {
         $saveScraps = $this->option('keep');
         $target = $this->argument('target');
         $keywords = $this->option('keywords');
         $skipConfirmation = $this->option('y');
-        $backOff = (int)$this->option('backoff');
-        $pages = (int)$this->option('pages');
+        $backOff = (int) $this->option('backoff');
+        $pages = (int) $this->option('pages');
         $convertScraps = $this->option('convert');
         $optionSet = new OptionSet($saveScraps, $convertScraps, $backOff, $pages, $keywords);
-        $seeker = new Seeker($optionSet);
-        $confirmationQuestion = "Scavenger will scour a resource for scraps and make model records,"
+        $seeker = new Seeker($optionSet, $this);
+        $confirmationQuestion = 'Scavenger will scour a resource for scraps and make model records,'
             . "performing HTTP, DB and I/O operations.\n Ensure your internet connection is stable. Ready?";
 
         $this->comment(
@@ -84,8 +88,8 @@ class Seek extends Command
             );
 
             // Seek
-            $result = $seeker->seek($target, $this);
-            if ($result->success) {
+            $result = $seeker->seek($target);
+            if ($result->isSuccess()) {
                 $this->info(PHP_EOL . '----------');
                 $this->comment('<info>✔</info> Done. Scavenger daemon now goes to sleep...');
 
@@ -95,9 +99,9 @@ class Seek extends Command
                     $headers = ['Time', 'Scraps Found', 'New', 'Saved?', 'Converted?'];
                     $data = [
                         [
-                            $result->extra->executionTime,
-                            $result->extra->total,
-                            $result->extra->new,
+                            $result->getExtra()->executionTime,
+                            $result->getExtra()->total,
+                            $result->getExtra()->new,
                             $saveScraps ? 'true' : 'false',
                             $convertScraps ? 'true' : 'false',
                         ],
@@ -111,7 +115,9 @@ class Seek extends Command
                     );
                 }
             } else {
-                $this->line(PHP_EOL . "<error>✘</error> {$result->error}");
+                foreach ($result->getErrors() as $errorMessage) {
+                    $this->line(PHP_EOL . "<error>✘</error> {$errorMessage}");
+                }
             }
         }
     }
