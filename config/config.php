@@ -82,9 +82,7 @@ return [
             ],
             'pager' => [
                 // link (a tag) selector
-                'selector' => 'div.content #page .pagingnav',
-                // link (or element within link text)
-                'text' => '>',
+                'selector' => 'div.content #page a.pagingnav',
             ],
             // max. number of pages to scrape (0 is unlimited)
             'pages' => 0,
@@ -146,8 +144,7 @@ return [
             ],
             'pages' => 2,
             'pager' => [
-                'selector' => '#foot > table > tr > td.b:last-child',
-                'text' => 'Next',
+                'selector' => '#foot > table > tr > td.b:last-child a',
             ],
             'markup' => [
                 '__result' => 'div.g',
@@ -175,7 +172,6 @@ return [
             'pages' => 3,
             'pager' => [
                 'selector' => '.sb_pagN',
-                'text' => 'Next',
             ],
             'markup' => [
                 '__result' => '.b_algo',
