@@ -12,12 +12,12 @@ Scavenger provides the following features and more out of the box.
 - Ease of use
     - Scavenger is super-easy to configure. Simple publish the config file and set your targets.
 - Scrape data from multiple sources at once.
-- Convert scraped data into useable Laravel model objects.
+- Convert scraped data into usable Laravel model objects.
     - eg. You may scrape an article and have it converted into an object of your choice and saved in your database. Immediately available to your viewers.
 - You can easily perform one or more operations to each property of any scraped entity.
     - eg. You may call a paraphrase service from a model or package of your choice on data attributes before saving them to your database.
 - Data integrity constraints
-    - Scavanger uses a hashing algorithm of your choice to maintain data integrity. This hash is used to ensure that one scrap (source article) is not converted to multiple output objects (model duplicates).
+    - Scavenger uses a hashing algorithm of your choice to maintain data integrity. This hash is used to ensure that one scrap (source article) is not converted to multiple output objects (model duplicates).
 - Console Command
     - Once scavenger is configured, a simple artisan command launches the seeker. Since this is a console command it is more efficient and timeouts are less likely to occur.
     - Artisan command: `php artisan scavenger:seek`
@@ -47,7 +47,7 @@ Scavenger provides the following features and more out of the box.
     ```js
     "require": {
         //...
-        "reliqarts/scavenger": "~1.0"
+        "reliqarts/scavenger": "~2.1"
         //...
     },
     ```
@@ -77,8 +77,8 @@ Below is an example of a typical config file structure, with explaining comments
 return [
     // debug mode?
     'debug' => false,
-    
-    // whther log file should be written
+
+    // whether log file should be written
     'log' => true,
 
     // How much detail is expected in output, 1 being the lowest, 3 being highest.
@@ -91,7 +91,7 @@ return [
     ],
 
     // Daemon config - used to build daemon user
-    'daemon' => [ 
+    'daemon' => [
         // Model to use for Daemon identification and login
         'model' => 'App\\User',
 
@@ -102,12 +102,17 @@ return [
         'id' => 'daemon@scavenger.reliqarts.com',
 
         // Any additional information required to create a user:
-        // NB. this is only used when creating a daemon user, there is no "safe" way 
+        // NB. this is only used when creating a daemon user, there is no "safe" way
         // to change the daemon's password once he has been created.
         'info' => [
-            'name' => 'Seeker',
-            'password' => 'pass'
-        ]
+            'name' => 'Scavenger Daemon',
+            'password' => 'pass',
+        ],
+    ],
+
+    // guzzle settings
+    'guzzle_settings' => [
+        'timeout' => 60,
     ],
 
     // hashing algorithm to use
@@ -146,9 +151,7 @@ return [
             ],
             'pager' => [
                 // link (a tag) selector
-                'selector' => 'div.content #page .pagingnav',
-                // link (or element within link text)
-                'text' => '>',
+                'selector' => 'div.content #page a.pagingnav',
             ],
             // max. number of pages to scrape (0 is unlimited)
             'pages' => 0,
@@ -160,9 +163,10 @@ return [
                     'title' => '#ad-title > h1 > a',
                     'body' => 'article .adcontent > p[align="LEFT"]:last-of-type',
                     // focus: focus detail on the following section
-                    '__focus' => 'section section > .content #ad-detail > article'
+                    '__focus' => 'section section > .content #ad-detail > article',
                 ],
-                // wrapper/item/result: wrapping selector for each item on single page. If inside special key is set this key becomes invalid (i.e. inside takes preference)
+                // wrapper/item/result: wrapping selector for each item on single page.
+                // If inside special key is set this key becomes invalid (i.e. inside takes preference)
                 '__result' => null,
             ],
             // split single attributes into multiple based on regex
@@ -178,7 +182,7 @@ return [
             ],
             // modify attributes by calling functions
             'preprocess' => [
-                // takes a callable 
+                // takes a callable
                 // optional third parameter of array if callable method needs an instance
                 // e.g. ['App\\Item', 'foo', true] or 'bar'
                 'title' => null,
@@ -205,12 +209,11 @@ return [
                 'form' => [
                     'selector' => 'form[name="f"]',
                     'keyword_input_name' => 'q',
-                ]
+                ],
             ],
             'pages' => 2,
             'pager' => [
-                'selector' => '#foot > table > tr > td.b:last-child',
-                'text' => 'Next',
+                'selector' => '#foot > table > tr > td.b:last-child a',
             ],
             'markup' => [
                 '__result' => 'div.g',
@@ -233,12 +236,11 @@ return [
                 'form' => [
                     'selector' => 'form#sb_form',
                     'keyword_input_name' => 'q',
-                ]
+                ],
             ],
             'pages' => 3,
             'pager' => [
                 'selector' => '.sb_pagN',
-                'text' => 'Next',
             ],
             'markup' => [
                 '__result' => '.b_algo',
@@ -249,14 +251,13 @@ return [
             ],
         ],
     ],
-
 ];
 
 ```
 
 #### Target Breakdown
 
-The `targets` array is to contain a list of scrapable entities keyed by a unique target identifier. The structure is as follows.
+The `targets` array is to contain a list of entities (to be scraped from) keyed by a unique target identifier. The structure is as follows.
 
 - `model`: Laravel DB model to create from target.
 - `source`: Source URL to scrape.
@@ -265,9 +266,9 @@ The `targets` array is to contain a list of scrapable entities keyed by a unique
     - `keyword_input`: Keyword input text markup.
     - `form_markup`: CSS selector for search form.
     - `submit_button_text`: The text on the form's submit button.
-- `pager`: Next button CSS selector. To skip to next page.
+- `pager`: Next link CSS selector. To skip to next page.
 - `markup`: Array of attributes to scrape from main list. `[attributeName => CSS selector]`
-    - `_inside`: Sub markup for detail page. Markeup for page which shows when article title is clicked/opened. (optional)
+    - `__inside`: Sub markup for detail page. Markup for page which shows when article title is clicked/opened. (optional)
 - `dissect`: Split compound attributes into smaller attributes via REGEX. (optional)
 - `preprocess`: Array of attributes which need to be preprocessed. `[attributeName => callable]` (optional)
 - `remap`: Array of attributes which need to be renamed in order to be saved as target objects. `[attributeName => newName]` (optional)
