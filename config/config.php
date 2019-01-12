@@ -1,18 +1,15 @@
 <?php
-/**
- * Laravel Scavenger Configuration
- * 
- * NB: Special keys start with an "__". 
- * Please refer to the documentation found at http://scavenger.reliqarts.com for more info.
- * 
- * Ps. Thank you for choosing Scavenger!
+
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
  */
 
 return [
     // debug mode?
     'debug' => false,
-    
-    // whther log file should be written
+
+    // whether log file should be written
     'log' => true,
 
     // How much detail is expected in output, 1 being the lowest, 3 being highest.
@@ -25,7 +22,7 @@ return [
     ],
 
     // Daemon config - used to build daemon user
-    'daemon' => [ 
+    'daemon' => [
         // Model to use for Daemon identification and login
         'model' => 'App\\User',
 
@@ -36,12 +33,17 @@ return [
         'id' => 'daemon@scavenger.reliqarts.com',
 
         // Any additional information required to create a user:
-        // NB. this is only used when creating a daemon user, there is no "safe" way 
+        // NB. this is only used when creating a daemon user, there is no "safe" way
         // to change the daemon's password once he has been created.
         'info' => [
             'name' => 'Scavenger Daemon',
-            'password' => 'pass'
-        ]
+            'password' => 'pass',
+        ],
+    ],
+
+    // guzzle settings
+    'guzzle_settings' => [
+        'timeout' => 60,
     ],
 
     // hashing algorithm to use
@@ -94,9 +96,10 @@ return [
                     'title' => '#ad-title > h1 > a',
                     'body' => 'article .adcontent > p[align="LEFT"]:last-of-type',
                     // focus: focus detail on the following section
-                    '__focus' => 'section section > .content #ad-detail > article'
+                    '__focus' => 'section section > .content #ad-detail > article',
                 ],
-                // wrapper/item/result: wrapping selector for each item on single page. If inside special key is set this key becomes invalid (i.e. inside takes preference)
+                // wrapper/item/result: wrapping selector for each item on single page.
+                // If inside special key is set this key becomes invalid (i.e. inside takes preference)
                 '__result' => null,
             ],
             // split single attributes into multiple based on regex
@@ -112,7 +115,7 @@ return [
             ],
             // modify attributes by calling functions
             'preprocess' => [
-                // takes a callable 
+                // takes a callable
                 // optional third parameter of array if callable method needs an instance
                 // e.g. ['App\\Item', 'foo', true] or 'bar'
                 'title' => null,
@@ -139,7 +142,7 @@ return [
                 'form' => [
                     'selector' => 'form[name="f"]',
                     'keyword_input_name' => 'q',
-                ]
+                ],
             ],
             'pages' => 2,
             'pager' => [
@@ -167,7 +170,7 @@ return [
                 'form' => [
                     'selector' => 'form#sb_form',
                     'keyword_input_name' => 'q',
-                ]
+                ],
             ],
             'pages' => 3,
             'pager' => [
@@ -183,5 +186,4 @@ return [
             ],
         ],
     ],
-
 ];

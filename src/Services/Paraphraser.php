@@ -1,16 +1,33 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger\Services;
 
-use Log;
-use Carbon\Carbon;
-use InvalidArgumentException;
+use Exception;
 use GuzzleHttp\Client as GuzzleClient;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Log;
 use ReliQArts\Scavenger\Contracts\Paraphraser as ParaphraserInterface;
 
 class Paraphraser implements ParaphraserInterface
 {
+    /**
+     * Mapping of resources and url.
+     *
+     * @const array
+     */
+    private const API_URL = 'http://script4.prothemes.biz/php/process.php';
+
+    /**
+     * HTTP Client instance.
+     *
+     * @var GuzzleClient
+     */
+    protected $client;
     /**
      * Guzzle settings.
      *
@@ -24,23 +41,7 @@ class Paraphraser implements ParaphraserInterface
     ];
 
     /**
-     * HTTP Client instance.
-     *
-     * @var Goute\Client
-     */
-    protected $client = null;
-
-    /**
-     * Mapping of resources and url.
-     *
-     * @const array
-     */
-    const API_URL = 'http://script4.prothemes.biz/php/process.php';
-
-    /**
      * Create a new seeker.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -50,12 +51,12 @@ class Paraphraser implements ParaphraserInterface
     /**
      * {@inheritdoc}
      */
-    public function paraphrase($text)
+    public function paraphrase(string $text): string
     {
         try {
             $response = $this->client->request(
                 'POST',
-                static::API_URL,
+                self::API_URL,
                 [
                     'form_params' => [
                         'lang' => 'en',
@@ -65,10 +66,10 @@ class Paraphraser implements ParaphraserInterface
             );
 
             return $response->getBody()->getContents();
-        } catch (\Exception $e) {
+        } catch (GuzzleException | Exception $e) {
             Log::error($e);
         }
 
-        return;
+        return $text;
     }
 }

@@ -1,15 +1,38 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger\Models;
 
-use Schema;
-use Illuminate\Database\Eloquent\Model;
-use ReliQArts\Scavenger\Helpers\SchemaHelper;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Support\Facades\Schema;
+use ReliQArts\Scavenger\Helpers\Config;
+
 /**
- *  Scavenger Scrap model.
+ * Scavenger Scrap.
+ *
+ * @property string      $hash
+ * @property string      $model
+ * @property string      $source
+ * @property bool|string $data
+ * @property string      $title
+ * @property mixed       $related
+ *
+ * @method static firstOrCreate(array $array, array $array1 = [])
+ * @method static firstOrNew(array $array, array $array1 = [])
  */
-class Scrap extends Model
+class Scrap extends EloquentModel
 {
+    private const SOFT_DELETES_TRAIT = 'Illuminate\Database\Eloquent\SoftDeletes';
+
+    /**
+     * @var array
+     */
+    protected $guarded = [];
+
     /**
      * Get the scraps table.
      *
@@ -17,81 +40,88 @@ class Scrap extends Model
      */
     public function getTable()
     {
-        return SchemaHelper::getScrapsTable();
+        return Config::getScrapsTable();
     }
 
     /**
      * Convert scrap to target model.
-     * 
-     * @param boolean $convertDuplicates Whether to force conversion even if model already exists.
      *
-     * @return Model
+     * @param bool $convertDuplicates     whether to force conversion even if model already exists
+     * @param bool $storeRelatedReference Whether to update relation field on scrap (self)
+     *                                    N.B. if reference is stored the scrap will be saved.
+     *
+     * @return null|EloquentModel
      */
-    public function convert($convertDuplicates = false)
+    public function convert(bool $convertDuplicates = false, bool $storeRelatedReference = false): ?EloquentModel
     {
-        $targetObject = false;
+        $targetObject = null;
         $convert = true;
 
-        if ($this->model) {
-            if ($existingRelated = $this->getRelated()) {
-                $targetObject = $existingRelated;
-                if (!$convertDuplicates) {
-                    $convert = false;
-                }
+        if (!empty($this->model)) {
+            $existingRelated = $this->getRelated();
+
+            if ($existingRelated && !$convertDuplicates) {
+                return $existingRelated;
             }
 
             if ($convert) {
-                $targetObject = new $this->model;
+                /** @var EloquentModel $targetObject */
+                $targetObject = new $this->model();
+                $targetTable = $targetObject->getTable();
 
                 // Fill model data with scrap data if attributes exist
                 foreach (json_decode($this->data, true) as $attr => $val) {
-                    $targetTable = $targetObject->getTable();
-                    if (!SchemaHelper::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    if (!Config::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
                         $targetObject->{$attr} = $val;
                     }
                 }
 
-                // Save model
+                // save related model
                 $targetObject->save();
 
-                // Update relation
-                $this->related = $targetObject->getKey();
-                $this->save();
+                if ($storeRelatedReference) {
+                    $this->related = $targetObject->getKey();
+                    $this->save();
+                }
             }
         }
+
         return $targetObject;
     }
 
     /**
      * Convert scrap to target model.
-     * 
-     * @param boolean $force Whether to force conversion even if model already exists.
      *
-     * @return Model
+     * @return null|EloquentModel
      */
-    public function getRelated()
+    public function getRelated(): ?EloquentModel
     {
-        $related = false;
+        $related = null;
+
         if ($this->model && $this->related) {
             // find relation
             if ($this->relatedModelUsesSoftDeletes()) {
+                /** @noinspection PhpUndefinedMethodInspection */
                 $related = $this->model::withTrashed()->find($this->related);
             } else {
+                /** @noinspection PhpUndefinedMethodInspection */
                 $related = $this->model::find($this->related);
             }
         }
+
         return $related;
     }
 
     /**
      * Whether related model uses eloquent's SoftDeletes trait.
      *
-     * @see Illuminate\Database\Eloquent\SoftDeletes
      * @return bool
+     *
+     * @see \Illuminate\Database\Eloquent\SoftDeletes
      */
-    public function relatedModelUsesSoftDeletes()
+    public function relatedModelUsesSoftDeletes(): bool
     {
-        $result = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->model, true));
-        return $result;
+        return in_array(self::SOFT_DELETES_TRAIT, class_uses($this->model, true), true);
     }
 }

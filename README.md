@@ -105,7 +105,7 @@ return [
         // NB. this is only used when creating a daemon user, there is no "safe" way 
         // to change the daemon's password once he has been created.
         'info' => [
-            'name' => 'Scavenger Daemon',
+            'name' => 'Seeker',
             'password' => 'pass'
         ]
     ],

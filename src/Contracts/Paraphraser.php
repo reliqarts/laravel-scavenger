@@ -1,15 +1,20 @@
 <?php
 
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 namespace ReliQArts\Scavenger\Contracts;
 
 interface Paraphraser
 {
     /**
-     * Paraprase text.
+     * Paraphrase text.
      *
-     * @param string $text text to paraphase
+     * @param string $text text to paraphrase
      *
-     * @return String paraphrased text.
+     * @return string paraphrased text
      */
-    public function paraphrase($text);
+    public function paraphrase(string $text): string;
 }

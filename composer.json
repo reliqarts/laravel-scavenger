@@ -1,50 +1,50 @@
 {
-    "name": "reliqarts/scavenger",
-    "description": "Highly configurable Laravel 5 scraper package.",
-    "keywords": [
-        "scraper",
-        "package",
-        "generation",
-        "laravel",
-        "scavenger",
-        "laravel5",
-        "seek",
-        "content",
-        "data",
-        "web"
-    ],
-    "version": "2.0.2",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "reliq",
-            "email": "reliq@reliqarts.com"
-        }
-    ],
-    "require": {
-        "php": ">=7.0",
-        "illuminate/support": "^5.5",
-        "monolog/monolog": "~1.11",
-        "fabpot/goutte": "^3.2"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^5.6",
-        "orchestra/testbench": "~3.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "ReliQArts\\Scavenger\\": "src/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": ["ReliQArts\\Scavenger\\ScavengerServiceProvider"],
-            "aliases": {
-                "ScavengerService": "ReliQArts\\Scavenger\\Services\\Scavenger"
-            }
-        }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+  "name": "reliqarts/scavenger",
+  "description": "Highly configurable Laravel 5 scraper package.",
+  "keywords": [
+    "scraper",
+    "package",
+    "generation",
+    "laravel",
+    "scavenger",
+    "laravel5",
+    "seek",
+    "content",
+    "data",
+    "web"
+  ],
+  "version": "2.1.0-alpha.2",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "reliq",
+      "email": "reliq@reliqarts.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1.3",
+    "illuminate/support": "^5.5",
+    "monolog/monolog": "~1.11",
+    "fabpot/goutte": "^3.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.6",
+    "orchestra/testbench": "~3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ReliQArts\\Scavenger\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": ["ReliQArts\\Scavenger\\ServiceProvider"],
+      "aliases": {
+        "ScavengerSeeker": "ReliQArts\\Scavenger\\Services\\Seeker"
+      }
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

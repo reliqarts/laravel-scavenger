@@ -1,20 +1,25 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
+/*
+ * @author    ReliQ <reliq@reliqarts.com>
+ * @copyright 2018
+ */
+
 use Illuminate\Database\Migrations\Migration;
-use ReliQArts\Scavenger\Helpers\SchemaHelper;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use ReliQArts\Scavenger\Helpers\Config;
 
 class CreateScavengerScrapsTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up()
     {
-        $table = SchemaHelper::getScrapsTable();
-        if (! Schema::hasTable($table)) {
+        $table = Config::getScrapsTable();
+        // @noinspection PhpUndefinedMethodInspection
+        if (!Schema::hasTable($table)) {
             Schema::create($table, function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('hash', 128)->unique(); // a hash
@@ -30,12 +35,10 @@ class CreateScavengerScrapsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down()
     {
-        $table = SchemaHelper::getScrapsTable();
+        $table = Config::getScrapsTable();
         Schema::dropIfExists($table);
     }
 }
