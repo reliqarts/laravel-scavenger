@@ -56,7 +56,7 @@ Scavenger provides the following features and more out of the box.
     //...
     'providers' => [
         //...
-        ReliQArts\Scavenger\ScavengerServiceProvider::class,
+        ReliQArts\Scavenger\ServiceProvider::class,
         //...
     ],
     // ...
@@ -120,8 +120,8 @@ return [
 
     // storage
     'storage' => [
-        // This directory will live inside your application's storage directory.
-        'dir' => env('SCAVENGER_STORAGE_DIR', 'scavenger'),
+        // This directory will live inside your application's log directory.
+        'log_dir' => env('SCAVENGER_LOG_DIR', 'scavenger'),
     ],
 
     // different model entities and mapping information
