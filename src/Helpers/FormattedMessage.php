@@ -30,7 +30,7 @@ final class FormattedMessage
     public const TARGET_MODEL_RESOLUTION_FAILED = 'Could not resolve model for target %s. %s' . self::SUFFIX_SKIPPED;
     public const TARGET_NAME_MISSING = 'Missing target name. (%s)';
     public const TARGET_PAGER_NEXT_NOT_FOUND = self::PREFIX_ERROR
-    .'Pager next link could not be found for target (%s). Specified as (%s), with expected text: "%s".';
+    . 'Pager next link could not be found for target (%s). Specified as (%s), with expected text: "%s".';
     public const TARGET_SOURCE_MISSING = 'Missing source for target (%s).' . self::SUFFIX_SKIPPED;
     public const TARGET_INVALID_SEARCH_FORM = 'Could not retrieve form for target (%s). Please check configuration.';
     public const TARGET_UNKNOWN = self::PREFIX_ABORTED . 'Unknown target (%s).';

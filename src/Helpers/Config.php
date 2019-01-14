@@ -137,6 +137,14 @@ final class Config extends BaseConfig
     }
 
     /**
+     * @return string
+     */
+    public static function getLogDir(): string
+    {
+        return self::get()['storage']['log_dir'] ?? 'scavenger';
+    }
+
+    /**
      * Get scavenger scraps table.
      *
      * @return string

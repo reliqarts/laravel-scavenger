@@ -163,7 +163,7 @@ class Seeker extends Communicator implements SeekerInterface
         $this->log = new Logger(self::LOGGER_NAME);
         $this->logFilename = self::LOG_FILE_PREFIX . microtime(true);
         $this->log->pushHandler(new StreamHandler(
-            storage_path($this->config['storage']['dir'] . "/logs/{$this->logFilename}.log"),
+            storage_path('logs/' . Config::getLogDir() . "/{$this->logFilename}.log"),
             // critical info. or higher will always be logged regardless of log config
             $this->config['log'] ? Logger::DEBUG : Logger::CRITICAL
         ));
