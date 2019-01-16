@@ -155,7 +155,7 @@ final class TargetBuilder
         }
 
         $titleOrLinkExists = !empty(
-            $this->scanner->firstNonEmpty($markupDefinition, [TargetKey::MARKUP_TITLE, TargetKey::MARKUP_LINK])
+            Scanner::firstNonEmpty($markupDefinition, [TargetKey::MARKUP_TITLE, TargetKey::MARKUP_LINK])
         );
         if (!$titleOrLinkExists) {
             $result = $result->setSuccess(false)->addError(
@@ -168,7 +168,7 @@ final class TargetBuilder
 
         if (empty($markupDefinition[TargetKey::special(TargetKey::MARKUP_INSIDE)])
             && empty(
-                $this->scanner->firstNonEmpty($markupDefinition, [
+                Scanner::firstNonEmpty($markupDefinition, [
                     TargetKey::special(TargetKey::ITEM_WRAPPER),
                     TargetKey::special(TargetKey::RESULT),
                     TargetKey::special(TargetKey::ITEM),

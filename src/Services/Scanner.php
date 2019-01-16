@@ -29,29 +29,34 @@ class Scanner
     }
 
     /**
-     * Remove tabs and newlines from text.
+     * Determine whether a scrap data has bad words and therefore is unwanted.
      *
-     * @param string $text
+     * @param array $data
+     * @param array $badWords List of words (regex) we don't want in our scraps.'.
      *
-     * @return string clean text; without newlines and tabs
+     * @return mixed
      */
-    public function removeReturnsAndTabs(string $text): string
+    public function hasBadWords(array $data, array $badWords = [])
     {
-        $cleanedText = preg_replace('/\\s{2,}/', ' ', preg_replace("/[\r\n\t]+/", '', $text));
+        $invalid = false;
+        $badWords = array_merge($this->badWords, $badWords);
 
-        return str_replace(' / ', null, $cleanedText);
-    }
+        if (count($badWords)) {
+            $badWordsRegex = '/(' . implode(')|(', $badWords) . ')/i';
 
-    /**
-     * Convert <br/> to newlines.
-     *
-     * @param string $text
-     *
-     * @return string
-     */
-    public function br2nl(string $text): string
-    {
-        return preg_replace('/<br[\\/]?>/', "\n", $text);
+            // check for bad words
+            foreach ($data as $attr) {
+                if (!Config::isSpecialKey($attr)) {
+                    if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
+                        $invalid = true;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $invalid;
     }
 
     /**
@@ -63,7 +68,7 @@ class Scanner
      *
      * @return array
      */
-    public function pluckDetails(string &$string, array $map = [], bool $retain = false): array
+    public static function pluckDetails(string &$string, array $map = [], bool $retain = false): array
     {
         $details = [];
 
@@ -95,7 +100,7 @@ class Scanner
      *
      * @return mixed
      */
-    public function firstNonEmpty(array &$haystack, array $needles = [])
+    public static function firstNonEmpty(array &$haystack, array $needles = [])
     {
         $found = false;
 
@@ -121,33 +126,38 @@ class Scanner
     }
 
     /**
-     * Determine whether a scrap data has bad words and therefore is unwanted.
+     * Convert <br/> to newlines.
      *
-     * @param array $data
-     * @param array $badWords List of words (regex) we don't want in our scraps.'.
+     * @param string $text
      *
-     * @return mixed
+     * @return string
      */
-    public function hasBadWords(array $data, array $badWords = [])
+    public static function br2nl(string $text): string
     {
-        $invalid = false;
-        $badWords = array_merge($this->badWords, $badWords);
+        return preg_replace('/<br[\\/]?>/', "\n", $text);
+    }
 
-        if (count($badWords)) {
-            $badWordsRegex = '/(' . implode(')|(', $badWords) . ')/i';
+    /**
+     * @param string $text
+     *
+     * @return string
+     */
+    public static function cleanText(string $text): string
+    {
+        return self::removeReturnsAndTabs(strip_tags($text));
+    }
 
-            // check for bad words
-            foreach ($data as $attr) {
-                if (!Config::isSpecialKey($attr)) {
-                    if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
-                        $invalid = true;
+    /**
+     * Remove tabs and newlines from text.
+     *
+     * @param string $text
+     *
+     * @return string
+     */
+    private static function removeReturnsAndTabs(string $text): string
+    {
+        $text = preg_replace('/\\s{2,}/', ' ', preg_replace("/[\r\n\t]+/", '', $text));
 
-                        break;
-                    }
-                }
-            }
-        }
-
-        return $invalid;
+        return str_replace(' / ', null, $text);
     }
 }

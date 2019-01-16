@@ -339,7 +339,7 @@ class Seeker extends Communicator implements SeekerInterface
         }
 
         // determine what item wrapper is
-        $markup[TargetKey::special(TargetKey::ITEM_WRAPPER)] = $this->scanner->firstNonEmpty($markup, [
+        $markup[TargetKey::special(TargetKey::ITEM_WRAPPER)] = Scanner::firstNonEmpty($markup, [
             TargetKey::special(TargetKey::ITEM_WRAPPER),
             TargetKey::special(TargetKey::RESULT),
             TargetKey::special(TargetKey::ITEM),
@@ -384,7 +384,7 @@ class Seeker extends Communicator implements SeekerInterface
                         /** @noinspection PhpUndefinedMethodInspection */
                         $titleLinkCrawler = $markupHasInside ? $itemCrawler : $itemCrawler->filter($titleLinkSelector);
                         /** @noinspection PhpUndefinedMethodInspection */
-                        $titleLinkText = $this->scanner->removeReturnsAndTabs($titleLinkCrawler->text());
+                        $titleLinkText = Scanner::cleanText($titleLinkCrawler->text());
                         /** @noinspection PhpUndefinedMethodInspection */
                         $linkCrawler = $titleLinkCrawler->selectLink($titleLinkText);
 
