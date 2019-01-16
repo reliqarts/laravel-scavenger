@@ -445,7 +445,7 @@ class Seeker extends Communicator implements SeekerInterface
                     // Select pager
                     $pager = $crawler->filter($target->getPager()[TargetKey::PAGER_SELECTOR]);
                     // Grab pager/next link
-                    $nextLink = new Link($pager->getNode(0), $pager->getUri());
+                    $nextLink = $pager->link();
                     // Click it!
                     $crawler = $this->client->click($nextLink);
                 } catch (InvalidArgumentException $e) {
