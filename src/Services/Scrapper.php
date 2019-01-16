@@ -247,7 +247,8 @@ class Scrapper extends Communicator
                 $data[$attr] = !empty($data[$path]) ? $data[$path] : self::ERROR_INVALID_SPECIAL_KEY;
             } elseif (!Config::isSpecialKey($attr)) {
                 try {
-                    $data[$attr] = $this->scanner->removeReturnsAndTabs($crawler->filter($path)->text());
+                    $attrCrawler = $crawler->filter($path);
+                    $data[$attr] = $attr === TargetKey::TITLE ? $attrCrawler->text() : $attrCrawler->html();
 
                     // split single attributes into multiple based on regex
                     if (!empty($target->getDissect()[$attr])) {
@@ -261,7 +262,7 @@ class Scrapper extends Communicator
                         unset($dissectMap[TargetKey::special(TargetKey::RETAIN)]);
 
                         // Extract details into scrap
-                        $data = array_merge($data, $this->scanner->pluckDetails($data[$attr], $dissectMap, $retain));
+                        $data = array_merge($data, Scanner::pluckDetails($data[$attr], $dissectMap, $retain));
 
                         // unset dissectMap
                         unset($dissectMap);
