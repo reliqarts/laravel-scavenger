@@ -392,13 +392,11 @@ class Seeker extends Communicator implements SeekerInterface
                         // so we must find closest link:
                         if (!count($linkCrawler)) {
                             $linkCrawler = $this->nodeProximityAssistant->closest('a[href]', $titleLinkCrawler);
-                            /** @noinspection PhpUndefinedMethodInspection */
-                            $link = new Link($linkCrawler->getNode(0), $titleLinkCrawler->getUri());
-                        } else {
-                            /** @noinspection PhpUndefinedMethodInspection */
-                            // simply get link from crawler
-                            $link = $linkCrawler->link();
                         }
+
+                        /** @noinspection PhpUndefinedMethodInspection */
+                        // simply get link from crawler
+                        $link = $linkCrawler->link();
 
                         $this->tell($titleLinkText, self::COMM_DIRECTION_FLAT);
                     } catch (InvalidArgumentException $e) {

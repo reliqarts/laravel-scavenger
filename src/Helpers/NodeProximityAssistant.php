@@ -28,10 +28,10 @@ class NodeProximityAssistant
         $node = $crawler->getNode(0);
         while ($node = $node->parentNode) {
             if (XML_ELEMENT_NODE === $node->nodeType) {
-                $parentCrawler = new Crawler($node);
-                $parent = $parentCrawler->filter($selector);
-                if ($parent->count()) {
-                    return $parent;
+                $parentCrawler = new Crawler($node, $crawler->getUri(), $crawler->getBaseHref());
+                $descendantMatchingSelector = $parentCrawler->filter($selector);
+                if ($descendantMatchingSelector->count()) {
+                    return $descendantMatchingSelector;
                 }
             }
         }
