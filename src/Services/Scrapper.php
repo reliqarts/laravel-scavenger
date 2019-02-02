@@ -28,6 +28,7 @@ class Scrapper extends Communicator
     private const KEY_TARGET = self::KEY_PREFIX . 'target';
     private const KEY_ID = self::KEY_PREFIX . 'id';
     private const KEY_SERP_RESULT = self::KEY_PREFIX . 'serp_result';
+    private const ENCODE_CHARSET = 'UTF-8';
 
     /**
      * @var array[]
@@ -105,9 +106,7 @@ class Scrapper extends Communicator
             $titleLink,
             $target,
             $crawler,
-            $markup[
-                TargetKey::special(TargetKey::MARKUP_INSIDE)
-            ] ?? []
+            $markup[TargetKey::special(TargetKey::MARKUP_INSIDE)] ?? []
         );
         $data = $this->preprocess($data, $target);
 
@@ -294,10 +293,7 @@ class Scrapper extends Communicator
     {
         // preprocess and remap scrap data parts
         foreach (($dataSnap = $data) as $attr => $value) {
-            // ensure title has UC words
-            if ($attr === TargetKey::TITLE) {
-                $data[$attr] = utf8_encode(ucwords(mb_strtolower($data[$attr])));
-            }
+            $data[$attr] = $this->encodeAttribute($data, $attr);
 
             // preprocess
             if (!empty($target->getPreprocess()[$attr])) {
@@ -378,5 +374,27 @@ class Scrapper extends Communicator
         }
 
         return true;
+    }
+
+    /**
+     * @param array  $data
+     * @param string $attr
+     *
+     * @return string
+     */
+    private function encodeAttribute(array $data, string $attr): string
+    {
+        $attributeText = $data[$attr];
+
+        // ensure title has UC words
+        if ($attr === TargetKey::TITLE) {
+            return utf8_encode(ucwords(mb_strtolower($attributeText)));
+        }
+
+        return iconv(
+            mb_detect_encoding($attributeText, mb_detect_order(), true),
+            self::ENCODE_CHARSET,
+            $attributeText
+        );
     }
 }
