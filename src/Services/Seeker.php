@@ -28,7 +28,6 @@ use ReliQArts\Scavenger\Models\Target;
 use ReliQArts\Scavenger\Traits\Timed;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Form;
-use Symfony\Component\DomCrawler\Link;
 
 class Seeker extends Communicator implements SeekerInterface
 {

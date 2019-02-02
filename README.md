@@ -47,7 +47,7 @@ Scavenger provides the following features and more out of the box.
     ```js
     "require": {
         //...
-        "reliqarts/scavenger": "~2.1"
+        "reliqarts/scavenger": "~2.2"
         //...
     },
     ```
