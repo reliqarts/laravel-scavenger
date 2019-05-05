@@ -1,13 +1,13 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Services;
 
-use ReliQArts\Scavenger\Helpers\Config;
+use ReliqArts\Scavenger\Helpers\Config;
 
 class Scanner
 {

@@ -1,16 +1,16 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger;
+namespace ReliqArts\Scavenger;
 
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use ReliQArts\Scavenger\Console\Commands\Seek;
+use ReliqArts\Scavenger\Console\Commands\Seek;
 
 /**
  *  Service Provider.

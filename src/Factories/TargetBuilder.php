@@ -1,19 +1,19 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Factories;
+namespace ReliqArts\Scavenger\Factories;
 
-use ReliQArts\Scavenger\DTOs\Result;
-use ReliQArts\Scavenger\Exceptions\Exception;
-use ReliQArts\Scavenger\Exceptions\InvalidTargetDefinition;
-use ReliQArts\Scavenger\Helpers\FormattedMessage;
-use ReliQArts\Scavenger\Helpers\TargetKey;
-use ReliQArts\Scavenger\Models\Target;
-use ReliQArts\Scavenger\Services\Scanner;
+use ReliqArts\Scavenger\Exceptions\Exception;
+use ReliqArts\Scavenger\Exceptions\InvalidTargetDefinition;
+use ReliqArts\Scavenger\Helpers\FormattedMessage;
+use ReliqArts\Scavenger\Helpers\TargetKey;
+use ReliqArts\Scavenger\Models\Target;
+use ReliqArts\Scavenger\Services\Scanner;
+use ReliqArts\Scavenger\VO\Result;
 
 final class TargetBuilder
 {

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Contracts;
+namespace ReliqArts\Scavenger\Contracts;
 
-use ReliQArts\Scavenger\DTOs\Result;
+use ReliqArts\Scavenger\VO\Result;
 
 /**
  * A service that abstracts seeker related methods.

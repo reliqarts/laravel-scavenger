@@ -1,11 +1,11 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\DTOs;
+namespace ReliqArts\Scavenger\VO;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
@@ -13,7 +13,7 @@ use Illuminate\Contracts\Support\Jsonable;
 /**
  * Result.
  */
-class Result implements Arrayable, Jsonable
+final class Result implements Arrayable, Jsonable
 {
     /**
      * @var bool

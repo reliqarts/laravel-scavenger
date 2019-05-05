@@ -1,16 +1,16 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\DTOs;
+namespace ReliqArts\Scavenger\DTO;
 
 /**
  * A simple combination of **title** and **link**.
  */
-class TitleLink
+final class TitleLink
 {
     /**
      * @var string

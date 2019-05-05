@@ -1,11 +1,11 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Services;
 
 use Exception;
 use Illuminate\Console\Command;
@@ -13,12 +13,12 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Monolog\Logger;
-use ReliQArts\Scavenger\DTOs\TitleLink;
-use ReliQArts\Scavenger\Helpers\Config;
-use ReliQArts\Scavenger\Helpers\FormattedMessage;
-use ReliQArts\Scavenger\Helpers\TargetKey;
-use ReliQArts\Scavenger\Models\Scrap;
-use ReliQArts\Scavenger\Models\Target;
+use ReliqArts\Scavenger\DTO\TitleLink;
+use ReliqArts\Scavenger\Helpers\Config;
+use ReliqArts\Scavenger\Helpers\FormattedMessage;
+use ReliqArts\Scavenger\Helpers\TargetKey;
+use ReliqArts\Scavenger\Models\Scrap;
+use ReliqArts\Scavenger\Models\Target;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Scrapper extends Communicator

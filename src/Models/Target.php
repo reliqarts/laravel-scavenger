@@ -1,11 +1,11 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Models;
+namespace ReliqArts\Scavenger\Models;
 
 class Target
 {

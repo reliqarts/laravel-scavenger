@@ -1,13 +1,12 @@
 <?php
 
 $header = <<<'EOF'
-@author    ReliQ <reliq@reliqarts.com>
+@author    Reliq <reliq@reliqarts.com>
 @copyright 2018
 EOF;
 
 $finder = PhpCsFixer\Finder::create()
     ->exclude('docs')
-    ->notPath('src/Traits/Seekerp')
     ->in(__DIR__);
 
 $config = PhpCsFixer\Config::create()

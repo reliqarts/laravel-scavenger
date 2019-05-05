@@ -1,17 +1,17 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Services;
 
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use ReliQArts\Scavenger\Contracts\Paraphraser as ParaphraserInterface;
+use ReliqArts\Scavenger\Contracts\Paraphraser as ParaphraserInterface;
 
 class Paraphraser implements ParaphraserInterface
 {
