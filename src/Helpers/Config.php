@@ -1,18 +1,18 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Helpers;
+namespace ReliqArts\Scavenger\Helpers;
 
 use Doctrine\DBAL\Driver\PDOException;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Config as BaseConfig;
 use Illuminate\Support\Facades\Hash;
-use ReliQArts\Scavenger\Exceptions\BadDaemonConfig;
+use ReliqArts\Scavenger\Exceptions\BadDaemonConfig;
 
 final class Config extends BaseConfig
 {

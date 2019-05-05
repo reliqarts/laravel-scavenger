@@ -1,19 +1,19 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Console\Commands;
+namespace ReliqArts\Scavenger\Console\Commands;
 
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
-use ReliQArts\Scavenger\DTOs\OptionSet;
-use ReliQArts\Scavenger\Exceptions\BadDaemonConfig;
-use ReliQArts\Scavenger\Helpers\Config;
-use ReliQArts\Scavenger\Services\Seeker;
+use ReliqArts\Scavenger\DTO\OptionSet;
+use ReliqArts\Scavenger\Exceptions\BadDaemonConfig;
+use ReliqArts\Scavenger\Helpers\Config;
+use ReliqArts\Scavenger\Services\Seeker;
 
 class Seek extends Command
 {
@@ -60,7 +60,7 @@ class Seek extends Command
 
         $this->comment(
             PHP_EOL
-            . "<info>♣♣♣</info> Scavenger Seek v1.0 \nHelp is here, try: php artisan scavenger:seek --help"
+            . "<info>♣♣♣</info> Scavenger Seek \nHelp is here, try: php artisan scavenger:seek --help"
         );
 
         if ($skipConfirmation || $this->confirm($confirmationQuestion)) {

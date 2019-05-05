@@ -1,13 +1,13 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Exceptions;
+namespace ReliqArts\Scavenger\Exceptions;
 
-use ReliQArts\Scavenger\DTOs\Result;
+use ReliqArts\Scavenger\VO\Result;
 use RuntimeException;
 
 /**

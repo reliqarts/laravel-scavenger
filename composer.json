@@ -13,7 +13,7 @@
     "data",
     "web"
   ],
-  "version": "2.2.3",
+  "version": "2.3.0-beta.3",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -35,14 +35,14 @@
   },
   "autoload": {
     "psr-4": {
-      "ReliQArts\\Scavenger\\": "src/"
+      "ReliqArts\\Scavenger\\": "src/"
     }
   },
   "extra": {
     "laravel": {
-      "providers": ["ReliQArts\\Scavenger\\ServiceProvider"],
+      "providers": ["ReliqArts\\Scavenger\\ServiceProvider"],
       "aliases": {
-        "ScavengerSeeker": "ReliQArts\\Scavenger\\Services\\Seeker"
+        "ScavengerSeeker": "ReliqArts\\Scavenger\\Services\\Seeker"
       }
     }
   },

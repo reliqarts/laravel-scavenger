@@ -1,13 +1,13 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\DTOs;
+namespace ReliqArts\Scavenger\DTO;
 
-class OptionSet
+final class OptionSet
 {
     /**
      * @var bool

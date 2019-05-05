@@ -1,15 +1,15 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Models;
+namespace ReliqArts\Scavenger\Models;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\Schema;
-use ReliQArts\Scavenger\Helpers\Config;
+use ReliqArts\Scavenger\Helpers\Config;
 
 /**
  * Scavenger Scrap.

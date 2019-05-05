@@ -1,11 +1,11 @@
 <?php
 
 /*
- * @author    ReliQ <reliq@reliqarts.com>
+ * @author    Reliq <reliq@reliqarts.com>
  * @copyright 2018
  */
 
-namespace ReliQArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Services;
 
 use Exception;
 use Goutte\Client;
@@ -14,18 +14,18 @@ use Illuminate\Console\Command;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use ReliQArts\Scavenger\Contracts\Seeker as SeekerInterface;
-use ReliQArts\Scavenger\DTOs\OptionSet;
-use ReliQArts\Scavenger\DTOs\Result;
-use ReliQArts\Scavenger\DTOs\TitleLink;
-use ReliQArts\Scavenger\Exceptions\InvalidTargetDefinition;
-use ReliQArts\Scavenger\Factories\TargetBuilder;
-use ReliQArts\Scavenger\Helpers\Config;
-use ReliQArts\Scavenger\Helpers\FormattedMessage;
-use ReliQArts\Scavenger\Helpers\NodeProximityAssistant;
-use ReliQArts\Scavenger\Helpers\TargetKey;
-use ReliQArts\Scavenger\Models\Target;
-use ReliQArts\Scavenger\Traits\Timed;
+use ReliqArts\Scavenger\Contracts\Seeker as SeekerInterface;
+use ReliqArts\Scavenger\DTO\OptionSet;
+use ReliqArts\Scavenger\DTO\TitleLink;
+use ReliqArts\Scavenger\Exceptions\InvalidTargetDefinition;
+use ReliqArts\Scavenger\Factories\TargetBuilder;
+use ReliqArts\Scavenger\Helpers\Config;
+use ReliqArts\Scavenger\Helpers\FormattedMessage;
+use ReliqArts\Scavenger\Helpers\NodeProximityAssistant;
+use ReliqArts\Scavenger\Helpers\TargetKey;
+use ReliqArts\Scavenger\Models\Target;
+use ReliqArts\Scavenger\Traits\Timed;
+use ReliqArts\Scavenger\VO\Result;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Form;
 
