@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Service;
 
 use Exception;
 use Goutte\Client;
@@ -14,18 +11,18 @@ use Illuminate\Console\Command;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use ReliqArts\Scavenger\Contracts\Seeker as SeekerInterface;
-use ReliqArts\Scavenger\DTO\OptionSet;
-use ReliqArts\Scavenger\DTO\TitleLink;
-use ReliqArts\Scavenger\Exceptions\InvalidTargetDefinition;
-use ReliqArts\Scavenger\Factories\TargetBuilder;
-use ReliqArts\Scavenger\Helpers\Config;
-use ReliqArts\Scavenger\Helpers\FormattedMessage;
-use ReliqArts\Scavenger\Helpers\NodeProximityAssistant;
-use ReliqArts\Scavenger\Helpers\TargetKey;
-use ReliqArts\Scavenger\Models\Target;
-use ReliqArts\Scavenger\Traits\Timed;
-use ReliqArts\Scavenger\VO\Result;
+use ReliqArts\Scavenger\Concern\Timed;
+use ReliqArts\Scavenger\Contract\Seeker as SeekerInterface;
+use ReliqArts\Scavenger\Exception\InvalidTargetDefinition;
+use ReliqArts\Scavenger\Factory\TargetBuilder;
+use ReliqArts\Scavenger\Helper\Config;
+use ReliqArts\Scavenger\Helper\FormattedMessage;
+use ReliqArts\Scavenger\Helper\NodeProximityAssistant;
+use ReliqArts\Scavenger\Helper\TargetKey;
+use ReliqArts\Scavenger\Model\Target;
+use ReliqArts\Scavenger\OptionSet;
+use ReliqArts\Scavenger\Result;
+use ReliqArts\Scavenger\TitleLink;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Form;
 
@@ -126,9 +123,6 @@ class Seeker extends Communicator implements SeekerInterface
     /**
      * Create a new seeker.
      *
-     * @param OptionSet    $options
-     * @param null|Command $callingCommand
-     *
      * @throws Exception
      */
     public function __construct(OptionSet $options, ?Command $callingCommand)
@@ -223,7 +217,7 @@ class Seeker extends Communicator implements SeekerInterface
             $this->scrapper->convertScraps(false, true);
         }
 
-        $extra = (object) [
+        $extra = (object)[
             'total' => $this->scrapper->getScraps()->count(),
             'executionTime' => $this->elapsedTime(),
             'new' => $this->scrapper->getNewScrapsCount(),
@@ -236,9 +230,6 @@ class Seeker extends Communicator implements SeekerInterface
             ->setExtra($extra);
     }
 
-    /**
-     * @param Target $target
-     */
     private function crawlTarget(Target $target): void
     {
         $crawler = $this->client->request('GET', $target->getSource());
@@ -256,10 +247,6 @@ class Seeker extends Communicator implements SeekerInterface
         $this->printBlankLine();
     }
 
-    /**
-     * @param Target  $target
-     * @param Crawler $crawler
-     */
     private function searchAndScrape(Target $target, Crawler $crawler): void
     {
         if ($this->verbosity >= self::VERBOSITY_MEDIUM) {
@@ -320,10 +307,6 @@ class Seeker extends Communicator implements SeekerInterface
         }
     }
 
-    /**
-     * @param Target  $target
-     * @param Crawler $crawler
-     */
     private function scrape(Target $target, Crawler $crawler): void
     {
         $markup = $target->getMarkup();

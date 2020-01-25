@@ -1,9 +1,6 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
 return [
     // debug mode?

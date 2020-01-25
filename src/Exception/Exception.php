@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Exceptions;
+namespace ReliqArts\Scavenger\Exception;
 
 use ReliqArts\Scavenger\VO\Result;
 use RuntimeException;
@@ -15,11 +12,6 @@ use RuntimeException;
  */
 abstract class Exception extends RuntimeException
 {
-    /**
-     * @param Result $result
-     *
-     * @return self
-     */
     public static function fromResult(Result $result): self
     {
         $errors = implode(' ', $result->getErrors());

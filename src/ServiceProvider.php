@@ -1,49 +1,36 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
 namespace ReliqArts\Scavenger;
 
 use Illuminate\Foundation\AliasLoader;
-use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use ReliqArts\Scavenger\Console\Commands\Seek;
+use ReliqArts\Scavenger\Console\Command\Seek;
 
 /**
  *  Service Provider.
  */
-class ServiceProvider extends BaseServiceProvider
+final class ServiceProvider extends BaseServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
+     * @var string
      */
-    protected $defer = false;
-
-    /**
-     * Assets location.
-     */
-    protected $assetsDir = __DIR__ . '/..';
+    protected string $assetsDir = __DIR__ . '/..';
 
     /**
      * List of commands.
      *
      * @var array
      */
-    protected $commands = [
+    protected array $commands = [
         Seek::class,
     ];
 
     /**
      * Perform post-registration booting of services.
-     *
-     * @param Router $router
      */
-    public function boot(Router $router)
+    public function boot(): void
     {
         // register config
         $this->handleConfig();
@@ -58,36 +45,34 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Register bindings in the container.
      */
-    public function register()
+    public function register(): void
     {
         $loader = AliasLoader::getInstance();
 
         // bind contract to service model
         $this->app->bind(
-            Contracts\Seeker::class,
-            Services\Seeker::class
+            Contract\Seeker::class,
+            Service\Seeker::class
         );
 
         // Register facades...
-        $loader->alias('ScavengerService', Services\Seeker::class);
+        $loader->alias('ScavengerService', Service\Seeker::class);
     }
 
     /**
      * Get the services provided by the provider.
-     *
-     * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return [
-            Contracts\Seeker::class,
+            Contract\Seeker::class,
         ];
     }
 
     /**
      * Publish assets.
      */
-    protected function handleAssets()
+    protected function handleAssets(): void
     {
         // ...
     }
@@ -95,7 +80,7 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Register Configuration.
      */
-    protected function handleConfig()
+    protected function handleConfig(): void
     {
         // merge config
         $this->mergeConfigFrom("{$this->assetsDir}/config/config.php", 'scavenger');
@@ -109,7 +94,7 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Command files.
      */
-    private function handleCommands()
+    private function handleCommands(): void
     {
         // Register the commands...
         if ($this->app->runningInConsole()) {
@@ -120,7 +105,7 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Migration files.
      */
-    private function handleMigrations()
+    private function handleMigrations(): void
     {
         // Load the migrations...
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');

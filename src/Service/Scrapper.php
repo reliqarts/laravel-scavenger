@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Service;
 
 use Exception;
 use Illuminate\Console\Command;
@@ -13,12 +10,12 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Monolog\Logger;
-use ReliqArts\Scavenger\DTO\TitleLink;
-use ReliqArts\Scavenger\Helpers\Config;
-use ReliqArts\Scavenger\Helpers\FormattedMessage;
-use ReliqArts\Scavenger\Helpers\TargetKey;
-use ReliqArts\Scavenger\Models\Scrap;
-use ReliqArts\Scavenger\Models\Target;
+use ReliqArts\Scavenger\Helper\Config;
+use ReliqArts\Scavenger\Helper\FormattedMessage;
+use ReliqArts\Scavenger\Helper\TargetKey;
+use ReliqArts\Scavenger\Model\Scrap;
+use ReliqArts\Scavenger\Model\Target;
+use ReliqArts\Scavenger\TitleLink;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Scrapper extends Communicator
@@ -66,12 +63,6 @@ class Scrapper extends Communicator
 
     /**
      * Scrapper constructor.
-     *
-     * @param Logger       $log
-     * @param Scanner      $scanner
-     * @param null|Command $callingCommand
-     * @param string       $hashAlgorithm
-     * @param int          $verbosity
      */
     public function __construct(
         Logger $log,
@@ -94,10 +85,6 @@ class Scrapper extends Communicator
 
     /**
      * Collect scrap array from crawler using markup.
-     *
-     * @param TitleLink $titleLink
-     * @param Target    $target
-     * @param Crawler   $crawler
      */
     public function collect(TitleLink $titleLink, Target $target, Crawler $crawler): void
     {
@@ -126,10 +113,6 @@ class Scrapper extends Communicator
         );
     }
 
-    /**
-     * @param bool $convertDuplicates
-     * @param bool $storeRelatedReferences
-     */
     public function convertScraps(bool $convertDuplicates = false, bool $storeRelatedReferences = false): void
     {
         $this->scraps->map(function (Scrap $scrap) use ($convertDuplicates, $storeRelatedReferences) {
@@ -144,17 +127,11 @@ class Scrapper extends Communicator
         });
     }
 
-    /**
-     * @return int
-     */
     public function getNewScrapsCount(): int
     {
         return $this->newScrapsCount;
     }
 
-    /**
-     * @return Collection
-     */
     public function getScraps(): Collection
     {
         return $this->scraps;
@@ -183,19 +160,12 @@ class Scrapper extends Communicator
 
     /**
      * Retrieve related objects which are a result of scrap conversion.
-     *
-     * @return Collection
      */
     public function getRelatedObjects(): Collection
     {
         return $this->relatedObjects;
     }
 
-    /**
-     * @param array $data
-     *
-     * @return Scrap
-     */
     private function buildScrapFromData(array $data): Scrap
     {
         $scrap = Scrap::firstOrNew(
@@ -221,15 +191,8 @@ class Scrapper extends Communicator
 
     /**
      * Initialize data.
-     *
-     * @param TitleLink $titleLink
-     * @param Target    $target
-     * @param Crawler   $crawler
-     * @param array     $markupOverride
-     *
-     * @return array
      */
-    private function initializeData(TitleLink $titleLink, Target $target, Crawler $crawler, array $markupOverride = [])
+    private function initializeData(TitleLink $titleLink, Target $target, Crawler $crawler, array $markupOverride = []): array
     {
         $markup = !empty($markupOverride) ? $markupOverride : $target->getMarkup();
 
@@ -283,12 +246,6 @@ class Scrapper extends Communicator
         return $data;
     }
 
-    /**
-     * @param array  $data
-     * @param Target $target
-     *
-     * @return array
-     */
     private function preprocess(array $data, Target $target): array
     {
         // preprocess and remap scrap data parts
@@ -338,13 +295,8 @@ class Scrapper extends Communicator
 
     /**
      * Finalize scrap.
-     *
-     * @param array  $data
-     * @param Target $target
-     *
-     * @return array
      */
-    private function finalizeData(array $data, Target $target)
+    private function finalizeData(array $data, Target $target): array
     {
         $data[self::KEY_ID] = hash($this->hashAlgorithm, json_encode($data));
         $data[self::KEY_SERP_RESULT] = $target->isSearchEngineRequestPages();
@@ -355,12 +307,6 @@ class Scrapper extends Communicator
         return $data;
     }
 
-    /**
-     * @param array  $data
-     * @param Target $target
-     *
-     * @return bool
-     */
     private function verifyData(array $data, Target $target): bool
     {
         if ($this->scanner->hasBadWords($data, $target->getBadWords())) {
@@ -376,12 +322,6 @@ class Scrapper extends Communicator
         return true;
     }
 
-    /**
-     * @param array  $data
-     * @param string $attr
-     *
-     * @return string
-     */
     private function encodeAttribute(array $data, string $attr): string
     {
         $attributeText = $data[$attr];

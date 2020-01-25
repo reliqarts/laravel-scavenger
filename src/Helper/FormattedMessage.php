@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Helpers;
+namespace ReliqArts\Scavenger\Helper;
 
 final class FormattedMessage
 {
@@ -51,10 +48,7 @@ final class FormattedMessage
     }
 
     /**
-     * @param string $message
-     * @param mixed  ...$args
-     *
-     * @return string
+     * @param mixed ...$args
      */
     public static function get(string $message, ...$args): string
     {

@@ -1,15 +1,12 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Models;
+namespace ReliqArts\Scavenger\Model;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\Schema;
-use ReliqArts\Scavenger\Helpers\Config;
+use ReliqArts\Scavenger\Helper\Config;
 
 /**
  * Scavenger Scrap.
@@ -35,10 +32,8 @@ class Scrap extends EloquentModel
 
     /**
      * Get the scraps table.
-     *
-     * @return string
      */
-    public function getTable()
+    public function getTable(): string
     {
         return Config::getScrapsTable();
     }
@@ -49,8 +44,6 @@ class Scrap extends EloquentModel
      * @param bool $convertDuplicates     whether to force conversion even if model already exists
      * @param bool $storeRelatedReference Whether to update relation field on scrap (self)
      *                                    N.B. if reference is stored the scrap will be saved.
-     *
-     * @return null|EloquentModel
      */
     public function convert(bool $convertDuplicates = false, bool $storeRelatedReference = false): ?EloquentModel
     {
@@ -70,8 +63,7 @@ class Scrap extends EloquentModel
                 $targetTable = $targetObject->getTable();
 
                 // Fill model data with scrap data if attributes exist
-                foreach (json_decode($this->data, true) as $attr => $val) {
-                    /** @noinspection PhpUndefinedMethodInspection */
+                foreach (json_decode($this->data, true, 512, JSON_THROW_ON_ERROR) as $attr => $val) {
                     if (!Config::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
                         $targetObject->{$attr} = $val;
                     }
@@ -92,8 +84,6 @@ class Scrap extends EloquentModel
 
     /**
      * Convert scrap to target model.
-     *
-     * @return null|EloquentModel
      */
     public function getRelated(): ?EloquentModel
     {
@@ -115,8 +105,6 @@ class Scrap extends EloquentModel
 
     /**
      * Whether related model uses eloquent's SoftDeletes trait.
-     *
-     * @return bool
      *
      * @see \Illuminate\Database\Eloquent\SoftDeletes
      */

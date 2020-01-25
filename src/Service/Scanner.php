@@ -1,13 +1,10 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Service;
 
-use ReliqArts\Scavenger\Helpers\Config;
+use ReliqArts\Scavenger\Helper\Config;
 
 class Scanner
 {
@@ -16,12 +13,10 @@ class Scanner
      *
      * @var array
      */
-    protected $badWords = [];
+    protected array $badWords = [];
 
     /**
      * Scanner constructor.
-     *
-     * @param array $badWords
      */
     public function __construct(array $badWords = [])
     {
@@ -31,7 +26,6 @@ class Scanner
     /**
      * Determine whether a scrap data has bad words and therefore is unwanted.
      *
-     * @param array $data
      * @param array $badWords List of words (regex) we don't want in our scraps.'.
      *
      * @return mixed
@@ -46,12 +40,10 @@ class Scanner
 
             // check for bad words
             foreach ($data as $attr) {
-                if (!Config::isSpecialKey($attr)) {
-                    if ($hasBadWords = preg_match($badWordsRegex, $attr)) {
-                        $invalid = true;
+                if (!Config::isSpecialKey($attr) && preg_match($badWordsRegex, $attr)) {
+                    $invalid = true;
 
-                        break;
-                    }
+                    break;
                 }
             }
         }
@@ -65,8 +57,6 @@ class Scanner
      * @param string $string the string to be scoured
      * @param array  $map    map to use for detail scouring
      * @param bool   $retain whether to leave match in source string
-     *
-     * @return array
      */
     public static function pluckDetails(string &$string, array $map = [], bool $retain = false): array
     {
@@ -75,7 +65,7 @@ class Scanner
         // Pluck mapped details from string
         foreach ($map as $attr => $regex) {
             // match and replace details in string
-            $string = preg_replace_callback($regex, function ($m) use ($attr, &$details, $retain) {
+            $string = preg_replace_callback($regex, static function ($m) use ($attr, &$details, $retain) {
                 // grab match
                 $match = trim($m[0]);
                 $details[$attr] = $match;
@@ -83,8 +73,7 @@ class Scanner
                 if ($retain) {
                     return $match;
                 }
-                /** @noinspection PhpInconsistentReturnPointsInspection */
-                return;
+                // @noinspection PhpInconsistentReturnPointsInspection
             }, $string);
         }
 
@@ -127,21 +116,12 @@ class Scanner
 
     /**
      * Convert <br/> to newlines.
-     *
-     * @param string $text
-     *
-     * @return string
      */
     public static function br2nl(string $text): string
     {
         return preg_replace('/<br[\\/]?>/', "\n", $text);
     }
 
-    /**
-     * @param string $text
-     *
-     * @return string
-     */
     public static function cleanText(string $text): string
     {
         return self::removeReturnsAndTabs(strip_tags($text));
@@ -149,10 +129,6 @@ class Scanner
 
     /**
      * Remove tabs and newlines from text.
-     *
-     * @param string $text
-     *
-     * @return string
      */
     private static function removeReturnsAndTabs(string $text): string
     {

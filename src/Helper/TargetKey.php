@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Helpers;
+namespace ReliqArts\Scavenger\Helper;
 
 final class TargetKey
 {
@@ -52,11 +49,6 @@ final class TargetKey
     {
     }
 
-    /**
-     * @param string $keyName
-     *
-     * @return string
-     */
     public static function special(string $keyName): string
     {
         return Config::specialKey($keyName);

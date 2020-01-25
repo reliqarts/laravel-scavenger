@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\DTO;
+namespace ReliqArts\Scavenger;
 
 /**
  * A simple combination of **title** and **link**.
@@ -15,18 +12,15 @@ final class TitleLink
     /**
      * @var string
      */
-    private $title;
+    private string $title;
 
     /**
      * @var string
      */
-    private $link;
+    private string $link;
 
     /**
      * TitleLink constructor.
-     *
-     * @param string $title
-     * @param string $link
      */
     public function __construct(string $title, string $link)
     {
@@ -34,17 +28,11 @@ final class TitleLink
         $this->link = $link;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @return string
-     */
     public function getLink(): string
     {
         return $this->link;

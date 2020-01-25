@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Services;
+namespace ReliqArts\Scavenger\Service;
 
 use Illuminate\Console\Command;
 
@@ -29,28 +26,26 @@ abstract class Communicator
     /**
      * Calling command if running in console.
      *
-     * @var Command
+     * @var null|Command
      */
-    protected $callingCommand;
+    protected ?Command $callingCommand;
 
     /**
      * Hashing algorithm in use.
      *
      * @var string
      */
-    protected $hashAlgorithm;
+    protected string $hashAlgorithm;
 
     /**
      * Level of detail.
      *
      * @var int
      */
-    protected $verbosity;
+    protected int $verbosity;
 
     /**
      * Communicator constructor.
-     *
-     * @param null|Command $callingCommand
      */
     public function __construct(?Command $callingCommand)
     {
@@ -60,7 +55,6 @@ abstract class Communicator
     /**
      * Print to console or screen.
      *
-     * @param string $text
      * @param string $direction in|out
      */
     final protected function tell(string $text, string $direction = self::COMM_DIRECTION_OUT): void
@@ -86,7 +80,7 @@ abstract class Communicator
         }
         $dirSymbol .= self::COMM_SPACE;
 
-        if (app()->runningInConsole() && $this->callingCommand) {
+        if ($this->callingCommand !== null && app()->runningInConsole()) {
             if ($direction === self::COMM_DIRECTION_OUT) {
                 $this->callingCommand->line("<info>\\<\\< {$text}</info>");
             } else {

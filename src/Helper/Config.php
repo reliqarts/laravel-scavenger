@@ -1,18 +1,14 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Helpers;
+namespace ReliqArts\Scavenger\Helper;
 
-use Doctrine\DBAL\Driver\PDOException;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Config as BaseConfig;
 use Illuminate\Support\Facades\Hash;
-use ReliqArts\Scavenger\Exceptions\BadDaemonConfig;
+use ReliqArts\Scavenger\Exception\BadDaemonConfig;
 
 final class Config extends BaseConfig
 {
@@ -24,17 +20,12 @@ final class Config extends BaseConfig
 
     /**
      * Get config.
-     *
-     * @return array
      */
     public static function get(): array
     {
         return parent::get('scavenger', []);
     }
 
-    /**
-     * @return array
-     */
     public static function getGuzzleSettings(): array
     {
         return parent::get('scavenger.guzzle_settings', self::DEFAULT_GUZZLE_SETTINGS);
@@ -42,8 +33,6 @@ final class Config extends BaseConfig
 
     /**
      * Get targets.
-     *
-     * @return array
      */
     public static function getTargets(): array
     {
@@ -52,8 +41,6 @@ final class Config extends BaseConfig
 
     /**
      * Get daemon model name.
-     *
-     * @return string
      */
     public static function getDaemonModelName(): string
     {
@@ -72,8 +59,6 @@ final class Config extends BaseConfig
 
     /**
      * Get ID property  for daemon.
-     *
-     * @return string
      */
     public static function getDaemonModelIdProp(): string
     {
@@ -82,8 +67,6 @@ final class Config extends BaseConfig
 
     /**
      * Get ID property value for daemon.
-     *
-     * @return string
      */
     public static function getDaemonModelId(): string
     {
@@ -92,8 +75,6 @@ final class Config extends BaseConfig
 
     /**
      * Get attribute values for daemon.
-     *
-     * @return array
      */
     public static function getDaemonInfo(): array
     {
@@ -113,8 +94,6 @@ final class Config extends BaseConfig
      * Get scavenger daemon (user) instance. Creates daemon if he doesn't exist.
      *
      * @throws BadDaemonConfig
-     *
-     * @return Authenticatable
      */
     public static function getDaemon(): Authenticatable
     {
@@ -127,18 +106,15 @@ final class Config extends BaseConfig
             // attempt to create
             try {
                 $daemon = self::getDaemonModel()->create(self::getDaemonInfo());
-            } catch (PDOException | Exception $e) {
+            } catch (Exception $exception) {
                 // fail, could not create daemon user
-                throw new BadDaemonConfig($badDaemonConfigMessage);
+                throw new BadDaemonConfig(sprintf('%s %s', $badDaemonConfigMessage, $exception->getMessage()), $exception->getCode(), $exception);
             }
         }
 
         return $daemon;
     }
 
-    /**
-     * @return string
-     */
     public static function getLogDir(): string
     {
         return self::get()['storage']['log_dir'] ?? 'scavenger';
@@ -146,8 +122,6 @@ final class Config extends BaseConfig
 
     /**
      * Get scavenger scraps table.
-     *
-     * @return string
      */
     public static function getScrapsTable(): string
     {
@@ -156,10 +130,6 @@ final class Config extends BaseConfig
 
     /**
      * Convert config key name to special key.
-     *
-     * @param string $keyName
-     *
-     * @return string
      */
     public static function specialKey(string $keyName): string
     {
@@ -170,8 +140,6 @@ final class Config extends BaseConfig
      * Check if key name is config key/special key name.
      *
      * @param string $keyName
-     *
-     * @return bool
      */
     public static function isSpecialKey($keyName): bool
     {

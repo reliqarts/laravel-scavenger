@@ -1,19 +1,16 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Console\Commands;
+namespace ReliqArts\Scavenger\Console\Command;
 
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
-use ReliqArts\Scavenger\DTO\OptionSet;
-use ReliqArts\Scavenger\Exceptions\BadDaemonConfig;
-use ReliqArts\Scavenger\Helpers\Config;
-use ReliqArts\Scavenger\Services\Seeker;
+use ReliqArts\Scavenger\Exception\BadDaemonConfig;
+use ReliqArts\Scavenger\Helper\Config;
+use ReliqArts\Scavenger\OptionSet;
+use ReliqArts\Scavenger\Service\Seeker;
 
 class Seek extends Command
 {
@@ -50,8 +47,8 @@ class Seek extends Command
         $target = $this->argument('target');
         $keywords = $this->option('keywords');
         $skipConfirmation = $this->option('y');
-        $backOff = (int) $this->option('backoff');
-        $pages = (int) $this->option('pages');
+        $backOff = (int)$this->option('backoff');
+        $pages = (int)$this->option('pages');
         $convertScraps = $this->option('convert');
         $optionSet = new OptionSet($saveScraps, $convertScraps, $backOff, $pages, $keywords);
         $seeker = new Seeker($optionSet, $this);

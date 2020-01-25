@@ -1,11 +1,8 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\VO;
+namespace ReliqArts\Scavenger;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
@@ -43,9 +40,7 @@ final class Result implements Arrayable, Jsonable
     /**
      * Result constructor.
      *
-     * @param bool     $success
      * @param string[] $errors
-     * @param string   $message
      * @param mixed    $data
      * @param mixed    $extra
      */
@@ -63,17 +58,12 @@ final class Result implements Arrayable, Jsonable
         $this->extra = $extra;
     }
 
-    /**
-     * @return bool
-     */
     public function isSuccess(): bool
     {
         return $this->success;
     }
 
     /**
-     * @param bool $success
-     *
      * @return Result
      */
     public function setSuccess(bool $success): self
@@ -93,8 +83,6 @@ final class Result implements Arrayable, Jsonable
     }
 
     /**
-     * @param string $error
-     *
      * @return Result
      */
     public function addError(string $error): self
@@ -118,9 +106,6 @@ final class Result implements Arrayable, Jsonable
         return $clone;
     }
 
-    /**
-     * @return bool
-     */
     public function hasErrors(): bool
     {
         return !empty($this->getErrors());
@@ -147,17 +132,12 @@ final class Result implements Arrayable, Jsonable
         return $clone;
     }
 
-    /**
-     * @return string
-     */
     public function getMessage(): string
     {
         return $this->message;
     }
 
     /**
-     * @param string $message
-     *
      * @return Result
      */
     public function setMessage(string $message): self
@@ -196,7 +176,7 @@ final class Result implements Arrayable, Jsonable
      */
     public function toArray()
     {
-        return (array) $this;
+        return (array)$this;
     }
 
     /**

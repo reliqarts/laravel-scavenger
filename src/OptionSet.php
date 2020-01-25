@@ -1,46 +1,39 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\DTO;
+namespace ReliqArts\Scavenger;
 
 final class OptionSet
 {
     /**
      * @var bool
      */
-    private $saveScraps;
+    private bool $saveScraps;
 
     /**
      * @var bool
      */
-    private $convertScraps;
+    private bool $convertScraps;
 
     /**
      * @var int
      */
-    private $backOff;
+    private int $backOff;
 
     /**
      * @var int
      */
-    private $pages;
+    private int $pages;
 
     /**
      * @var null|string
      */
-    private $keywords;
+    private ?string $keywords;
 
     /**
      * OptionSet constructor.
      *
-     * @param bool   $saveScraps
-     * @param bool   $convertScraps
-     * @param int    $backOff
-     * @param int    $pages
      * @param string $keywords
      */
     public function __construct(
@@ -57,41 +50,26 @@ final class OptionSet
         $this->keywords = $keywords;
     }
 
-    /**
-     * @return bool
-     */
     public function isSaveScraps(): bool
     {
         return $this->saveScraps;
     }
 
-    /**
-     * @return bool
-     */
     public function isConvertScraps(): bool
     {
         return $this->convertScraps;
     }
 
-    /**
-     * @return int
-     */
     public function getBackOff(): int
     {
         return $this->backOff;
     }
 
-    /**
-     * @return int
-     */
     public function getPages(): int
     {
         return $this->pages;
     }
 
-    /**
-     * @return null|string
-     */
     public function getKeywords(): ?string
     {
         return $this->keywords;

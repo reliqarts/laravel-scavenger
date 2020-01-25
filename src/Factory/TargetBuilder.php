@@ -1,18 +1,15 @@
 <?php
 
-/*
- * @author    Reliq <reliq@reliqarts.com>
- * @copyright 2018
- */
+declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Factories;
+namespace ReliqArts\Scavenger\Factory;
 
-use ReliqArts\Scavenger\Exceptions\Exception;
-use ReliqArts\Scavenger\Exceptions\InvalidTargetDefinition;
-use ReliqArts\Scavenger\Helpers\FormattedMessage;
-use ReliqArts\Scavenger\Helpers\TargetKey;
-use ReliqArts\Scavenger\Models\Target;
-use ReliqArts\Scavenger\Services\Scanner;
+use ReliqArts\Scavenger\Exception\Exception;
+use ReliqArts\Scavenger\Exception\InvalidTargetDefinition;
+use ReliqArts\Scavenger\Helper\FormattedMessage;
+use ReliqArts\Scavenger\Helper\TargetKey;
+use ReliqArts\Scavenger\Model\Target;
+use ReliqArts\Scavenger\Service\Scanner;
 use ReliqArts\Scavenger\VO\Result;
 
 final class TargetBuilder
@@ -29,9 +26,6 @@ final class TargetBuilder
 
     /**
      * TargetBuilder constructor.
-     *
-     * @param array        $globalKeywords
-     * @param null|Scanner $scanner
      */
     public function __construct(array $globalKeywords = [], ?Scanner $scanner = null)
     {
@@ -40,11 +34,7 @@ final class TargetBuilder
     }
 
     /**
-     * @param array $definition
-     *
      * @throws Exception
-     *
-     * @return Target
      */
     public function createFromDefinition(array $definition): Target
     {
@@ -78,11 +68,6 @@ final class TargetBuilder
         );
     }
 
-    /**
-     * @param array $definition
-     *
-     * @return Result
-     */
     private function validateDefinition(array $definition): Result
     {
         $result = new Result(true);
@@ -140,12 +125,6 @@ final class TargetBuilder
         return $result;
     }
 
-    /**
-     * @param null|array $markupDefinition
-     * @param string     $targetName
-     *
-     * @return Result
-     */
     private function validateMarkupDefinition(?array $markupDefinition, string $targetName): Result
     {
         $result = new Result(true);
@@ -187,11 +166,6 @@ final class TargetBuilder
         return $result;
     }
 
-    /**
-     * @param null|array $pagerDefinition
-     *
-     * @return Result
-     */
     private function validatePagerDefinition(?array $pagerDefinition): Result
     {
         $result = new Result(true);
@@ -207,12 +181,6 @@ final class TargetBuilder
         return $result;
     }
 
-    /**
-     * @param null|array $searchDefinition
-     * @param string     $targetName
-     *
-     * @return Result
-     */
     private function validateSearchDefinition(?array $searchDefinition, string $targetName): Result
     {
         $result = new Result(true);
