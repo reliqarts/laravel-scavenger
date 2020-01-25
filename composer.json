@@ -1,5 +1,5 @@
 {
-  "name": "reliqarts/scavenger",
+  "name": "reliqarts/laravel-scavenger",
   "description": "Highly configurable Laravel 6.x scraper package.",
   "keywords": [
     "scraper",

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Contract;
 
-use ReliqArts\Scavenger\VO\Result;
+use ReliqArts\Scavenger\Result;
 
 /**
  * A service that abstracts seeker related methods.
