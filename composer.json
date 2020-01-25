@@ -1,6 +1,6 @@
 {
   "name": "reliqarts/scavenger",
-  "description": "Highly configurable Laravel 5 scraper package.",
+  "description": "Highly configurable Laravel 5.x/6.x scraper package.",
   "keywords": [
     "scraper",
     "package",
@@ -23,8 +23,8 @@
     }
   ],
   "require": {
-    "php": "^7.1.3",
-    "illuminate/support": "^5.5",
+    "php": "^7.4",
+    "illuminate/support": "^6.0",
     "monolog/monolog": "~1.11",
     "fabpot/goutte": "^3.2",
     "ext-iconv": "*"
