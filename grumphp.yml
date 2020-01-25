@@ -1,0 +1,14 @@
+parameters:
+  extensions:
+    - Wearejust\GrumPHPExtra\Extension\Loader
+  tasks:
+    php_cs_auto_fixerv2:
+      allow_risky: true
+      cache_file: ~
+      config: .php_cs
+      rules: []
+      using_cache: ~
+      config_contains_finder: true
+      verbose: true
+      diff: false
+      triggered_by: ['php']

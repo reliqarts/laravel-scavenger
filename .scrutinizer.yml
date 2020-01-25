@@ -5,6 +5,7 @@ filter:
     excluded_paths:
         - 'bootstrap/*'
         - 'config/*'
+        - 'docs/*'
         - 'public/*'
         - 'resources/*'
         - 'vendor/*'

@@ -1,12 +1,16 @@
 <?php
 
 $header = <<<'EOF'
-@author    Reliq <reliq@reliqarts.com>
-@copyright 2018
+(c) ReliQ <reliq@reliqarts.com>
 EOF;
 
 $finder = PhpCsFixer\Finder::create()
-    ->exclude('docs')
+    ->exclude([
+        'build',
+        'docs',
+        'public',
+        'resources',
+    ])
     ->in(__DIR__);
 
 $config = PhpCsFixer\Config::create()
@@ -25,6 +29,7 @@ $config = PhpCsFixer\Config::create()
         'combine_consecutive_unsets' => true,
         'comment_to_phpdoc' => true,
         'compact_nullable_typehint' => true,
+        'cast_spaces' => ['space' => 'none'],
         'concat_space' => ['spacing' => 'one'],
         'escape_implicit_backslashes' => true,
         'explicit_indirect_variable' => true,
@@ -32,7 +37,7 @@ $config = PhpCsFixer\Config::create()
         'final_internal_class' => true,
         'fully_qualified_strict_types' => true,
         'function_to_constant' => ['functions' => ['get_class', 'get_called_class', 'php_sapi_name', 'phpversion', 'pi']],
-        'header_comment' => ['header' => $header],
+        // 'header_comment' => ['header' => $header],
         'heredoc_to_nowdoc' => true,
         'list_syntax' => ['syntax' => 'long'],
         'logical_operators' => true,
@@ -50,7 +55,7 @@ $config = PhpCsFixer\Config::create()
         'no_unreachable_default_argument_value' => true,
         'no_unset_on_property' => true,
         'no_useless_else' => true,
-        'no_useless_return' => false,
+        'no_useless_return' => true,
         'ordered_class_elements' => true,
         'ordered_imports' => true,
         'php_unit_internal_class' => true,
@@ -65,7 +70,6 @@ $config = PhpCsFixer\Config::create()
         'phpdoc_order' => true,
         'phpdoc_trim_consecutive_blank_line_separation' => true,
         'phpdoc_types_order' => true,
-        'phpdoc_to_comment' => false,
         'return_assignment' => true,
         'semicolon_after_instruction' => true,
         'single_line_comment_style' => true,
@@ -74,8 +78,7 @@ $config = PhpCsFixer\Config::create()
         'string_line_ending' => true,
         'yoda_style' => false,
     ])
-    ->setFinder($finder)
-;
+    ->setFinder($finder);
 
 // special handling of fabbot.io service if it's using too old PHP CS Fixer version
 if (false !== getenv('FABBOT_IO')) {
