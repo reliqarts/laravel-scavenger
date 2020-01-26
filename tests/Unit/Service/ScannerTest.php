@@ -32,9 +32,6 @@ final class ScannerTest extends TestCase
         $this->assertSame($expectedResult, $result);
     }
 
-    /**
-     * @return array
-     */
     public function hasBadWordsDataProvider(): array
     {
         return [
@@ -75,9 +72,6 @@ final class ScannerTest extends TestCase
         $this->assertSame($expectedResult, $result);
     }
 
-    /**
-     * @return array
-     */
     public function pluckDetailsDataProvider(): array
     {
         return [
