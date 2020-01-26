@@ -58,13 +58,10 @@ composer:
   stage: build
   script:
     - composer install --no-ansi --no-interaction --no-progress --no-scripts --prefer-dist
-    - mv build.env .env || cp .env.example .env
-    - php artisan key:generate
   artifacts:
     expire_in: 1 month
     paths:
       - vendor/
-      - .env
   cache:
     key: ${CI_COMMIT_REF_SLUG}-composer
     paths:
