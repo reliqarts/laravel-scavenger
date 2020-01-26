@@ -324,7 +324,7 @@ class Scrapper extends Communicator
 
     private function encodeAttribute(array $data, string $attr): string
     {
-        $attributeText = $data[$attr];
+        $attributeText = (string)$data[$attr];
 
         // ensure title has UC words
         if ($attr === TargetKey::TITLE) {
