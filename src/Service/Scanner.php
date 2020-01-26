@@ -30,7 +30,7 @@ class Scanner
      *
      * @return mixed
      */
-    public function hasBadWords(array $data, array $badWords = [])
+    public function hasBadWords(array $scrapData, array $badWords = [])
     {
         $invalid = false;
         $badWords = array_merge($this->badWords, $badWords);
@@ -39,8 +39,8 @@ class Scanner
             $badWordsRegex = '/(' . implode(')|(', $badWords) . ')/i';
 
             // check for bad words
-            foreach ($data as $attr) {
-                if (!Config::isSpecialKey($attr) && preg_match($badWordsRegex, $attr)) {
+            foreach ($scrapData as $attr => $value) {
+                if (!Config::isSpecialKey($attr) && preg_match($badWordsRegex, $value)) {
                     $invalid = true;
 
                     break;
@@ -91,27 +91,21 @@ class Scanner
      */
     public static function firstNonEmpty(array &$haystack, array $needles = [])
     {
-        $found = false;
-
         if (!empty($needles)) {
             foreach ($needles as $value) {
                 if (!empty($haystack[$value])) {
-                    $found = $haystack[$value];
-
-                    break;
+                    return $haystack[$value];
                 }
             }
         } else {
             foreach ($haystack as $value) {
                 if (!empty($value)) {
-                    $found = $value;
-
-                    break;
+                    return $value;
                 }
             }
         }
 
-        return $found;
+        return null;
     }
 
     /**
@@ -132,7 +126,7 @@ class Scanner
      */
     private static function removeReturnsAndTabs(string $text): string
     {
-        $text = preg_replace('/\\s{2,}/', ' ', preg_replace("/[\r\n\t]+/", '', $text));
+        $text = preg_replace('/\\s{2,}/', ' ', preg_replace("/[\r\n\t]+/", ' ', $text));
 
         return str_replace(' / ', null, $text);
     }

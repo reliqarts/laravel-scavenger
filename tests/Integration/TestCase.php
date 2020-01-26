@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ReliqArts\Scavenger\Tests;
+namespace ReliqArts\Scavenger\Tests\Integration;
 
 use Illuminate\Foundation\Application;
 use Orchestra\Testbench\TestCase as BaseTestCase;

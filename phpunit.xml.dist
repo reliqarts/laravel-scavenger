@@ -18,6 +18,9 @@
         <testsuite name="Scavenger Unit Tests">
             <directory suffix="Test.php">tests/Unit</directory>
         </testsuite>
+        <testsuite name="Scavenger Integration Tests">
+            <directory suffix="Test.php">tests/Integration</directory>
+        </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
