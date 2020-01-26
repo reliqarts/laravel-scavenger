@@ -9,8 +9,8 @@ use ReliqArts\Scavenger\Exception\InvalidTargetDefinition;
 use ReliqArts\Scavenger\Helper\FormattedMessage;
 use ReliqArts\Scavenger\Helper\TargetKey;
 use ReliqArts\Scavenger\Model\Target;
+use ReliqArts\Scavenger\Result;
 use ReliqArts\Scavenger\Service\Scanner;
-use ReliqArts\Scavenger\VO\Result;
 
 final class TargetBuilder
 {

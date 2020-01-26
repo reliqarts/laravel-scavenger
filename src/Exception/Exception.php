@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Exception;
 
-use ReliqArts\Scavenger\VO\Result;
+use ReliqArts\Scavenger\Result;
 use RuntimeException;
 
 /**
