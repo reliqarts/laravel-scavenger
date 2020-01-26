@@ -36,7 +36,7 @@ class Scanner
         $badWords = array_merge($this->badWords, $badWords);
 
         if (count($badWords)) {
-            $badWordsRegex = '/(' . implode(')|(', $badWords) . ')/i';
+            $badWordsRegex = sprintf('/(%s)/i', implode(')|(', $badWords));
 
             // check for bad words
             foreach ($scrapData as $attr => $value) {
