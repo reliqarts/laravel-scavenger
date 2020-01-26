@@ -79,7 +79,6 @@ test:
   # List of jobs from which it will download the artifacts.
   dependencies:
     - composer
-    - npm
   script:
     - vendor/bin/phpunit -v --coverage-text --colors=never --stderr
 #  artifacts:
