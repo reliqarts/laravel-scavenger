@@ -10,16 +10,16 @@ namespace ReliqArts\Scavenger\Concern;
 trait Timed
 {
     /**
-     * @var int
+     * @var float
      */
-    protected int $startTime = 0;
+    protected float $startTime = 0;
 
     /**
      * Get seconds since a "microtime" start-time.
      *
      * @return string seconds since, to 2 decimal places
      */
-    protected function elapsedTime(?int $startTime = null): string
+    protected function elapsedTime(?float $startTime = null): string
     {
         $startTime = $startTime ?? $this->startTime;
         $duration = microtime(true) - $startTime;

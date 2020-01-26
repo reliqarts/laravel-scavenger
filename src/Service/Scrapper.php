@@ -30,19 +30,19 @@ class Scrapper extends Communicator
     /**
      * @var array[]
      */
-    private $raw;
+    private array $raw;
 
     /**
      * Event logger.
      *
      * @var Logger
      */
-    private $log;
+    private Logger $log;
 
     /**
      * @var int
      */
-    private $newScrapsCount;
+    private int $newScrapsCount;
 
     /**
      * @var Collection
@@ -52,7 +52,7 @@ class Scrapper extends Communicator
     /**
      * @var Scanner
      */
-    private $scanner;
+    private Scanner $scanner;
 
     /**
      * Scraps found so far.
@@ -118,7 +118,7 @@ class Scrapper extends Communicator
         $this->scraps->map(function (Scrap $scrap) use ($convertDuplicates, $storeRelatedReferences) {
             try {
                 $relatedObject = $scrap->convert($convertDuplicates, $storeRelatedReferences);
-                if (!empty($relatedObject)) {
+                if ($relatedObject !== null) {
                     $this->relatedObjects->push($relatedObject);
                 }
             } catch (QueryException $e) {

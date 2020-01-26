@@ -26,9 +26,10 @@ use ReliqArts\Scavenger\TitleLink;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Form;
 
-class Seeker extends Communicator implements SeekerInterface
+final class Seeker extends Communicator implements SeekerInterface
 {
     use Timed;
+
     private const DEFAULT_VERBOSITY = 0;
     private const INITIAL_PAGE = 1;
     private const LOG_FILE_PREFIX = 'scavenger-';
@@ -39,86 +40,79 @@ class Seeker extends Communicator implements SeekerInterface
      *
      * @var Result
      */
-    public $result;
+    public Result $result;
 
     /**
      * @var OptionSet
      */
-    protected $optionSet;
+    protected OptionSet $optionSet;
 
     /**
      * HTTP Client.
      *
      * @var Client
      */
-    protected $client;
+    protected Client $client;
 
     /**
      * Paraphrase Service instance.
      *
      * @var Paraphraser
      */
-    protected $paraphraser;
+    protected Paraphraser $paraphraser;
 
     /**
      * Current loaded configuration.
      *
      * @var array
      */
-    private $config;
+    private array $config;
 
     /**
      * Current page.
      *
      * @var int
      */
-    private $page;
+    private int $page;
 
     /**
      * Current loaded target configurations.
      *
      * @var array
      */
-    private $targetDefinitions;
+    private array $targetDefinitions;
 
     /**
      * Event logger.
      *
      * @var Logger
      */
-    private $log;
-
-    /**
-     * Log file name.
-     *
-     * @var string
-     */
-    private $logFilename;
+    private Logger $log;
 
     /**
      * @var NodeProximityAssistant
      */
-    private $nodeProximityAssistant;
+    private NodeProximityAssistant $nodeProximityAssistant;
 
     /**
      * @var int
      */
-    private $pageLimit;
+    private int $pageLimit;
 
     /**
      * @var Scanner
      */
-    private $scanner;
+    private Scanner $scanner;
 
     /**
      * @var Scrapper
      */
-    private $scrapper;
+    private Scrapper $scrapper;
 
     /**
      * @var TargetBuilder
      */
-    private $targetBuilder;
+    private TargetBuilder $targetBuilder;
 
     /**
      * Create a new seeker.
@@ -154,9 +148,9 @@ class Seeker extends Communicator implements SeekerInterface
 
         // logger
         $this->log = new Logger(self::LOGGER_NAME);
-        $this->logFilename = self::LOG_FILE_PREFIX . microtime(true);
+        $logFilename = self::LOG_FILE_PREFIX . microtime(true);
         $this->log->pushHandler(new StreamHandler(
-            storage_path('logs/' . Config::getLogDir() . "/{$this->logFilename}.log"),
+            storage_path('logs/' . Config::getLogDir() . "/{$logFilename}.log"),
             // critical info. or higher will always be logged regardless of log config
             $this->config['log'] ? Logger::DEBUG : Logger::CRITICAL
         ));
@@ -269,7 +263,7 @@ class Seeker extends Communicator implements SeekerInterface
         try {
             $form = empty($submitButtonIdentifier)
                 ? $formCrawler->form()
-                : $formCrawler->selectButton($submitButtonIdentifier)->form();
+                : $formCrawler->selectButton((string)$submitButtonIdentifier)->form();
         } catch (InvalidArgumentException $e) {
             $this->log->error($e);
         }
@@ -454,6 +448,6 @@ class Seeker extends Communicator implements SeekerInterface
 
             // back-off
             sleep($this->optionSet->getBackOff());
-        } while (!empty($crawler)); // unless Crawler died...
+        } while ($crawler !== null); // unless Crawler died...
     }
 }

@@ -41,6 +41,11 @@
       "ReliqArts\\Scavenger\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "ReliqArts\\Scavenger\\Tests\\": "tests/"
+    }
+  },
   "extra": {
     "laravel": {
       "providers": ["ReliqArts\\Scavenger\\ServiceProvider"],
