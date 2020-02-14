@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use ReliqArts\Scavenger\Helper\Config;
+use ReliqArts\Scavenger\Helper\ConfigProvider;
 
 class CreateScavengerScrapsTable extends Migration
 {
@@ -14,7 +14,7 @@ class CreateScavengerScrapsTable extends Migration
      */
     public function up()
     {
-        $table = Config::getScrapsTable();
+        $table = ConfigProvider::getScrapsTable();
         // @noinspection PhpUndefinedMethodInspection
         if (!Schema::hasTable($table)) {
             Schema::create($table, function (Blueprint $table) {
@@ -35,7 +35,7 @@ class CreateScavengerScrapsTable extends Migration
      */
     public function down()
     {
-        $table = Config::getScrapsTable();
+        $table = ConfigProvider::getScrapsTable();
         Schema::dropIfExists($table);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 $header = <<<'EOF'
-(c) ReliQ <reliq@reliqarts.com>
+(c) Reliq <reliq@reliqarts.com>
 EOF;
 
 $finder = PhpCsFixer\Finder::create()

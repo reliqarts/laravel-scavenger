@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Service;
 
-use ReliqArts\Scavenger\Helper\Config;
-
 class Scanner
 {
     /**
@@ -40,7 +38,7 @@ class Scanner
 
             // check for bad words
             foreach ($scrapData as $attr => $value) {
-                if (!Config::isSpecialKey($attr) && preg_match($badWordsRegex, $value)) {
+                if (!ConfigProvider::isSpecialKey($attr) && preg_match($badWordsRegex, $value)) {
                     $invalid = true;
 
                     break;

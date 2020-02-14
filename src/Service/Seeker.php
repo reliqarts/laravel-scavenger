@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace ReliqArts\Scavenger\Service;
 
 use Exception;
-use Goutte\Client;
-use GuzzleHttp\Client as GuzzleClient;
+use Goutte\Client as GoutteClient;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Concern\Timed;
+use ReliqArts\Scavenger\Contract\ConfigProvider;
 use ReliqArts\Scavenger\Contract\Seeker as SeekerInterface;
 use ReliqArts\Scavenger\Exception\InvalidTargetDefinition;
 use ReliqArts\Scavenger\Factory\TargetBuilder;
-use ReliqArts\Scavenger\Helper\Config;
 use ReliqArts\Scavenger\Helper\FormattedMessage;
 use ReliqArts\Scavenger\Helper\NodeProximityAssistant;
 use ReliqArts\Scavenger\Helper\TargetKey;
@@ -30,17 +28,7 @@ final class Seeker extends Communicator implements SeekerInterface
 {
     use Timed;
 
-    private const DEFAULT_VERBOSITY = 0;
     private const INITIAL_PAGE = 1;
-    private const LOG_FILE_PREFIX = 'scavenger-';
-    private const LOGGER_NAME = 'Scavenger.Seeker';
-
-    /**
-     * Result of operation.
-     *
-     * @var Result
-     */
-    public Result $result;
 
     /**
      * @var OptionSet
@@ -50,30 +38,16 @@ final class Seeker extends Communicator implements SeekerInterface
     /**
      * HTTP Client.
      *
-     * @var Client
+     * @var GoutteClient
      */
-    protected Client $client;
-
-    /**
-     * Paraphrase Service instance.
-     *
-     * @var Paraphraser
-     */
-    protected Paraphraser $paraphraser;
-
-    /**
-     * Current loaded configuration.
-     *
-     * @var array
-     */
-    private array $config;
+    protected GoutteClient $client;
 
     /**
      * Current page.
      *
      * @var int
      */
-    private int $page;
+    private int $page = self::INITIAL_PAGE;
 
     /**
      * Current loaded target configurations.
@@ -85,9 +59,9 @@ final class Seeker extends Communicator implements SeekerInterface
     /**
      * Event logger.
      *
-     * @var Logger
+     * @var LoggerInterface
      */
-    private Logger $log;
+    private LoggerInterface $logger;
 
     /**
      * @var NodeProximityAssistant
@@ -100,65 +74,31 @@ final class Seeker extends Communicator implements SeekerInterface
     private int $pageLimit;
 
     /**
-     * @var Scanner
-     */
-    private Scanner $scanner;
-
-    /**
      * @var Scrapper
      */
     private Scrapper $scrapper;
-
-    /**
-     * @var TargetBuilder
-     */
-    private TargetBuilder $targetBuilder;
 
     /**
      * Create a new seeker.
      *
      * @throws Exception
      */
-    public function __construct(OptionSet $options, ?Command $callingCommand)
-    {
-        parent::__construct($callingCommand);
+    public function __construct(
+        LoggerInterface $logger,
+        ConfigProvider $config,
+        NodeProximityAssistant $nodeProximityAssistant,
+        GoutteClient $client
+    ) {
+        parent::__construct();
 
-        $this->config = Config::get();
-        $this->client = new Client();
-        $this->client->setClient(new GuzzleClient(Config::getGuzzleSettings()));
-        $this->optionSet = $options;
-        $this->page = self::INITIAL_PAGE;
-        $this->pageLimit = $options->getPages();
-        $this->scanner = new Scanner();
-        $this->targetDefinitions = Config::getTargets();
-        $this->targetBuilder = new TargetBuilder(
-            array_filter(array_map(
-                'trim',
-                explode(',', $this->optionSet->getKeywords() ?? '')
-            )),
-            $this->scanner
-        );
-        $this->nodeProximityAssistant = new NodeProximityAssistant();
-        $this->paraphraser = new Paraphraser();
-        $this->result = new Result();
-        $this->verbosity = !empty($this->config['verbosity']) ? $this->config['verbosity'] : self::DEFAULT_VERBOSITY;
-        $this->hashAlgorithm = !empty($this->config['hash_algorithm'])
-            ? $this->config['hash_algorithm']
-            : self::HASH_ALGORITHM;
-
-        // logger
-        $this->log = new Logger(self::LOGGER_NAME);
-        $logFilename = self::LOG_FILE_PREFIX . microtime(true);
-        $this->log->pushHandler(new StreamHandler(
-            storage_path('logs/' . Config::getLogDir() . "/{$logFilename}.log"),
-            // critical info. or higher will always be logged regardless of log config
-            $this->config['log'] ? Logger::DEBUG : Logger::CRITICAL
-        ));
-
-        // scrapper
+        $this->logger = $logger;
+        $this->client = $client;
+        $this->targetDefinitions = $config->getTargets();
+        $this->nodeProximityAssistant = $nodeProximityAssistant;
+        $this->verbosity = $config->getVerbosity();
+        $this->hashAlgorithm = $config->getHashAlgorithm();
         $this->scrapper = new Scrapper(
-            $this->log,
-            $this->scanner,
+            $this->logger,
             $this->callingCommand,
             $this->hashAlgorithm,
             $this->verbosity
@@ -168,21 +108,30 @@ final class Seeker extends Communicator implements SeekerInterface
     /**
      * {@inheritdoc}
      */
-    public function seek(?string $targetName = null): Result
-    {
-        $this->startTimer();
+    public function seek(
+        OptionSet $options,
+        ?string $targetName = null,
+        ?Command $callingCommand = null
+    ): Result {
+        $this->optionSet = $options;
+        $this->pageLimit = $options->getPages();
 
         $targetDefinitions = $this->targetDefinitions;
+        $targetBuilder = $this->getTargetBuilder();
+        $result = new Result();
+
+        $this->startTimer();
+
         if ($targetName && array_key_exists($targetName, $targetDefinitions)) {
             $targetDefinitions = [$targetName => $targetDefinitions[$targetName]];
         } elseif ($targetName) {
-            return $this->result->addError(FormattedMessage::get(FormattedMessage::TARGET_UNKNOWN, $targetName));
+            return $result->addError(FormattedMessage::get(FormattedMessage::TARGET_UNKNOWN, $targetName));
         }
 
-        foreach ($targetDefinitions as $targetName => $targetDefinition) {
+        foreach ($targetDefinitions as $currentTargetName => $targetDefinition) {
             try {
-                $targetDefinition[TargetKey::NAME] = $targetName;
-                $target = $this->targetBuilder->createFromDefinition($targetDefinition);
+                $targetDefinition[TargetKey::NAME] = $currentTargetName;
+                $target = $targetBuilder->createFromDefinition($targetDefinition);
                 // check for page limit override
                 if ($target->hasPages()) {
                     $this->pageLimit = $target->getPages();
@@ -196,7 +145,7 @@ final class Seeker extends Communicator implements SeekerInterface
                 $this->tell(
                     FormattedMessage::get(
                         FormattedMessage::TARGET_UNEXPECTED_EXCEPTION,
-                        $targetName,
+                        $currentTargetName,
                         $e->getMessage()
                     )
                 );
@@ -219,7 +168,7 @@ final class Seeker extends Communicator implements SeekerInterface
             'unconverted' => $this->scrapper->getScraps()->count() - $this->scrapper->getRelatedObjects()->count(),
         ];
 
-        return $this->result
+        return $result
             ->setSuccess(true)
             ->setExtra($extra);
     }
@@ -244,7 +193,7 @@ final class Seeker extends Communicator implements SeekerInterface
     private function searchAndScrape(Target $target, Crawler $crawler): void
     {
         if ($this->verbosity >= self::VERBOSITY_MEDIUM) {
-            $this->log->info('Landing Document', [$crawler->html()]);
+            $this->logger->info('Landing Document', [$crawler->html()]);
         }
 
         $searchFormConfig = $target->getSearch()[TargetKey::SEARCH_FORM];
@@ -265,12 +214,12 @@ final class Seeker extends Communicator implements SeekerInterface
                 ? $formCrawler->form()
                 : $formCrawler->selectButton((string)$submitButtonIdentifier)->form();
         } catch (InvalidArgumentException $e) {
-            $this->log->error($e);
+            $this->logger->error($e);
         }
 
         if ($form instanceof Form) {
             if ($this->verbosity >= self::VERBOSITY_MEDIUM) {
-                $this->log->info('FORM', [$form]);
+                $this->logger->info('FORM', [$form]);
             }
 
             // Search each phrase/keyword one at a time.
@@ -283,7 +232,7 @@ final class Seeker extends Communicator implements SeekerInterface
                 $resultCrawler = $this->client->submit($form);
 
                 if ($this->verbosity >= self::VERBOSITY_MEDIUM) {
-                    $this->log->info(
+                    $this->logger->info(
                         FormattedMessage::get(
                             FormattedMessage::FIRST_RESULT_PAGE_FOR_KEYWORD_ON_TARGET,
                             $keyword,
@@ -301,8 +250,12 @@ final class Seeker extends Communicator implements SeekerInterface
         }
     }
 
-    private function scrape(Target $target, Crawler $crawler): void
+    private function scrape(Target $target, ?Crawler $crawler): void
     {
+        if ($crawler === null) {
+            return;
+        }
+
         $markup = $target->getMarkup();
         $titleLinkSelector = $markup[TargetKey::MARKUP_TITLE];
         $markupInside = $markup[TargetKey::special(TargetKey::MARKUP_INSIDE)] ?? [];
@@ -310,7 +263,7 @@ final class Seeker extends Communicator implements SeekerInterface
         $markupHasItemWrapper = false;
 
         // choose link as title link selector if it is not empty and it is not set to a special key
-        if (!(empty($markup[TargetKey::MARKUP_LINK]) || Config::isSpecialKey($markup[TargetKey::MARKUP_LINK]))) {
+        if (!(empty($markup[TargetKey::MARKUP_LINK]) || ConfigProvider::isSpecialKey($markup[TargetKey::MARKUP_LINK]))) {
             $titleLinkSelector = $markup[TargetKey::MARKUP_LINK];
         }
 
@@ -321,7 +274,7 @@ final class Seeker extends Communicator implements SeekerInterface
             TargetKey::special(TargetKey::ITEM),
             TargetKey::special(TargetKey::WRAPPER),
         ]);
-        if (!empty($markup[Config::specialKey(TargetKey::ITEM_WRAPPER)])) {
+        if (!empty($markup[ConfigProvider::specialKey(TargetKey::ITEM_WRAPPER)])) {
             $markupHasItemWrapper = true;
         }
 
@@ -348,7 +301,7 @@ final class Seeker extends Communicator implements SeekerInterface
             }
 
             $items->each(
-                function ($itemCrawler) use (
+                function (Crawler $itemCrawler) use (
                     $markupHasInside,
                     $markupInside,
                     $target,
@@ -357,11 +310,8 @@ final class Seeker extends Communicator implements SeekerInterface
                     $cursor = $target->getCursor();
 
                     try {
-                        /** @noinspection PhpUndefinedMethodInspection */
                         $titleLinkCrawler = $markupHasInside ? $itemCrawler : $itemCrawler->filter($titleLinkSelector);
-                        /** @noinspection PhpUndefinedMethodInspection */
                         $titleLinkText = Scanner::cleanText($titleLinkCrawler->text());
-                        /** @noinspection PhpUndefinedMethodInspection */
                         $linkCrawler = $titleLinkCrawler->selectLink($titleLinkText);
 
                         // link crawler is empty in this case the link may be a parent element
@@ -370,7 +320,6 @@ final class Seeker extends Communicator implements SeekerInterface
                             $linkCrawler = $this->nodeProximityAssistant->closest('a[href]', $titleLinkCrawler);
                         }
 
-                        /** @noinspection PhpUndefinedMethodInspection */
                         // simply get link from crawler
                         $link = $linkCrawler->link();
 
@@ -384,7 +333,7 @@ final class Seeker extends Communicator implements SeekerInterface
                                 $cursor + 1
                             )
                         );
-                        $this->log->error($e);
+                        $this->logger->error($e);
 
                         // escape 'each' block
                         return;
@@ -437,7 +386,7 @@ final class Seeker extends Communicator implements SeekerInterface
                         );
 
                         $this->tell($errorMessage);
-                        $this->log->error($errorMessage);
+                        $this->logger->error($errorMessage);
                     }
                 }
 
@@ -449,5 +398,15 @@ final class Seeker extends Communicator implements SeekerInterface
             // back-off
             sleep($this->optionSet->getBackOff());
         } while ($crawler !== null); // unless Crawler died...
+    }
+
+    private function getTargetBuilder(): TargetBuilder
+    {
+        return new TargetBuilder(
+            array_filter(array_map(
+                'trim',
+                explode(',', $this->optionSet->getKeywords() ?? '')
+            ))
+        );
     }
 }

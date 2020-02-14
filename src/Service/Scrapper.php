@@ -9,8 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use Monolog\Logger;
-use ReliqArts\Scavenger\Helper\Config;
+use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Helper\FormattedMessage;
 use ReliqArts\Scavenger\Helper\TargetKey;
 use ReliqArts\Scavenger\Model\Scrap;
@@ -21,7 +20,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class Scrapper extends Communicator
 {
     private const ERROR_INVALID_SPECIAL_KEY = '!#ERR - S.Key not valid!';
-    private const KEY_PREFIX = Config::SPECIAL_KEY_PREFIX;
+    private const KEY_PREFIX = ConfigProvider::SPECIAL_KEY_PREFIX;
     private const KEY_TARGET = self::KEY_PREFIX . 'target';
     private const KEY_ID = self::KEY_PREFIX . 'id';
     private const KEY_SERP_RESULT = self::KEY_PREFIX . 'serp_result';
@@ -35,9 +34,9 @@ class Scrapper extends Communicator
     /**
      * Event logger.
      *
-     * @var Logger
+     * @var LoggerInterface
      */
-    private Logger $log;
+    private LoggerInterface $logger;
 
     /**
      * @var int
@@ -65,17 +64,16 @@ class Scrapper extends Communicator
      * Scrapper constructor.
      */
     public function __construct(
-        Logger $log,
-        Scanner $scanner,
-        ?Command $callingCommand,
+        LoggerInterface $logger,
+        ?Command $callingCommand = null,
         string $hashAlgorithm = self::HASH_ALGORITHM,
         int $verbosity = self::VERBOSITY_LOW
     ) {
         parent::__construct($callingCommand);
 
         $this->raw = [];
-        $this->log = $log;
-        $this->scanner = $scanner;
+        $this->logger = $logger;
+        $this->scanner = new Scanner();
         $this->hashAlgorithm = $hashAlgorithm;
         $this->scraps = collect([]);
         $this->relatedObjects = collect([]);
@@ -109,7 +107,7 @@ class Scrapper extends Communicator
         // feedback
         $this->tell(
             FormattedMessage::get(FormattedMessage::SCRAP_GATHERED, $data[self::KEY_ID])
-            . ($this->verbosity >= self::VERBOSITY_HIGH ? '-- ' . json_encode($data) : null)
+            . ($this->verbosity >= self::VERBOSITY_HIGH ? '-- ' . json_encode($data, JSON_THROW_ON_ERROR, 512) : null)
         );
     }
 
@@ -122,7 +120,7 @@ class Scrapper extends Communicator
                     $this->relatedObjects->push($relatedObject);
                 }
             } catch (QueryException $e) {
-                $this->log->warning($e, ['scrap' => $scrap]);
+                $this->logger->warning($e, ['scrap' => $scrap]);
             }
         });
     }
@@ -153,7 +151,7 @@ class Scrapper extends Communicator
                 }
 
                 $this->tell($errorMessage);
-                $this->log->error($errorMessage);
+                $this->logger->error($errorMessage);
             }
         });
     }
@@ -166,34 +164,15 @@ class Scrapper extends Communicator
         return $this->relatedObjects;
     }
 
-    private function buildScrapFromData(array $data): Scrap
-    {
-        $scrap = Scrap::firstOrNew(
-            [
-                'hash' => $data[self::KEY_ID],
-            ],
-            [
-                'model' => $data[TargetKey::special(TargetKey::MODEL)],
-                'source' => $data[TargetKey::special(TargetKey::SOURCE)],
-                'title' => $data[TargetKey::TITLE],
-                'data' => json_encode($data),
-            ]
-        );
-
-        if (!$scrap->exists) {
-            ++$this->newScrapsCount;
-        }
-
-        return $scrap;
-    }
-
-    /** @noinspection PhpTooManyParametersInspection */
-
     /**
      * Initialize data.
      */
-    private function initializeData(TitleLink $titleLink, Target $target, Crawler $crawler, array $markupOverride = []): array
-    {
+    private function initializeData(
+        TitleLink $titleLink,
+        Target $target,
+        Crawler $crawler,
+        array $markupOverride = []
+    ): array {
         $markup = !empty($markupOverride) ? $markupOverride : $target->getMarkup();
 
         $data[TargetKey::TITLE] = $titleLink->getTitle();
@@ -204,10 +183,10 @@ class Scrapper extends Communicator
 
         // build initial scrap data from markup and dissect
         foreach ($markup as $attr => $path) {
-            if (Config::isSpecialKey($path)) {
+            if (ConfigProvider::isSpecialKey($path)) {
                 // path is special key, use special key value from scrap
                 $data[$attr] = !empty($data[$path]) ? $data[$path] : self::ERROR_INVALID_SPECIAL_KEY;
-            } elseif (!Config::isSpecialKey($attr)) {
+            } elseif (!ConfigProvider::isSpecialKey($attr)) {
                 try {
                     $attrCrawler = $crawler->filter($path);
                     $data[$attr] = $attr === TargetKey::TITLE ? $attrCrawler->text() : $attrCrawler->html();
@@ -237,7 +216,7 @@ class Scrapper extends Communicator
                         $e->getMessage()
                     );
                     $this->tell($exMessage);
-                    $this->log->warning($exMessage, [$markup[$attr]]);
+                    $this->logger->warning($exMessage, [$markup[$attr]]);
                 }
             }
             unset($path);
@@ -249,7 +228,7 @@ class Scrapper extends Communicator
     private function preprocess(array $data, Target $target): array
     {
         // preprocess and remap scrap data parts
-        foreach (($dataSnap = $data) as $attr => $value) {
+        foreach ($data as $attr => $value) {
             $data[$attr] = $this->encodeAttribute($data, $attr);
 
             // preprocess
@@ -266,12 +245,12 @@ class Scrapper extends Communicator
                 // if preprocess is callable call it on attribute value
                 if (is_callable($preprocess)) {
                     try {
-                        $data[$attr] = call_user_func($preprocess, $data[$attr]);
+                        $data[$attr] = $preprocess($data[$attr]);
                     } catch (Exception $e) {
-                        $this->log->error($e);
+                        $this->logger->error($e);
                     }
                 } else {
-                    $this->log->warning(FormattedMessage::get(
+                    $this->logger->warning(FormattedMessage::get(
                         FormattedMessage::PREPROCESS_NOT_CALLABLE,
                         $attr,
                         $target->getName()
@@ -293,35 +272,6 @@ class Scrapper extends Communicator
         return $data;
     }
 
-    /**
-     * Finalize scrap.
-     */
-    private function finalizeData(array $data, Target $target): array
-    {
-        $data[self::KEY_ID] = hash($this->hashAlgorithm, json_encode($data));
-        $data[self::KEY_SERP_RESULT] = $target->isSearchEngineRequestPages();
-        $data[self::KEY_TARGET] = $target->getName();
-
-        ksort($data);
-
-        return $data;
-    }
-
-    private function verifyData(array $data, Target $target): bool
-    {
-        if ($this->scanner->hasBadWords($data, $target->getBadWords())) {
-            $badWordMessage = sprintf(FormattedMessage::SCRAP_CONTAINS_BAD_WORD, json_encode($data));
-            $this->log->notice($badWordMessage);
-            if ($this->verbosity >= self::VERBOSITY_HIGH) {
-                $this->tell($badWordMessage);
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
     private function encodeAttribute(array $data, string $attr): string
     {
         $attributeText = (string)$data[$attr];
@@ -336,5 +286,58 @@ class Scrapper extends Communicator
             self::ENCODE_CHARSET,
             $attributeText
         );
+    }
+
+    private function verifyData(array $data, Target $target): bool
+    {
+        if ($this->scanner->hasBadWords($data, $target->getBadWords())) {
+            $badWordMessage = sprintf(
+                FormattedMessage::SCRAP_CONTAINS_BAD_WORD,
+                json_encode($data, JSON_THROW_ON_ERROR, 512)
+            );
+            $this->logger->notice($badWordMessage);
+            if ($this->verbosity >= self::VERBOSITY_HIGH) {
+                $this->tell($badWordMessage);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Finalize scrap.
+     */
+    private function finalizeData(array $data, Target $target): array
+    {
+        $data[self::KEY_ID] = hash($this->hashAlgorithm, json_encode($data, JSON_THROW_ON_ERROR, 512));
+        $data[self::KEY_SERP_RESULT] = $target->isSearchEngineRequestPages();
+        $data[self::KEY_TARGET] = $target->getName();
+
+        ksort($data);
+
+        return $data;
+    }
+
+    private function buildScrapFromData(array $data): Scrap
+    {
+        $scrap = Scrap::firstOrNew(
+            [
+                'hash' => $data[self::KEY_ID],
+            ],
+            [
+                'model' => $data[TargetKey::special(TargetKey::MODEL)],
+                'source' => $data[TargetKey::special(TargetKey::SOURCE)],
+                'title' => $data[TargetKey::TITLE],
+                'data' => json_encode($data),
+            ]
+        );
+
+        if (!$scrap->exists) {
+            ++$this->newScrapsCount;
+        }
+
+        return $scrap;
     }
 }

@@ -4,19 +4,32 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger;
 
+use Exception;
+use Goutte\Client as GoutteClient;
+use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Console\Command\Seek;
+use ReliqArts\Scavenger\Contract\ConfigProvider as ConfigProviderContract;
+use ReliqArts\Scavenger\Contract\Seeker as SeekerContract;
+use ReliqArts\Scavenger\Helper\NodeProximityAssistant;
+use ReliqArts\Scavenger\Service\ConfigProvider;
+use ReliqArts\Scavenger\Service\Seeker;
 
 /**
  *  Service Provider.
  */
-final class ServiceProvider extends BaseServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
     /**
      * @var string
      */
-    protected string $assetsDir = __DIR__ . '/..';
+    protected const ASSET_DIRECTORY = __DIR__ . '/..';
+    private const LOG_FILE_PREFIX = 'scavenger-';
+    private const LOGGER_NAME = 'Scavenger.Seeker';
 
     /**
      * List of commands.
@@ -48,11 +61,19 @@ final class ServiceProvider extends BaseServiceProvider
     public function register(): void
     {
         $loader = AliasLoader::getInstance();
+        $configProvider = new ConfigProvider();
 
-        // bind contract to service model
+        $this->app->singleton(ConfigProviderContract::class, $configProvider);
         $this->app->bind(
-            Contract\Seeker::class,
-            Service\Seeker::class
+            SeekerContract::class,
+            function () use ($configProvider): SeekerContract {
+                return new Seeker(
+                    $this->getLogger($configProvider),
+                    $configProvider,
+                    new NodeProximityAssistant(),
+                    $this->getGoutteClient($configProvider)
+                );
+            }
         );
 
         // Register facades...
@@ -83,11 +104,11 @@ final class ServiceProvider extends BaseServiceProvider
     protected function handleConfig(): void
     {
         // merge config
-        $this->mergeConfigFrom("{$this->assetsDir}/config/config.php", 'scavenger');
+        $this->mergeConfigFrom(static::ASSET_DIRECTORY . '/config/config.php', 'scavenger');
 
         // allow publishing config
         $this->publishes([
-            "{$this->assetsDir}/config/config.php" => config_path('scavenger.php'),
+            static::ASSET_DIRECTORY . '/config/config.php' => config_path('scavenger.php'),
         ], 'scavenger:config');
     }
 
@@ -112,7 +133,35 @@ final class ServiceProvider extends BaseServiceProvider
 
         // allow publishing of migrations
         $this->publishes([
-            "{$this->assetsDir}/database/migrations/" => database_path('migrations'),
+            static::ASSET_DIRECTORY . '/database/migrations/' => database_path('migrations'),
         ], 'scavenger:migrations');
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getLogger(ConfigProvider $configProvider): LoggerInterface
+    {
+        $logFilename = self::LOG_FILE_PREFIX . microtime(true);
+        $logger = new Logger(self::LOGGER_NAME);
+
+        $logger->pushHandler(new StreamHandler(
+            storage_path('logs/' . $configProvider->getLogDir() . "/{$logFilename}.log"),
+            $configProvider->isLoggingEnabled() ? Logger::DEBUG : Logger::CRITICAL
+        ));
+
+        return $logger;
+    }
+
+    /**
+     * @param GoutteClient $goutteClient
+     */
+    private function getGoutteClient(ConfigProvider $configProvider): GoutteClient
+    {
+        $goutteClient = new GoutteClient();
+
+        return $goutteClient->setClient(
+            new GuzzleClient($configProvider->getGuzzleSettings())
+        );
     }
 }

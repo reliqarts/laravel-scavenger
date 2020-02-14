@@ -6,7 +6,7 @@ namespace ReliqArts\Scavenger\Model;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\Schema;
-use ReliqArts\Scavenger\Helper\Config;
+use ReliqArts\Scavenger\Helper\ConfigProvider;
 
 /**
  * Scavenger Scrap.
@@ -35,7 +35,7 @@ class Scrap extends EloquentModel
      */
     public function getTable(): string
     {
-        return Config::getScrapsTable();
+        return ConfigProvider::getScrapsTable();
     }
 
     /**
@@ -64,7 +64,7 @@ class Scrap extends EloquentModel
 
                 // Fill model data with scrap data if attributes exist
                 foreach (json_decode($this->data, true, 512, JSON_THROW_ON_ERROR) as $attr => $val) {
-                    if (!Config::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
+                    if (!ConfigProvider::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
                         $targetObject->{$attr} = $val;
                     }
                 }

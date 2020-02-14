@@ -17,20 +17,14 @@ final class TargetBuilder
     /**
      * @var array
      */
-    private $globalKeywords;
-
-    /**
-     * @var Scanner
-     */
-    private $scanner;
+    private array $globalKeywords;
 
     /**
      * TargetBuilder constructor.
      */
-    public function __construct(array $globalKeywords = [], ?Scanner $scanner = null)
+    public function __construct(array $globalKeywords = [])
     {
         $this->globalKeywords = $globalKeywords;
-        $this->scanner = $scanner ?: new Scanner();
     }
 
     /**

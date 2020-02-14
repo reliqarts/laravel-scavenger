@@ -6,16 +6,13 @@ namespace ReliqArts\Scavenger\Tests\Integration;
 
 use Illuminate\Foundation\Application;
 use Orchestra\Testbench\TestCase as BaseTestCase;
-use ReliqArts\Scavenger\ServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {
     /**
      * @param Application $app
-     *
-     * @return array
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [ServiceProvider::class];
     }

@@ -7,10 +7,10 @@ namespace ReliqArts\Scavenger\Console\Command;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
+use ReliqArts\Scavenger\Contract\ConfigProvider;
+use ReliqArts\Scavenger\Contract\Seeker;
 use ReliqArts\Scavenger\Exception\BadDaemonConfig;
-use ReliqArts\Scavenger\Helper\Config;
 use ReliqArts\Scavenger\OptionSet;
-use ReliqArts\Scavenger\Service\Seeker;
 
 class Seek extends Command
 {
@@ -41,7 +41,7 @@ class Seek extends Command
      *
      * @throws Exception
      */
-    public function handle(): void
+    public function handle(ConfigProvider $configProvider, Seeker $seeker): void
     {
         $saveScraps = $this->option('keep');
         $target = $this->argument('target');
@@ -51,7 +51,6 @@ class Seek extends Command
         $pages = (int)$this->option('pages');
         $convertScraps = $this->option('convert');
         $optionSet = new OptionSet($saveScraps, $convertScraps, $backOff, $pages, $keywords);
-        $seeker = new Seeker($optionSet, $this);
         $confirmationQuestion = 'Scavenger will scour a resource for scraps and make model records,'
             . "performing HTTP, DB and I/O operations.\n Ensure your internet connection is stable. Ready?";
 
@@ -63,7 +62,7 @@ class Seek extends Command
         if ($skipConfirmation || $this->confirm($confirmationQuestion)) {
             try {
                 // get scavenger daemon
-                $daemon = Config::getDaemon();
+                $daemon = $configProvider->getDaemon();
             } catch (BadDaemonConfig $e) {
                 // fail, could not create daemon user
                 $this->line(
@@ -85,7 +84,7 @@ class Seek extends Command
             );
 
             // Seek
-            $result = $seeker->seek($target);
+            $result = $seeker->seek($optionSet, $target);
             if ($result->isSuccess()) {
                 $this->info(PHP_EOL . '----------');
                 $this->comment('<info>✔</info> Done. Scavenger daemon now goes to sleep...');

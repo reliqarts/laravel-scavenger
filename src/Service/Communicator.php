@@ -47,9 +47,14 @@ abstract class Communicator
     /**
      * Communicator constructor.
      */
-    public function __construct(?Command $callingCommand)
+    public function __construct(?Command $callingCommand = null)
     {
         $this->callingCommand = $callingCommand;
+    }
+
+    final protected function printBlankLine(): void
+    {
+        $this->tell("\n", 'none');
     }
 
     /**
@@ -89,10 +94,5 @@ abstract class Communicator
         } else {
             echo $nl . $dirSymbol . $text;
         }
-    }
-
-    final protected function printBlankLine(): void
-    {
-        $this->tell("\n", 'none');
     }
 }

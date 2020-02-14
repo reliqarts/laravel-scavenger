@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Helper;
 
+use ReliqArts\Scavenger\Service\ConfigProvider;
+
 final class TargetKey
 {
     public const NAME = 'name';
@@ -51,6 +53,6 @@ final class TargetKey
 
     public static function special(string $keyName): string
     {
-        return Config::specialKey($keyName);
+        return ConfigProvider::specialKey($keyName);
     }
 }
