@@ -1,6 +1,7 @@
 <?php
 /**
  * @noinspection PhpTooManyParametersInspection
+ * @noinspection PhpUsageOfSilenceOperatorInspection
  */
 
 declare(strict_types=1);
@@ -145,7 +146,6 @@ final class SeekerTest extends TestCase
     private function getDOMCrawlerPage(string $path): Crawler
     {
         $document = new DOMDocument();
-        // @noinspection PhpUsageOfSilenceOperatorInspection Suppress HTML5 element warnings.
         @$document->loadHTML($this->readFixtureFile(sprintf(self::HTML_FIXTURES_DIR . '/%s', $path)));
 
         $crawler = new Crawler();
