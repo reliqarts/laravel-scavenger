@@ -50,9 +50,6 @@
   "extra": {
     "laravel": {
       "providers": ["ReliqArts\\Scavenger\\ServiceProvider"],
-      "aliases": {
-        "Scavenger": "ReliqArts\\Scavenger\\Facade\\Scavenger"
-      }
     }
   },
   "minimum-stability": "dev",

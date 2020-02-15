@@ -74,7 +74,6 @@ class ServiceProvider extends BaseServiceProvider
             }
         );
 
-        // Register facades...
         $loader->alias('Scavenger', Scavenger::class);
     }
 
