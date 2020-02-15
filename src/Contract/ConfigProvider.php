@@ -63,11 +63,6 @@ interface ConfigProvider
 
     public function getLogDir(): string;
 
-    /**
-     * Get scavenger scraps table.
-     */
-    public function getScrapsTable(): string;
-
     public function getVerbosity(): int;
 
     /**
@@ -75,6 +70,11 @@ interface ConfigProvider
      * Note: critical info. or higher will always be logged regardless of log config.
      */
     public function isLoggingEnabled(): bool;
+
+    /**
+     * Get scavenger scraps table.
+     */
+    public static function getScrapsTable(): string;
 
     /**
      * Convert config key name to special key.

@@ -46,6 +46,8 @@ final class TargetKey
 
     /**
      * TargetKey constructor.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {

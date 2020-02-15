@@ -137,14 +137,6 @@ final class ConfigProvider implements ConfigProviderContract
         return $this->get()['storage']['log_dir'] ?? 'scavenger';
     }
 
-    /**
-     * Get scavenger scraps table.
-     */
-    public function getScrapsTable(): string
-    {
-        return Config::get('scavenger.database.scraps_table', 'scavenger_scraps');
-    }
-
     public function getVerbosity(): int
     {
         $verbosity = (int)Config::get('scavenger.verbosity');
@@ -162,6 +154,14 @@ final class ConfigProvider implements ConfigProviderContract
     public function isLoggingEnabled(): bool
     {
         return (bool)Config::get('scavenger.log');
+    }
+
+    /**
+     * Get scavenger scraps table.
+     */
+    public static function getScrapsTable(): string
+    {
+        return Config::get('scavenger.database.scraps_table', 'scavenger_scraps');
     }
 
     /**

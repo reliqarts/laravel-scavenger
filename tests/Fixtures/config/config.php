@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use ReliqArts\Scavenger\Tests\Fixtures\Model\BingResult;
+use ReliqArts\Scavenger\Tests\Fixtures\Model\GoogleResult;
+use ReliqArts\Scavenger\Tests\Fixtures\Model\Item;
+
 return [
     // debug mode?
     'debug' => false,
@@ -57,16 +61,14 @@ return [
         // NB. the "rooms" target shown below is for example purposes only. It has all posible keys explicitly.
         'rooms' => [
             'example' => false,
-            'serp' => false,
-            'model' => 'App\\Room',
-            'source' => 'http://myroomslistingsite.1demo/section/rooms',
+            'model' => Item::class,
+            'source' => 'http://gleanerclassifieds.com/showads/section/Real+Estate-10100',
             'search' => [
                 // keywords
-                'keywords' => ['professional'],
-                // form markup
+                'keywords' => ['uwi', 'utech', 'student room'],
                 'form' => [
                     // search form selector (important)
-                    'selector' => '#form',
+                    'selector' => '#frmSearch',
                     // input element name for search term/keyword
                     'keyword_input_name' => 'keyword',
                     'submit_button' => [
@@ -78,33 +80,28 @@ return [
                 ],
             ],
             'pager' => [
-                // link (a tag) selector
-                'selector' => 'div.content #page a.pagingnav',
+                'selector' => 'div.content #page .pagingnav',
+                'text' => '>',
             ],
-            // max. number of pages to scrape (0 is unlimited)
-            'pages' => 0,
-            // content markup: actual data to be scraped
             'markup' => [
                 'title' => 'div.content section > table tr h3',
-                // inside: content to be found upon clicking title link
+                // content to be found upon clicking title link
                 '__inside' => [
                     'title' => '#ad-title > h1 > a',
                     'body' => 'article .adcontent > p[align="LEFT"]:last-of-type',
-                    // focus: focus detail on the following section
+                    // focus detail on the following section
                     '__focus' => 'section section > .content #ad-detail > article',
                 ],
-                // wrapper/item/result: wrapping selector for each item on single page.
-                // If inside special key is set this key becomes invalid (i.e. inside takes preference)
-                '__result' => null,
+                '__wrapper' => null,
             ],
             // split single attributes into multiple based on regex
             'dissect' => [
                 'body' => [
                     'email' => '(([eE]mail)*:*\s*\w+\@(\s*\w)*\.(net|com))',
                     'phone' => '((([cC]all|[[tT]el|[Pp][Hh](one)*)[:\d\-,\sDL\/]*\d)|(\d{3}\-?\d{4}))',
+                    'money' => '((US)*\$[,\d\.]+[Kk]*)',
                     'beds' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]edroom|b\/r|[Bb]ed)s?)',
                     'baths' => '([\d]+[\d\.\/\s]*[^\w]*([Bb]athroom|bth|[Bb]ath)s?)',
-                    // retain:  whether details should be left in source attribute after extraction
                     '__retain' => true,
                 ],
             ],
@@ -115,22 +112,29 @@ return [
                 // e.g. ['App\\Item', 'foo', true] or 'bar'
                 'title' => null,
             ],
-            // remap entity attributes to model properties (optional)
+            // remap entity attributes to model properties
             'remap' => [
-                'title' => null,
-                'body' => null,
+                // 'title' => 'name',
+                'body' => 'details',
             ],
-            // scraps containing any of these words will be rejected (optional)
+            // scraps containing any of these words will be rejected
             'bad_words' => [
                 'office',
+                'company',
+                'mortgage',
+                'business',
+                'wholesale',
+                'commercial',
+                'short term',
             ],
+            'pages' => 1,
         ],
 
         // Google SERP example:
         'google' => [
             'example' => true,
             'serp' => true,
-            'model' => 'App\\GoogleResult',
+            'model' => GoogleResult::class,
             'source' => 'https://www.google.com',
             'search' => [
                 'keywords' => ['dog'],
@@ -157,7 +161,7 @@ return [
         'bing' => [
             'example' => true,
             'serp' => true,
-            'model' => 'App\\BingResult',
+            'model' => BingResult::class,
             'source' => 'https://www.bing.com',
             'search' => [
                 'keywords' => ['dog'],

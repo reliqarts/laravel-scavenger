@@ -85,9 +85,9 @@ final class Seeker extends Communicator implements SeekerInterface
      */
     public function __construct(
         LoggerInterface $logger,
+        GoutteClient $client,
         ConfigProvider $config,
-        NodeProximityAssistant $nodeProximityAssistant,
-        GoutteClient $client
+        NodeProximityAssistant $nodeProximityAssistant
     ) {
         parent::__construct();
 
@@ -274,7 +274,7 @@ final class Seeker extends Communicator implements SeekerInterface
             TargetKey::special(TargetKey::ITEM),
             TargetKey::special(TargetKey::WRAPPER),
         ]);
-        if (!empty($markup[ConfigProvider::specialKey(TargetKey::ITEM_WRAPPER)])) {
+        if (!empty($markup[TargetKey::special(TargetKey::ITEM_WRAPPER)])) {
             $markupHasItemWrapper = true;
         }
 

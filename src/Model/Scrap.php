@@ -6,7 +6,7 @@ namespace ReliqArts\Scavenger\Model;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\Schema;
-use ReliqArts\Scavenger\Helper\ConfigProvider;
+use ReliqArts\Scavenger\Service\ConfigProvider;
 
 /**
  * Scavenger Scrap.
@@ -53,7 +53,7 @@ class Scrap extends EloquentModel
         if (!empty($this->model)) {
             $existingRelated = $this->getRelated();
 
-            if ($existingRelated && !$convertDuplicates) {
+            if ($existingRelated !== null && !$convertDuplicates) {
                 return $existingRelated;
             }
 

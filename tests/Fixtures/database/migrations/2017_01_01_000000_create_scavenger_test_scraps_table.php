@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use ReliqArts\Scavenger\Service\ConfigProvider;
 
-class CreateScavengerScrapsTable extends Migration
+class CreateScavengerTestScrapsTable extends Migration
 {
     /**
      * Run the migrations.

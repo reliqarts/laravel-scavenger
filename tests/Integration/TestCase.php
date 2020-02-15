@@ -9,11 +9,24 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    protected const FIXTURES_PATH = __DIR__ . '/../Fixtures/';
+    protected const HTML_FIXTURES_DIR = 'html';
+
     /**
      * @param Application $app
      */
     protected function getPackageProviders($app): array
     {
         return [ServiceProvider::class];
+    }
+
+    protected function readFixtureFile(string $path): ?string
+    {
+        $fullPath = realpath(self::FIXTURES_PATH . $path);
+        if (empty($fullPath)) {
+            return null;
+        }
+
+        return file_get_contents($fullPath);
     }
 }

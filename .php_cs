@@ -65,7 +65,7 @@ $config = PhpCsFixer\Config::create()
         'php_unit_strict' => true,
         'php_unit_test_annotation' => true,
         'php_unit_test_case_static_method_calls' => ['call_type' => 'this'],
-        'php_unit_test_class_requires_covers' => true,
+        'php_unit_test_class_requires_covers' => false,
         'phpdoc_add_missing_param_annotation' => true,
         'phpdoc_order' => true,
         'phpdoc_trim_consecutive_blank_line_separation' => true,

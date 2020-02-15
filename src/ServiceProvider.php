@@ -45,13 +45,9 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function boot(): void
     {
-        // register config
         $this->handleConfig();
-        // load migrations
         $this->handleMigrations();
-        // publish assets
         $this->handleAssets();
-        // publish commands
         $this->handleCommands();
     }
 
@@ -61,17 +57,18 @@ class ServiceProvider extends BaseServiceProvider
     public function register(): void
     {
         $loader = AliasLoader::getInstance();
-        $configProvider = new ConfigProvider();
 
-        $this->app->singleton(ConfigProviderContract::class, $configProvider);
+        $this->app->singleton(ConfigProviderContract::class, ConfigProvider::class);
         $this->app->bind(
             SeekerContract::class,
-            function () use ($configProvider): SeekerContract {
+            function (): SeekerContract {
+                $configProvider = resolve(ConfigProviderContract::class);
+
                 return new Seeker(
                     $this->getLogger($configProvider),
+                    $this->getGoutteClient($configProvider),
                     $configProvider,
-                    new NodeProximityAssistant(),
-                    $this->getGoutteClient($configProvider)
+                    new NodeProximityAssistant()
                 );
             }
         );
@@ -86,7 +83,7 @@ class ServiceProvider extends BaseServiceProvider
     public function provides(): array
     {
         return [
-            Contract\Seeker::class,
+            SeekerContract::class,
         ];
     }
 
@@ -129,7 +126,7 @@ class ServiceProvider extends BaseServiceProvider
     private function handleMigrations(): void
     {
         // Load the migrations...
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(static::ASSET_DIRECTORY . '/database/migrations');
 
         // allow publishing of migrations
         $this->publishes([
