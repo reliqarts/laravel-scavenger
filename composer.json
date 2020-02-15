@@ -51,7 +51,7 @@
     "laravel": {
       "providers": ["ReliqArts\\Scavenger\\ServiceProvider"],
       "aliases": {
-        "ScavengerSeeker": "ReliqArts\\Scavenger\\Service\\Seeker"
+        "Scavenger": "ReliqArts\\Scavenger\\Facade\\Scavenger"
       }
     }
   },

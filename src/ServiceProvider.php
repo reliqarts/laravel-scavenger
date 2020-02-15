@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Console\Command\Seek;
 use ReliqArts\Scavenger\Contract\ConfigProvider as ConfigProviderContract;
 use ReliqArts\Scavenger\Contract\Seeker as SeekerContract;
+use ReliqArts\Scavenger\Facade\Scavenger;
 use ReliqArts\Scavenger\Helper\NodeProximityAssistant;
 use ReliqArts\Scavenger\Service\ConfigProvider;
 use ReliqArts\Scavenger\Service\Seeker;
@@ -74,7 +75,7 @@ class ServiceProvider extends BaseServiceProvider
         );
 
         // Register facades...
-        $loader->alias('ScavengerService', Service\Seeker::class);
+        $loader->alias('Scavenger', Scavenger::class);
     }
 
     /**
