@@ -49,7 +49,7 @@
   },
   "extra": {
     "laravel": {
-      "providers": ["ReliqArts\\Scavenger\\ServiceProvider"],
+      "providers": ["ReliqArts\\Scavenger\\ServiceProvider"]
     }
   },
   "minimum-stability": "dev",

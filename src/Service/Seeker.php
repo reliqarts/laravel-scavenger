@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Concern\Timed;
-use ReliqArts\Scavenger\Contract\ConfigProvider;
+use ReliqArts\Scavenger\Contract\ConfigProvider as ConfigProviderContract;
 use ReliqArts\Scavenger\Contract\Seeker as SeekerInterface;
 use ReliqArts\Scavenger\Exception\InvalidTargetDefinition;
 use ReliqArts\Scavenger\Factory\TargetBuilder;
@@ -86,7 +86,7 @@ final class Seeker extends Communicator implements SeekerInterface
     public function __construct(
         LoggerInterface $logger,
         GoutteClient $client,
-        ConfigProvider $config,
+        ConfigProviderContract $config,
         NodeProximityAssistant $nodeProximityAssistant
     ) {
         parent::__construct();
@@ -139,16 +139,17 @@ final class Seeker extends Communicator implements SeekerInterface
                 $this->crawlTarget($target);
                 // reset page limit
                 $this->pageLimit = $this->optionSet->getPages();
-            } catch (InvalidTargetDefinition $e) {
-                $this->tell($e->getMessage());
-            } catch (Exception $e) {
-                $this->tell(
-                    FormattedMessage::get(
-                        FormattedMessage::TARGET_UNEXPECTED_EXCEPTION,
-                        $currentTargetName,
-                        $e->getMessage()
-                    )
+            } catch (InvalidTargetDefinition $exception) {
+                $this->tell($exception->getMessage());
+            } catch (Exception $exception) {
+                $message = FormattedMessage::get(
+                    FormattedMessage::TARGET_UNEXPECTED_EXCEPTION,
+                    $currentTargetName,
+                    $exception->getMessage()
                 );
+
+                $result->addError($message);
+                $this->tell($message);
             }
         }
 
@@ -168,9 +169,13 @@ final class Seeker extends Communicator implements SeekerInterface
             'unconverted' => $this->scrapper->getScraps()->count() - $this->scrapper->getRelatedObjects()->count(),
         ];
 
-        return $result
-            ->setSuccess(true)
-            ->setExtra($extra);
+        if (!$result->hasErrors()) {
+            return $result
+                ->setSuccess(true)
+                ->setExtra($extra);
+        }
+
+        return $result;
     }
 
     private function crawlTarget(Target $target): void

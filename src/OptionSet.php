@@ -6,6 +6,8 @@ namespace ReliqArts\Scavenger;
 
 final class OptionSet
 {
+    private const DEFAULT_PAGE_LIMIT = 999999;
+
     /**
      * @var bool
      */
@@ -40,7 +42,7 @@ final class OptionSet
         bool $saveScraps = true,
         bool $convertScraps = true,
         int $backOff = 3,
-        int $pages = 0,
+        int $pages = self::DEFAULT_PAGE_LIMIT,
         ?string $keywords = null
     ) {
         $this->saveScraps = $saveScraps;

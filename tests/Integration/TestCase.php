@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Tests\Integration;
 
+use DOMDocument;
 use Illuminate\Foundation\Application;
 use Orchestra\Testbench\TestCase as BaseTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -28,5 +30,14 @@ abstract class TestCase extends BaseTestCase
         }
 
         return file_get_contents($fullPath);
+    }
+
+    protected function getPageDOMCrawler(string $path): Crawler
+    {
+        $url = sprintf('https://base.uri/%s', $path);
+        $document = new DOMDocument();
+        @$document->loadHTML($this->readFixtureFile(sprintf(self::HTML_FIXTURES_DIR . '/%s', $path)));
+
+        return new Crawler($document, $url);
     }
 }

@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Tests\Integration\Service;
 
-use DOMDocument;
 use Exception;
 use Goutte\Client;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -21,6 +20,7 @@ use ReliqArts\Scavenger\Helper\NodeProximityAssistant;
 use ReliqArts\Scavenger\Model\Scrap;
 use ReliqArts\Scavenger\OptionSet;
 use ReliqArts\Scavenger\Service\Seeker;
+use ReliqArts\Scavenger\Tests\Fixtures\Model\BingResult;
 use ReliqArts\Scavenger\Tests\Fixtures\Model\Item;
 use ReliqArts\Scavenger\Tests\Integration\TestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -73,41 +73,36 @@ final class SeekerTest extends TestCase
             resolve(ConfigProvider::class),
             resolve(NodeProximityAssistant::class),
         );
-
-//        $this->subject = resolve(SeekerContract::class);
     }
 
     /**
      * @dataProvider seekDataProvider
+     * @medium
      *
-     * @param Crawler[] $landingPages
-     * @param Crawler[] $searchResultPages
-     * @param Crawler[] $itemPages
+     * @param Crawler[] $nextPages Next link (and/or item link) pages
      */
     public function testSeek(
         OptionSet $options,
-        array $landingPages,
+        Crawler $landingPage,
         array $expectations,
+        string $modelClass,
         ?string $targetName = null,
-        array $searchResultPages = [],
-        array $itemPages = []
+        array $nextPages = []
     ): void {
         $this->goutteClient
             ->request(Request::METHOD_GET, Argument::type('string'))
             ->shouldBeCalled()
-            ->willReturn(...$landingPages);
+            ->willReturn($landingPage);
         $this->goutteClient
             ->submit(Argument::type(Form::class))
-            ->shouldBeCalled()
-            ->willReturn(...$searchResultPages);
+            ->shouldNotBeCalled();
         $this->goutteClient
             ->click(Argument::type(Link::class))
-            ->shouldBeCalled()
-            ->willReturn(...$itemPages);
+            ->willReturn(...$nextPages);
 
         $result = $this->subject->seek($options, $targetName);
         $scraps = Scrap::all();
-        $items = Item::all();
+        $items = call_user_func($modelClass . '::all');
 
         $this->assertTrue($result->isSuccess());
         $this->assertEmpty($result->getErrors());
@@ -120,37 +115,180 @@ final class SeekerTest extends TestCase
         return [
             'rooms' => [
                 new OptionSet(),
+                $this->getPageDOMCrawler('rooms/1.html'),
                 [
-                    $this->getDOMCrawlerPage('rooms/landing.html'),
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 2,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 2,
                 ],
-                [
-                    self::KEY_EXPECTED_TOTAL_SCRAPS => 6,
-                    self::KEY_EXPECTED_TOTAL_CONVERTED => 6,
-                ],
+                Item::class,
                 'rooms',
                 [
-                    $this->getDOMCrawlerPage('rooms/1.html'),
+                    $this->getPageDOMCrawler('rooms/items/1.html'),
+                    $this->getPageDOMCrawler('rooms/items/2.html'),
                 ],
+            ],
+            'rooms - no conversion' => [
+                new OptionSet(true, false),
+                $this->getPageDOMCrawler('rooms/1.html'),
                 [
-                    $this->getDOMCrawlerPage('rooms/items/1.html'),
-                    $this->getDOMCrawlerPage('rooms/items/2.html'),
-                    $this->getDOMCrawlerPage('rooms/items/3.html'),
-                    $this->getDOMCrawlerPage('rooms/items/4.html'),
-                    $this->getDOMCrawlerPage('rooms/items/5.html'),
-                    $this->getDOMCrawlerPage('rooms/items/6.html'),
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 2,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 0,
+                ],
+                Item::class,
+                'rooms',
+                [
+                    $this->getPageDOMCrawler('rooms/items/1.html'),
+                    $this->getPageDOMCrawler('rooms/items/2.html'),
+                    $this->getPageDOMCrawler('rooms/items/3.html'),
+                    $this->getPageDOMCrawler('rooms/items/4.html'),
+                    $this->getPageDOMCrawler('rooms/items/5.html'),
+                    $this->getPageDOMCrawler('rooms/items/6.html'),
+                ],
+            ],
+            'SERP' => [
+                new OptionSet(),
+                $this->getPageDOMCrawler('bing/1.html'),
+                [
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 18,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 18,
+                ],
+                BingResult::class,
+                'bing',
+                [
+                    $this->getPageDOMCrawler('bing/last.html'),
+                ],
+            ],
+            'SERP - with 1 page limit' => [
+                new OptionSet(true, true, 3, 1),
+                $this->getPageDOMCrawler('bing/1.html'),
+                [
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 8,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 8,
+                ],
+                BingResult::class,
+                'bing',
+                [
+                    $this->getPageDOMCrawler('bing/last.html'),
                 ],
             ],
         ];
     }
 
-    private function getDOMCrawlerPage(string $path): Crawler
+    /**
+     * @dataProvider seekWithSearchDataProvider
+     * @medium
+     *
+     * @param Crawler[] $searchResultPages
+     * @param Crawler[] $nextPages         Next link (and/or item link) pages
+     */
+    public function testSeekWithSearch(
+        OptionSet $options,
+        Crawler $landingPage,
+        array $expectations,
+        string $modelClass,
+        ?string $targetName = null,
+        array $searchResultPages = [],
+        array $nextPages = []
+    ): void {
+        $this->goutteClient
+            ->request(Request::METHOD_GET, Argument::type('string'))
+            ->shouldBeCalled()
+            ->willReturn($landingPage);
+        $this->goutteClient
+            ->submit(Argument::type(Form::class))
+            ->shouldBeCalled()
+            ->willReturn(...$searchResultPages);
+        $this->goutteClient
+            ->click(Argument::type(Link::class))
+            ->willReturn(...$nextPages);
+
+        $result = $this->subject->seek($options, $targetName);
+        $scraps = Scrap::all();
+        $items = call_user_func($modelClass . '::all');
+
+        $this->assertTrue($result->isSuccess());
+        $this->assertEmpty($result->getErrors());
+        $this->assertSame($expectations[self::KEY_EXPECTED_TOTAL_SCRAPS], $scraps->count());
+        $this->assertSame($expectations[self::KEY_EXPECTED_TOTAL_CONVERTED], $items->count());
+    }
+
+    public function seekWithSearchDataProvider(): array
     {
-        $document = new DOMDocument();
-        @$document->loadHTML($this->readFixtureFile(sprintf(self::HTML_FIXTURES_DIR . '/%s', $path)));
-
-        $crawler = new Crawler();
-        $crawler->addDocument($document);
-
-        return $crawler;
+        return [
+            'rooms' => [
+                new OptionSet(),
+                $this->getPageDOMCrawler('rooms/landing.html'),
+                [
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 6,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 6,
+                ],
+                Item::class,
+                'rooms (with search)',
+                [
+                    $this->getPageDOMCrawler('rooms/1.html'),
+                ],
+                [
+                    $this->getPageDOMCrawler('rooms/items/1.html'),
+                    $this->getPageDOMCrawler('rooms/items/2.html'),
+                    $this->getPageDOMCrawler('rooms/items/3.html'),
+                    $this->getPageDOMCrawler('rooms/items/4.html'),
+                    $this->getPageDOMCrawler('rooms/items/5.html'),
+                    $this->getPageDOMCrawler('rooms/items/6.html'),
+                ],
+            ],
+            'rooms - no conversion' => [
+                new OptionSet(true, false),
+                $this->getPageDOMCrawler('rooms/landing.html'),
+                [
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 6,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 0,
+                ],
+                Item::class,
+                'rooms (with search)',
+                [
+                    $this->getPageDOMCrawler('rooms/1.html'),
+                ],
+                [
+                    $this->getPageDOMCrawler('rooms/items/1.html'),
+                    $this->getPageDOMCrawler('rooms/items/2.html'),
+                    $this->getPageDOMCrawler('rooms/items/3.html'),
+                    $this->getPageDOMCrawler('rooms/items/4.html'),
+                    $this->getPageDOMCrawler('rooms/items/5.html'),
+                    $this->getPageDOMCrawler('rooms/items/6.html'),
+                ],
+            ],
+            'SERP' => [
+                new OptionSet(),
+                $this->getPageDOMCrawler('bing/landing.html'),
+                [
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 18,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 18,
+                ],
+                BingResult::class,
+                'bing (with search)',
+                [
+                    $this->getPageDOMCrawler('bing/1.html'),
+                ],
+                [
+                    $this->getPageDOMCrawler('bing/last.html'),
+                ],
+            ],
+            'SERP - with 1 page limit' => [
+                new OptionSet(true, true, 3, 1),
+                $this->getPageDOMCrawler('bing/landing.html'),
+                [
+                    self::KEY_EXPECTED_TOTAL_SCRAPS => 8,
+                    self::KEY_EXPECTED_TOTAL_CONVERTED => 8,
+                ],
+                BingResult::class,
+                'bing (with search)',
+                [
+                    $this->getPageDOMCrawler('bing/1.html'),
+                ],
+                [
+                    $this->getPageDOMCrawler('bing/last.html'),
+                ],
+            ],
+        ];
     }
 }
