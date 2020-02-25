@@ -167,6 +167,8 @@ final class Seeker extends Communicator implements SeekerInterface
             'new' => $this->scrapper->getNewScrapsCount(),
             'converted' => $this->scrapper->getRelatedObjects()->count(),
             'unconverted' => $this->scrapper->getScraps()->count() - $this->scrapper->getRelatedObjects()->count(),
+            'scrapsSaved' => $this->optionSet->isSaveScraps(),
+            'scrapsConverted' => $this->optionSet->isConvertScraps(),
         ];
 
         if (!$result->hasErrors()) {

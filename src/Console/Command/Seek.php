@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @noinspection PhpMissingFieldTypeInspection
+ */
+
 declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Console\Command;
@@ -11,6 +15,7 @@ use ReliqArts\Scavenger\Contract\ConfigProvider;
 use ReliqArts\Scavenger\Contract\Seeker;
 use ReliqArts\Scavenger\Exception\BadDaemonConfig;
 use ReliqArts\Scavenger\OptionSet;
+use ReliqArts\Scavenger\Result;
 
 class Seek extends Command
 {
@@ -59,62 +64,78 @@ class Seek extends Command
             . "<info>♣♣♣</info> Scavenger Seek \nHelp is here, try: php artisan scavenger:seek --help"
         );
 
-        if ($skipConfirmation || $this->confirm($confirmationQuestion)) {
-            try {
-                // get scavenger daemon
-                $daemon = $configProvider->getDaemon();
-            } catch (BadDaemonConfig $e) {
-                // fail, could not create daemon user
-                $this->line(
-                    PHP_EOL
-                    . "<error>✘ Woe there! Scavenger daemon doesn't live in your database and couldn't be created. "
-                    . "You sure you know what yer doin'?</error>\n► "
-                    . $e->getMessage()
-                );
+        if (!($skipConfirmation || $this->confirm($confirmationQuestion))) {
+            return;
+        }
 
-                return;
-            }
+        if (!$this->logDaemonIn($configProvider)) {
+            return;
+        }
 
-            // log in as daemon
+        $this->info(
+            "Scavenger is seeking. Output is shown below.\nT: "
+            . Carbon::now()->toCookieString() . "\n----------"
+        );
+
+        $result = $seeker->seek($optionSet, $target);
+
+        $this->showResult($result);
+    }
+
+    private function logDaemonIn(ConfigProvider $configProvider): bool
+    {
+        try {
+            $daemon = $configProvider->getDaemon();
+
             auth()->login($daemon);
 
-            $this->info(
-                "Scavenger is seeking. Output is shown below.\nT: "
-                . Carbon::now()->toCookieString() . "\n----------"
+            return true;
+        } catch (BadDaemonConfig $exception) {
+            $this->line(
+                PHP_EOL
+                . "<error>✘ Woe there! Scavenger daemon doesn't live in your database and couldn't be created. "
+                . "You sure you know what yer doin'?</error>\n► "
+                . $exception->getMessage()
             );
 
-            // Seek
-            $result = $seeker->seek($optionSet, $target);
-            if ($result->isSuccess()) {
-                $this->info(PHP_EOL . '----------');
-                $this->comment('<info>✔</info> Done. Scavenger daemon now goes to sleep...');
+            return false;
+        }
+    }
 
-                try {
-                    // Display results
-                    $this->line('');
-                    $headers = ['Time', 'Scraps Found', 'New', 'Saved?', 'Converted?'];
-                    $data = [
-                        [
-                            $result->getExtra()->executionTime,
-                            $result->getExtra()->total,
-                            $result->getExtra()->new,
-                            $saveScraps ? 'true' : 'false',
-                            $convertScraps ? 'true' : 'false',
-                        ],
-                    ];
-                    $this->table($headers, $data);
-                    $this->line(PHP_EOL);
-                } catch (Exception $ex) {
-                    $this->line(
-                        PHP_EOL
-                        . "<error>✘</error> Something strange happened at the end there... {$ex->getMessage()}"
-                    );
-                }
-            } else {
-                foreach ($result->getErrors() as $errorMessage) {
-                    $this->line(PHP_EOL . "<error>✘</error> {$errorMessage}");
-                }
+    private function showResult(Result $result): void
+    {
+        if (!$result->isSuccess()) {
+            foreach ($result->getErrors() as $errorMessage) {
+                $this->line(PHP_EOL . "<error>✘</error> {$errorMessage}");
             }
+
+            return;
+        }
+
+        try {
+            $this->info(PHP_EOL . '----------');
+            $this->comment('<info>✔</info> Done. Scavenger daemon now goes to sleep...');
+            $this->line('');
+
+            $extra = $result->getExtra();
+            $headers = ['Time', 'Scraps Found', 'New', 'Saved?', 'Converted?'];
+            $data = [
+                [
+                    $extra->executionTime,
+                    $extra->total,
+                    $extra->new,
+                    $extra->scrapsSaved ? 'true' : 'false',
+                    $extra->scrapsConverted ? 'true' : 'false',
+                ],
+            ];
+
+            $this->table($headers, $data);
+            $this->line(PHP_EOL);
+        } catch (Exception $exception) {
+            $this->line(
+                PHP_EOL
+                . "<error>✘</error> Something strange happened at the end there... {$exception->getMessage()}"
+            );
         }
     }
 }

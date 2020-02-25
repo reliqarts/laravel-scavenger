@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use ReliqArts\Scavenger\Tests\Fixtures\Model\BingResult;
 use ReliqArts\Scavenger\Tests\Fixtures\Model\Item;
+use ReliqArts\Scavenger\Tests\Fixtures\Model\User;
 
 $rooms = [
     'example' => false,
@@ -98,7 +99,7 @@ return [
     // Daemon config - used to build daemon user
     'daemon' => [
         // Model to use for Daemon identification and login
-        'model' => 'App\\User',
+        'model' => User::class,
 
         // Model property to check for daemon ID
         'id_prop' => 'email',
