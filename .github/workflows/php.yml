@@ -1,15 +1,15 @@
 name: PHP
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   run:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 15
+      max-parallel: 10
       matrix:
-        laravel-version: ['^6.0', 'master']
-        stabilty: ['stable', 'lowest']
+        laravel-version: ['^6.0', '6.x-dev']
+        stabilty: ['stable']
         php-versions: ['7.4']
     name: PHP ${{ matrix.php-versions }}  on ${{ matrix.laravel-version }} (${{ matrix.stabilty }})
     steps:
@@ -24,11 +24,11 @@ jobs:
       - name: Install dependencies
         run: |
           composer require --no-update --no-interaction "illuminate/support:${{ matrix.laravel-version }}"
-          composer update --prefer-${{ matrix.stabilty }} --no-interaction --prefer-dist --no-suggest
+          composer update --prefer-${{ matrix.stabilty }} --no-interaction --prefer-dist --no-suggest --no-scripts --optimize-autoloader
       - name: Lint composer.json
         run: composer validate
-      - name: Run Tests
-        run: composer test:ci
+      - name: Run Unit Tests
+        run: composer test:unit
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
         with:

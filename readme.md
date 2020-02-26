@@ -4,9 +4,8 @@
 
 The most integrated web scraper package for Laravel.
 
-[![Build Status (all)](https://img.shields.io/github/workflow/status/reliqarts/laravel-scavenger/php?style=flat-square)](https://github.com/reliqarts/laravel-scavenger/actions?query=workflow%3APHP)
+[![Build Status (all)](https://img.shields.io/github/workflow/status/reliqarts/laravel-scavenger/PHP?style=flat-square)](https://github.com/reliqarts/laravel-scavenger/actions?query=workflow%3APHP)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/reliqarts/laravel-scavenger.svg?style=flat-square)](https://scrutinizer-ci.com/g/reliqarts/laravel-scavenger/)
-[![Codecov](https://img.shields.io/codecov/c/github/reliqarts/laravel-scavenger.svg?style=flat-square)](https://codecov.io/gh/reliqarts/laravel-scavenger)
 [![License](https://poser.pugx.org/reliqarts/laravel-scavenger/license?format=flat-square)](https://packagist.org/packages/reliqarts/laravel-scavenger)
 [![Latest Stable Version](https://poser.pugx.org/reliqarts/laravel-scavenger/version?format=flat-square)](https://packagist.org/packages/reliqarts/laravel-scavenger)
 [![Latest Unstable Version](https://poser.pugx.org/reliqarts/laravel-scavenger/v/unstable?format=flat-square)](//packagist.org/packages/reliqarts/laravel-scavenger)
