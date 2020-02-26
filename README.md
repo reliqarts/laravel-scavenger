@@ -2,12 +2,18 @@
 
 ![Laravel Scavenger](./docs/images/inline-preview.png "Laravel Scavenger")
 
+The most integrated web scraper package for Laravel.
 
-A highly flexible Laravel 6.x scraper package.
+[![Build Status (all)](https://img.shields.io/github/workflow/status/reliqarts/laravel-scavenger/php?style=flat-square)](https://github.com/reliqarts/laravel-scavenger/actions?query=workflow%3APHP)
+[![Scrutinizer](https://img.shields.io/scrutinizer/g/reliqarts/laravel-scavenger.svg?style=flat-square)](https://scrutinizer-ci.com/g/reliqarts/laravel-scavenger/)
+[![Codecov](https://img.shields.io/codecov/c/github/reliqarts/laravel-scavenger.svg?style=flat-square)](https://codecov.io/gh/reliqarts/laravel-scavenger)
+[![License](https://poser.pugx.org/reliqarts/laravel-scavenger/license?format=flat-square)](https://packagist.org/packages/reliqarts/laravel-scavenger)
+[![Latest Stable Version](https://poser.pugx.org/reliqarts/laravel-scavenger/version?format=flat-square)](https://packagist.org/packages/reliqarts/laravel-scavenger)
+[![Latest Unstable Version](https://poser.pugx.org/reliqarts/laravel-scavenger/v/unstable?format=flat-square)](//packagist.org/packages/reliqarts/laravel-scavenger)
 
 ## Top Features
 
-Scavenger provides the following features and more out of the box.
+Scavenger provides the following features and more out-the-box.
 
 - Ease of use
     - Scavenger is super-easy to configure. Simple publish the config file and set your targets.
@@ -28,39 +34,37 @@ Scavenger provides the following features and more out of the box.
 
 ## Installation
 
-1. Download Package ZIP and extract to your "premium packages" folder or folder of your choice.
-
-2. Update your `composer.json` to load package.
-    - Add local `vcs` repository. See composer [doc](https://getcomposer.org/doc/05-repositories.md#loading-a-package-from-a-vcs-repository) for more info.
-
-    eg.
-    ```js
-    "repositories": [
-        {
-            "type": "path",
-            "url": "./packages/laravel-scavenger/"
-        }
-    ],
-    ```
-
-    - Require the package.
-    ```js
-    "require": {
-        //...
-        "reliqarts/scavenger": "~2.2"
-        //...
-    },
-    ```
-3. Add service provider to providers array in `config/app.php`.
-    ```php
-    //...
-    'providers' => [
-        //...
-        ReliqArts\Scavenger\ServiceProvider::class,
-        //...
-    ],
-    // ...
-    ```
+1. Install via composer; in console: 
+   ```
+   composer require reliqarts/laravel-scavenger
+   ``` 
+   or require in *composer.json*:
+   ```json
+   {
+       "require": {
+           "reliqarts/laravel-scavenger": "^3.1"
+       }
+   }
+   ```
+   then run `composer update` in your terminal to pull it in.
+   
+ 2. (Optional) Publish package resources and configuration:
+   
+   ```
+   php artisan vendor:publish --provider="ReliqArts\Scavenger\ServiceProvider"
+   ``` 
+   
+   You may opt to publish only configuration by using the `scavenger-config` tag:
+   
+   ```
+   php artisan vendor:publish --provider="ReliqArts\Scavenger\ServiceProvider" --tag="scavenger-config"
+   ``` 
+   
+   or only the migrations via the `scavenger-migrations` tag:
+      
+   ```
+   php artisan vendor:publish --provider="ReliqArts\Scavenger\ServiceProvider" --tag="scavenger-migrations"
+   ``` 
 
 ## Configuration
 
@@ -281,11 +285,6 @@ The following words may appear in context above.
 - `Scrap`: Scraped data before being converted to the target object.
 - `Target`: Configured source-model mapping for a single entity. 
 - `Target Object`: Eloquent model object to be generated from scrap. 
-
-## Author
-
-Patrick Reid (ReliQ) - <reliq@reliqarts.com> - <http://twitter.com/iamreliq>
-
 ----
 
 ### Acknowledgements

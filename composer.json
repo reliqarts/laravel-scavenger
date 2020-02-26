@@ -1,6 +1,6 @@
 {
   "name": "reliqarts/laravel-scavenger",
-  "description": "Highly configurable Laravel 6.x scraper package.",
+  "description": "The most integrated web scraper package for Laravel.",
   "keywords": [
     "scraper",
     "package",
@@ -15,7 +15,6 @@
   ],
   "type": "library",
   "license": "MIT",
-  "version": "3.0.0",
   "authors": [
     {
       "name": "reliq",
@@ -46,6 +45,12 @@
     "psr-4": {
       "ReliqArts\\Scavenger\\Tests\\": "tests/"
     }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test:ci": "phpunit --verbose --colors=auto --coverage-clover=coverage.xml",
+    "test:unit": "phpunit --testsuite=Unit --verbose",
+    "test:integration": "phpunit --testsuite=Integration --verbose"
   },
   "extra": {
     "laravel": {

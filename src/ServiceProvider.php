@@ -22,6 +22,8 @@ use ReliqArts\Scavenger\Service\Seeker;
 
 /**
  *  Service Provider.
+ *
+ * @codeCoverageIgnore
  */
 class ServiceProvider extends BaseServiceProvider
 {
@@ -106,7 +108,7 @@ class ServiceProvider extends BaseServiceProvider
         // allow publishing config
         $this->publishes([
             static::ASSET_DIRECTORY . '/config/config.php' => config_path('scavenger.php'),
-        ], 'scavenger:config');
+        ], 'scavenger-config');
     }
 
     /**
@@ -131,7 +133,7 @@ class ServiceProvider extends BaseServiceProvider
         // allow publishing of migrations
         $this->publishes([
             static::ASSET_DIRECTORY . '/database/migrations/' => database_path('migrations'),
-        ], 'scavenger:migrations');
+        ], 'scavenger-migrations');
     }
 
     /**
