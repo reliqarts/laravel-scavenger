@@ -1,0 +1,5 @@
+# docs
+docs/* linguist-documentation
+
+# tests
+tests/Fixtures/* linguist-vendored
