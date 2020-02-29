@@ -8,5 +8,5 @@ use ReliqArts\Scavenger\ServiceProvider as ScavengerServiceProvider;
 
 final class ServiceProvider extends ScavengerServiceProvider
 {
-    protected const ASSET_DIRECTORY = __DIR__ . '../../Fixtures';
+    protected const ASSET_DIRECTORY = __DIR__ . '/../Fixtures';
 }
