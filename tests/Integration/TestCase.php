@@ -19,7 +19,7 @@ abstract class TestCase extends BaseTestCase
      */
     protected function getPackageProviders($app): array
     {
-        return [ServiceProvider::class];
+        return [ScavengerServiceProvider::class];
     }
 
     protected function readFixtureFile(string $path): ?string

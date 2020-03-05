@@ -25,7 +25,7 @@ use ReliqArts\Scavenger\Service\Seeker;
  *
  * @codeCoverageIgnore
  */
-class ServiceProvider extends BaseServiceProvider
+class ScavengerServiceProvider extends BaseServiceProvider
 {
     /**
      * @var string
