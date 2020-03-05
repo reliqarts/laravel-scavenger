@@ -51,19 +51,19 @@ Scavenger provides the following features and more out-the-box.
  2. (Optional) Publish package resources and configuration:
    
    ```
-   php artisan vendor:publish --provider="ReliqArts\Scavenger\ServiceProvider"
+   php artisan vendor:publish --provider="ReliqArts\Scavenger\ScavengerServiceProvider"
    ``` 
    
    You may opt to publish only configuration by using the `scavenger-config` tag:
    
    ```
-   php artisan vendor:publish --provider="ReliqArts\Scavenger\ServiceProvider" --tag="scavenger-config"
+   php artisan vendor:publish --provider="ReliqArts\Scavenger\ScavengerServiceProvider" --tag="scavenger-config"
    ``` 
    
    or only the migrations via the `scavenger-migrations` tag:
       
    ```
-   php artisan vendor:publish --provider="ReliqArts\Scavenger\ServiceProvider" --tag="scavenger-migrations"
+   php artisan vendor:publish --provider="ReliqArts\Scavenger\ScavengerServiceProvider" --tag="scavenger-migrations"
    ``` 
 
 ## Configuration
