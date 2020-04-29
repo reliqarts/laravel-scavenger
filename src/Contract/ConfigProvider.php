@@ -83,8 +83,6 @@ interface ConfigProvider
 
     /**
      * Check if key name is config key/special key name.
-     *
-     * @param string $keyName
      */
-    public static function isSpecialKey($keyName): bool;
+    public static function isSpecialKey(?string $keyName): bool;
 }

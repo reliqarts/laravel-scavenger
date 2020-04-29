@@ -174,11 +174,13 @@ final class ConfigProvider implements ConfigProviderContract
 
     /**
      * Check if key name is config key/special key name.
-     *
-     * @param string $keyName
      */
-    public static function isSpecialKey($keyName): bool
+    public static function isSpecialKey(?string $keyName): bool
     {
+        if ($keyName === null) {
+            return false;
+        }
+
         return strpos($keyName, self::SPECIAL_KEY_PREFIX) === 0;
     }
 }
