@@ -7,6 +7,9 @@ namespace ReliqArts\Scavenger\Facade;
 use Illuminate\Support\Facades\Facade;
 use ReliqArts\Scavenger\Contract\Seeker;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class Scavenger extends Facade
 {
     protected static function getFacadeAccessor(): string

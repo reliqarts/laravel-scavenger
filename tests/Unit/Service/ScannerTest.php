@@ -90,8 +90,6 @@ final class ScannerTest extends TestCase
     /**
      * @covers ::firstNonEmpty
      * @dataProvider firstNonEmptyDataProvider
-     *
-     * @param mixed $expectedResult
      */
     public function testFirstNonEmpty(array $subject, $expectedResult, array $needles = []): void
     {

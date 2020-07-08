@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use JsonException;
 use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Helper\FormattedMessage;
 use ReliqArts\Scavenger\Helper\TargetKey;
@@ -30,35 +31,15 @@ class Scrapper extends Communicator
      * @var array[]
      */
     private array $raw;
-
-    /**
-     * Event logger.
-     *
-     * @var LoggerInterface
-     */
     private LoggerInterface $logger;
-
-    /**
-     * @var int
-     */
     private int $newScrapsCount;
-
-    /**
-     * @var Collection
-     */
-    private $relatedObjects;
-
-    /**
-     * @var Scanner
-     */
+    private Collection $relatedObjects;
     private Scanner $scanner;
 
     /**
      * Scraps found so far.
-     *
-     * @var Collection
      */
-    private $scraps;
+    private Collection $scraps;
 
     /**
      * Scrapper constructor.
@@ -83,6 +64,8 @@ class Scrapper extends Communicator
 
     /**
      * Collect scrap array from crawler using markup.
+     *
+     * @throws JsonException
      */
     public function collect(TitleLink $titleLink, Target $target, Crawler $crawler): void
     {
@@ -113,16 +96,18 @@ class Scrapper extends Communicator
 
     public function convertScraps(bool $convertDuplicates = false, bool $storeRelatedReferences = false): void
     {
-        $this->scraps->map(function (Scrap $scrap) use ($convertDuplicates, $storeRelatedReferences) {
-            try {
-                $relatedObject = $scrap->convert($convertDuplicates, $storeRelatedReferences);
-                if ($relatedObject !== null) {
-                    $this->relatedObjects->push($relatedObject);
+        $this->scraps->map(
+            function (Scrap $scrap) use ($convertDuplicates, $storeRelatedReferences) {
+                try {
+                    $relatedObject = $scrap->convert($convertDuplicates, $storeRelatedReferences);
+                    if ($relatedObject !== null) {
+                        $this->relatedObjects->push($relatedObject);
+                    }
+                } catch (QueryException $e) {
+                    $this->logger->warning($e, ['scrap' => $scrap]);
                 }
-            } catch (QueryException $e) {
-                $this->logger->warning($e, ['scrap' => $scrap]);
             }
-        });
+        );
     }
 
     public function getNewScrapsCount(): int
@@ -137,23 +122,25 @@ class Scrapper extends Communicator
 
     public function saveScraps(): void
     {
-        $this->scraps->map(function (Scrap $scrap): void {
-            try {
-                $scrap->save();
-            } catch (QueryException $e) {
-                $errorMessage = FormattedMessage::get(
-                    FormattedMessage::SCRAP_SAVE_EXCEPTION,
-                    $scrap->hash,
-                    $e->getMessage()
-                );
-                if ($this->verbosity >= self::VERBOSITY_HIGH) {
-                    $errorMessage .= ' -- ' . $scrap->toJson();
-                }
+        $this->scraps->map(
+            function (Scrap $scrap): void {
+                try {
+                    $scrap->save();
+                } catch (QueryException $e) {
+                    $errorMessage = FormattedMessage::get(
+                        FormattedMessage::SCRAP_SAVE_EXCEPTION,
+                        $scrap->hash,
+                        $e->getMessage()
+                    );
+                    if ($this->verbosity >= self::VERBOSITY_HIGH) {
+                        $errorMessage .= ' -- ' . $scrap->toJson();
+                    }
 
-                $this->tell($errorMessage);
-                $this->logger->error($errorMessage);
+                    $this->tell($errorMessage);
+                    $this->logger->error($errorMessage);
+                }
             }
-        });
+        );
     }
 
     /**
@@ -166,6 +153,8 @@ class Scrapper extends Communicator
 
     /**
      * Initialize data.
+     *
+     * @noinspection PhpTooManyParametersInspection
      */
     private function initializeData(
         TitleLink $titleLink,
@@ -250,11 +239,13 @@ class Scrapper extends Communicator
                         $this->logger->error($e);
                     }
                 } else {
-                    $this->logger->warning(FormattedMessage::get(
-                        FormattedMessage::PREPROCESS_NOT_CALLABLE,
-                        $attr,
-                        $target->getName()
-                    ));
+                    $this->logger->warning(
+                        FormattedMessage::get(
+                            FormattedMessage::PREPROCESS_NOT_CALLABLE,
+                            $attr,
+                            $target->getName()
+                        )
+                    );
                 }
             }
 
@@ -288,6 +279,9 @@ class Scrapper extends Communicator
         );
     }
 
+    /**
+     * @throws JsonException
+     */
     private function verifyData(array $data, Target $target): bool
     {
         if ($this->scanner->hasBadWords($data, $target->getBadWords())) {

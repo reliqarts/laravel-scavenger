@@ -69,8 +69,6 @@ final class ConfigProvider implements ConfigProviderContract
 
     /**
      * Get daemon model.
-     *
-     * @return mixed
      */
     public function getDaemonModel()
     {

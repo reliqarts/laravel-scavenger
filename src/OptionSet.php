@@ -8,35 +8,14 @@ final class OptionSet
 {
     private const DEFAULT_PAGE_LIMIT = 999999;
 
-    /**
-     * @var bool
-     */
     private bool $saveScraps;
-
-    /**
-     * @var bool
-     */
     private bool $convertScraps;
-
-    /**
-     * @var int
-     */
     private int $backOff;
-
-    /**
-     * @var int
-     */
     private int $pages;
-
-    /**
-     * @var null|string
-     */
     private ?string $keywords;
 
     /**
-     * OptionSet constructor.
-     *
-     * @param string $keywords
+     * @codeCoverageIgnore
      */
     public function __construct(
         bool $saveScraps = true,

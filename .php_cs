@@ -50,6 +50,7 @@ $config = PhpCsFixer\Config::create()
         'no_null_property_initialization' => true,
         'no_short_echo_tag' => true,
         'no_superfluous_elseif' => true,
+        'no_superfluous_phpdoc_tags' => true,
         'no_unneeded_curly_braces' => true,
         'no_unneeded_final_method' => true,
         'no_unreachable_default_argument_value' => true,

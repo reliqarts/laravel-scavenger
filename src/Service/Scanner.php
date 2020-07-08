@@ -25,8 +25,6 @@ class Scanner
      * Determine whether a scrap data has bad words and therefore is unwanted.
      *
      * @param array $badWords List of words (regex) we don't want in our scraps.'.
-     *
-     * @return mixed
      */
     public function hasBadWords(array $scrapData, array $badWords = [])
     {
@@ -84,8 +82,6 @@ class Scanner
      *
      * @param array $haystack array to search
      * @param array $needles  optional list of items to check for
-     *
-     * @return mixed
      */
     public static function firstNonEmpty(array &$haystack, array $needles = [])
     {

@@ -152,9 +152,6 @@ class ServiceProvider extends BaseServiceProvider
         return $logger;
     }
 
-    /**
-     * @param GoutteClient $goutteClient
-     */
     private function getGoutteClient(ConfigProvider $configProvider): GoutteClient
     {
         $goutteClient = new GoutteClient();

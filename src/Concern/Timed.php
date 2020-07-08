@@ -15,7 +15,7 @@ trait Timed
     protected float $startTime = 0;
 
     /**
-     * Get seconds since a "microtime" start-time.
+     * Get seconds since a "micro-time" start-time.
      *
      * @return string seconds since, to 2 decimal places
      */

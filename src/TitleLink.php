@@ -9,14 +9,7 @@ namespace ReliqArts\Scavenger;
  */
 final class TitleLink
 {
-    /**
-     * @var string
-     */
     private string $title;
-
-    /**
-     * @var string
-     */
     private string $link;
 
     /**

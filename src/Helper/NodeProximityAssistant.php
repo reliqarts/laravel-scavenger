@@ -11,7 +11,7 @@ class NodeProximityAssistant
 {
     private const CURRENT_NODE_LIST_EMPTY = 'The current node list is empty.';
 
-    public function closest(string $selector, Crawler $crawler): Crawler
+    public function closest(string $selector, Crawler $crawler): ?Crawler
     {
         if (!count($crawler)) {
             throw new InvalidArgumentException(self::CURRENT_NODE_LIST_EMPTY);

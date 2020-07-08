@@ -29,8 +29,6 @@ interface ConfigProvider
 
     /**
      * Get daemon model.
-     *
-     * @return mixed
      */
     public function getDaemonModel();
 

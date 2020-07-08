@@ -6,6 +6,7 @@ namespace ReliqArts\Scavenger\Model;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\Schema;
+use JsonException;
 use ReliqArts\Scavenger\Service\ConfigProvider;
 
 /**
@@ -44,6 +45,8 @@ class Scrap extends EloquentModel
      * @param bool $convertDuplicates     whether to force conversion even if model already exists
      * @param bool $storeRelatedReference Whether to update relation field on scrap (self)
      *                                    N.B. if reference is stored the scrap will be saved.
+     *
+     * @throws JsonException
      */
     public function convert(bool $convertDuplicates = false, bool $storeRelatedReference = false): ?EloquentModel
     {
@@ -84,23 +87,19 @@ class Scrap extends EloquentModel
 
     /**
      * Convert scrap to target model.
+     *
+     * @noinspection PhpUndefinedMethodInspection
      */
     public function getRelated(): ?EloquentModel
     {
-        $related = null;
-
         if ($this->model && $this->related) {
             // find relation
-            if ($this->relatedModelUsesSoftDeletes()) {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $related = $this->model::withTrashed()->find($this->related);
-            } else {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $related = $this->model::find($this->related);
-            }
+            return $this->relatedModelUsesSoftDeletes()
+                ? $this->model::withTrashed()->find($this->related)
+                : $this->model::find($this->related);
         }
 
-        return $related;
+        return null;
     }
 
     /**

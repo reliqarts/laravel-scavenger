@@ -8,77 +8,24 @@ class Target
 {
     private const INITIAL_CURSOR = 0;
 
-    /**
-     * @var string
-     */
     private string $name;
-
-    /**
-     * @var bool
-     */
     private bool $example;
-
-    /**
-     * @var bool
-     */
     private bool $searchEngineRequestPages;
-
-    /**
-     * @var string
-     */
     private string $model;
-
-    /**
-     * Source URL.
-     *
-     * @var string
-     */
     private string $source;
-
-    /**
-     * @var array
-     */
     private array $search;
-
-    /**
-     * @var int
-     */
     private int $pages;
-
-    /**
-     * @var array
-     */
     private array $pager;
-
-    /**
-     * @var array
-     */
     private array $markup;
-
-    /**
-     * @var array
-     */
     private array $dissect;
-
-    /**
-     * @var array
-     */
     private array $preprocess;
-
-    /**
-     * @var array
-     */
     private array $remap;
+    private int $cursor;
 
     /**
      * @var string[]
      */
     private array $badWords;
-
-    /**
-     * @var int
-     */
-    private int $cursor;
 
     /**
      * Definition constructor.

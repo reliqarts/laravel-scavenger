@@ -6,43 +6,29 @@ namespace ReliqArts\Scavenger;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
+use JsonException;
 
 /**
  * Result.
  */
 final class Result implements Arrayable, Jsonable
 {
-    /**
-     * @var bool
-     */
-    private $success;
+    private bool $success;
+    private string $message;
+    private $data;
+    private $extra;
 
     /**
      * @var string[]
      */
-    private $errors;
-
-    /**
-     * @var string
-     */
-    private $message;
-
-    /**
-     * @var mixed
-     */
-    private $data;
-
-    /**
-     * @var mixed
-     */
-    private $extra;
+    private array $errors;
 
     /**
      * Result constructor.
      *
-     * @param string[] $errors
-     * @param mixed    $data
-     * @param mixed    $extra
+     * @param string[]   $errors
+     * @param null|mixed $data
+     * @param null|mixed $extra
      */
     public function __construct(
         bool $success = false,
@@ -111,19 +97,11 @@ final class Result implements Arrayable, Jsonable
         return !empty($this->getErrors());
     }
 
-    /**
-     * @return mixed
-     */
     public function getExtra()
     {
         return $this->extra;
     }
 
-    /**
-     * @param mixed $extra
-     *
-     * @return Result
-     */
     public function setExtra($extra): self
     {
         $clone = clone $this;
@@ -137,9 +115,6 @@ final class Result implements Arrayable, Jsonable
         return $this->message;
     }
 
-    /**
-     * @return Result
-     */
     public function setMessage(string $message): self
     {
         $clone = clone $this;
@@ -148,20 +123,12 @@ final class Result implements Arrayable, Jsonable
         return $clone;
     }
 
-    /**
-     * @return mixed
-     */
     public function getData()
     {
         return $this->data;
     }
 
-    /**
-     * @param mixed $data
-     *
-     * @return Result
-     */
-    public function setData($data)
+    public function setData($data): self
     {
         $clone = clone $this;
         $clone->data = $data;
@@ -171,10 +138,8 @@ final class Result implements Arrayable, Jsonable
 
     /**
      * {@inheritdoc}
-     *
-     * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return (array)$this;
     }
@@ -184,10 +149,10 @@ final class Result implements Arrayable, Jsonable
      *
      * @param int $options
      *
-     * @return string
+     * @throws JsonException
      */
-    public function toJson($options = 0)
+    public function toJson($options = 0): string
     {
-        return json_encode($this->toArray());
+        return json_encode($this->toArray(), JSON_THROW_ON_ERROR);
     }
 }

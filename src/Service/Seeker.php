@@ -30,52 +30,13 @@ final class Seeker extends Communicator implements SeekerInterface
 
     private const INITIAL_PAGE = 1;
 
-    /**
-     * @var OptionSet
-     */
     protected OptionSet $optionSet;
-
-    /**
-     * HTTP Client.
-     *
-     * @var GoutteClient
-     */
     protected GoutteClient $client;
 
-    /**
-     * Current page.
-     *
-     * @var int
-     */
-    private int $page = self::INITIAL_PAGE;
-
-    /**
-     * Current loaded target configurations.
-     *
-     * @var array
-     */
     private array $targetDefinitions;
-
-    /**
-     * Event logger.
-     *
-     * @var LoggerInterface
-     */
     private LoggerInterface $logger;
-
-    /**
-     * @var NodeProximityAssistant
-     */
     private NodeProximityAssistant $nodeProximityAssistant;
-
-    /**
-     * @var int
-     */
     private int $pageLimit;
-
-    /**
-     * @var Scrapper
-     */
     private Scrapper $scrapper;
 
     /**
@@ -245,7 +206,7 @@ final class Seeker extends Communicator implements SeekerInterface
                             $keyword,
                             $target->getName()
                         ),
-                        [$resultCrawler->html()]
+                        [$resultCrawler === null ? '[NULL]' : $resultCrawler->html()]
                     );
                 }
 
@@ -270,27 +231,32 @@ final class Seeker extends Communicator implements SeekerInterface
         $markupHasItemWrapper = false;
 
         // choose link as title link selector if it is not empty and it is not set to a special key
-        if (!(empty($markup[TargetKey::MARKUP_LINK]) || ConfigProvider::isSpecialKey($markup[TargetKey::MARKUP_LINK]))) {
+        if (!(empty($markup[TargetKey::MARKUP_LINK]) || ConfigProvider::isSpecialKey(
+            $markup[TargetKey::MARKUP_LINK]
+        ))) {
             $titleLinkSelector = $markup[TargetKey::MARKUP_LINK];
         }
 
         // determine what item wrapper is
-        $markup[TargetKey::special(TargetKey::ITEM_WRAPPER)] = Scanner::firstNonEmpty($markup, [
-            TargetKey::special(TargetKey::ITEM_WRAPPER),
-            TargetKey::special(TargetKey::RESULT),
-            TargetKey::special(TargetKey::ITEM),
-            TargetKey::special(TargetKey::WRAPPER),
-        ]);
+        $markup[TargetKey::special(TargetKey::ITEM_WRAPPER)] = Scanner::firstNonEmpty(
+            $markup,
+            [
+                TargetKey::special(TargetKey::ITEM_WRAPPER),
+                TargetKey::special(TargetKey::RESULT),
+                TargetKey::special(TargetKey::ITEM),
+                TargetKey::special(TargetKey::WRAPPER),
+            ]
+        );
         if (!empty($markup[TargetKey::special(TargetKey::ITEM_WRAPPER)])) {
             $markupHasItemWrapper = true;
         }
 
         // Page by page we go...
-        $this->page = self::INITIAL_PAGE;
+        $page = self::INITIAL_PAGE;
 
         do {
             $this->tell(
-                FormattedMessage::get(FormattedMessage::PROCESSING_PAGE_N, $this->page),
+                FormattedMessage::get(FormattedMessage::PROCESSING_PAGE_N, $page),
                 self::COMM_DIRECTION_NONE
             );
 
@@ -303,7 +269,7 @@ final class Seeker extends Communicator implements SeekerInterface
 
             if (!$items->count()) {
                 $this->tell(
-                    FormattedMessage::get(FormattedMessage::NO_ITEMS_FOUND_ON_PAGE_N, $this->page)
+                    FormattedMessage::get(FormattedMessage::NO_ITEMS_FOUND_ON_PAGE_N, $page)
                 );
             }
 
@@ -370,7 +336,7 @@ final class Seeker extends Communicator implements SeekerInterface
                 }
             );
 
-            if ($this->page < $this->pageLimit && $target->hasPager()) {
+            if ($page < $this->pageLimit && $target->hasPager()) {
                 // Look for next page.
                 // An InvalidArgumentException may be thrown if a 'next' link does not exist.
                 try {
@@ -397,7 +363,7 @@ final class Seeker extends Communicator implements SeekerInterface
                     }
                 }
 
-                ++$this->page;
+                ++$page;
             } else {
                 $crawler = null;
             }
@@ -410,10 +376,12 @@ final class Seeker extends Communicator implements SeekerInterface
     private function getTargetBuilder(): TargetBuilder
     {
         return new TargetBuilder(
-            array_filter(array_map(
-                'trim',
-                explode(',', $this->optionSet->getKeywords() ?? '')
-            ))
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(',', $this->optionSet->getKeywords() ?? '')
+                )
+            )
         );
     }
 }

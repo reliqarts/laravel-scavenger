@@ -25,22 +25,16 @@ abstract class Communicator
 
     /**
      * Calling command if running in console.
-     *
-     * @var null|Command
      */
     protected ?Command $callingCommand;
 
     /**
      * Hashing algorithm in use.
-     *
-     * @var string
      */
     protected string $hashAlgorithm;
 
     /**
      * Level of detail.
-     *
-     * @var int
      */
     protected int $verbosity;
 
