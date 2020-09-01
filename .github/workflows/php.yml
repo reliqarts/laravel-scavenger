@@ -9,9 +9,9 @@ jobs:
       max-parallel: 10
       matrix:
         laravel-version: ['^6.0', '6.x-dev', '^7.0']
-        stability: ['stable']
+        preference: ['stable']
         php-versions: ['7.4']
-    name: Laravel ${{ matrix.laravel-version }} (${{ matrix.stability }}) on PHP ${{ matrix.php-versions }}
+    name: Laravel ${{ matrix.laravel-version }} (${{ matrix.preference }}) on PHP ${{ matrix.php-versions }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           composer require --no-update --no-interaction "illuminate/support:${{ matrix.laravel-version }}"
-          composer update --prefer-${{ matrix.stability }} --no-interaction --prefer-dist --no-suggest --no-scripts --optimize-autoloader
+          composer update --prefer-${{ matrix.preference }} --no-interaction --prefer-dist --no-suggest --no-scripts --optimize-autoloader
       - name: Lint composer.json
         run: composer validate
       - name: Run Tests
