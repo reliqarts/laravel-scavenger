@@ -19,7 +19,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extension-csv: mbstring, xdebug
+          extension: mbstring, xdebug
           coverage: xdebug
       - name: Install dependencies
         run: |
@@ -36,5 +36,4 @@ jobs:
           file: ./coverage.xml #optional
           flags: unittests #optional
           name: codecov-umbrella #optional
-          yml: ./codecov.yml #optional
           fail_ci_if_error: true #optional (default = false)
