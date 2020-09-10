@@ -1,17 +1,14 @@
-parameters:
+grumphp:
   tasks:
-    phpcsfixer2:
-      allow_risky: ~
-      cache_file: ~
-      config: .php_cs
-      rules: []
-      using_cache: ~
-      config_contains_finder: true
-      verbose: true
-      diff: false
-      triggered_by: ['php']
+    ecs:
+      config: ~
+      level: ~
+      whitelist_patterns: [ ]
+      triggered_by: [ 'php' ]
+      clear-cache: false
+      no-progress-bar: true
     phpunit:
       config_file: ~
       testsuite: ~
-      group: []
+      group: [ ]
       always_execute: false

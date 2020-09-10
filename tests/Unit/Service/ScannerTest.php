@@ -17,8 +17,6 @@ use ReliqArts\Scavenger\Service\Scanner;
  */
 final class ScannerTest extends TestCase
 {
-    private Scanner $subject;
-
     /**
      * @covers ::__construct
      * @covers ::hasBadWords
@@ -29,7 +27,7 @@ final class ScannerTest extends TestCase
         $scanner = new Scanner($badWords);
         $result = $scanner->hasBadWords($subject);
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function hasBadWordsDataProvider(): array
@@ -69,7 +67,7 @@ final class ScannerTest extends TestCase
     {
         $result = Scanner::pluckDetails($subject, $map, true);
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function pluckDetailsDataProvider(): array
@@ -95,7 +93,7 @@ final class ScannerTest extends TestCase
     {
         $result = Scanner::firstNonEmpty($subject, $needles);
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function firstNonEmptyDataProvider(): array
@@ -140,7 +138,7 @@ final class ScannerTest extends TestCase
     {
         $result = Scanner::br2nl($subject);
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function br2nlDataProvider(): array
@@ -164,7 +162,7 @@ final class ScannerTest extends TestCase
     {
         $result = Scanner::cleanText($subject);
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function cleanTextDataProvider(): array

@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 10
       matrix:
-        laravel-version: ['^6.0', '6.x-dev', '^7.0']
+        laravel-version: ['^6.0', '^7.0', '^8.0']
         preference: ['stable']
         php-versions: ['7.4']
     name: Laravel ${{ matrix.laravel-version }} (${{ matrix.preference }}) on PHP ${{ matrix.php-versions }}

@@ -20,6 +20,6 @@ final class ParaphraserTest extends TestCase
      */
     public function testParaphrase(): void
     {
-        $this->markTestIncomplete('Todo...');
+        self::markTestIncomplete('Todo...');
     }
 }

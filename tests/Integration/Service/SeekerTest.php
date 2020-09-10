@@ -12,6 +12,7 @@ use Exception;
 use Goutte\Client;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Contract\ConfigProvider;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 final class SeekerTest extends TestCase
 {
     use DatabaseMigrations;
+    use ProphecyTrait;
 
     private const KEY_EXPECTED_TOTAL_SCRAPS = 'scraps';
     private const KEY_EXPECTED_TOTAL_CONVERTED = 'converted';

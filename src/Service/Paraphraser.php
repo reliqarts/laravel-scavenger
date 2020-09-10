@@ -21,7 +21,7 @@ final class Paraphraser implements ParaphraserContract
     /**
      * HTTP Client instance.
      */
-    protected GuzzleClient $client;
+    private GuzzleClient $client;
 
     /**
      * Guzzle settings.
