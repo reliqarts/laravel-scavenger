@@ -3,12 +3,13 @@ grumphp:
     ecs:
       config: ~
       level: ~
-      whitelist_patterns: [ ]
+      paths: [ ]
+      files_on_pre_commit: false
       triggered_by: [ 'php' ]
       clear-cache: false
       no-progress-bar: true
     phpunit:
       config_file: ~
-      testsuite: ~
+      testsuite: Unit
       group: [ ]
       always_execute: false

@@ -6,6 +6,7 @@ namespace ReliqArts\Scavenger\Service;
 
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 use ReliqArts\Scavenger\Contract\Paraphraser as ParaphraserContract;
 use Throwable;
 
@@ -37,6 +38,8 @@ final class Paraphraser implements ParaphraserContract
 
     /**
      * Create a new seeker.
+     *
+     * @throws InvalidArgumentException
      */
     public function __construct()
     {

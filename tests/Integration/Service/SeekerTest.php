@@ -41,19 +41,14 @@ final class SeekerTest extends TestCase
     private const KEY_EXPECTED_TOTAL_CONVERTED = 'converted';
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var Client|ObjectProphecy
      */
-    private $goutteClient;
+    private ObjectProphecy $goutteClient;
 
     /**
      * @var SeekerContract
      */
-    private $subject;
+    private SeekerContract $subject;
 
     /**
      * @throws Exception
@@ -62,15 +57,15 @@ final class SeekerTest extends TestCase
     {
         parent::setUp();
 
-        $this->logger = $this->prophesize(LoggerInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
         $this->goutteClient = $this->prophesize(Client::class);
 
-        $this->logger
+        $logger
             ->info(Argument::cetera())
             ->willReturn();
 
         $this->subject = new Seeker(
-            $this->logger->reveal(),
+            $logger->reveal(),
             $this->goutteClient->reveal(),
             resolve(ConfigProvider::class),
             resolve(NodeProximityAssistant::class),
@@ -82,6 +77,7 @@ final class SeekerTest extends TestCase
      * @medium
      *
      * @param Crawler[] $nextPages Next link (and/or item link) pages
+     * @throws Exception
      */
     public function testSeek(
         OptionSet $options,
@@ -106,10 +102,10 @@ final class SeekerTest extends TestCase
         $scraps = Scrap::all();
         $items = call_user_func($modelClass . '::all');
 
-        $this->assertTrue($result->isSuccess());
-        $this->assertEmpty($result->getErrors());
-        $this->assertSame($expectations[self::KEY_EXPECTED_TOTAL_SCRAPS], $scraps->count());
-        $this->assertSame($expectations[self::KEY_EXPECTED_TOTAL_CONVERTED], $items->count());
+        self::assertTrue($result->isSuccess());
+        self::assertEmpty($result->getErrors());
+        self::assertSame($expectations[self::KEY_EXPECTED_TOTAL_SCRAPS], $scraps->count());
+        self::assertSame($expectations[self::KEY_EXPECTED_TOTAL_CONVERTED], $items->count());
     }
 
     public function seekDataProvider(): array
@@ -182,6 +178,7 @@ final class SeekerTest extends TestCase
      *
      * @param Crawler[] $searchResultPages
      * @param Crawler[] $nextPages         Next link (and/or item link) pages
+     * @throws Exception
      */
     public function testSeekWithSearch(
         OptionSet $options,
@@ -208,10 +205,10 @@ final class SeekerTest extends TestCase
         $scraps = Scrap::all();
         $items = call_user_func($modelClass . '::all');
 
-        $this->assertTrue($result->isSuccess());
-        $this->assertEmpty($result->getErrors());
-        $this->assertSame($expectations[self::KEY_EXPECTED_TOTAL_SCRAPS], $scraps->count());
-        $this->assertSame($expectations[self::KEY_EXPECTED_TOTAL_CONVERTED], $items->count());
+        self::assertTrue($result->isSuccess());
+        self::assertEmpty($result->getErrors());
+        self::assertSame($expectations[self::KEY_EXPECTED_TOTAL_SCRAPS], $scraps->count());
+        self::assertSame($expectations[self::KEY_EXPECTED_TOTAL_CONVERTED], $items->count());
     }
 
     public function seekWithSearchDataProvider(): array

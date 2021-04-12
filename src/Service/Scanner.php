@@ -26,7 +26,7 @@ class Scanner
      *
      * @param array $badWords List of words (regex) we don't want in our scraps.'.
      */
-    public function hasBadWords(array $scrapData, array $badWords = [])
+    public function hasBadWords(array $scrapData, array $badWords = []): bool
     {
         $invalid = false;
         $badWords = array_merge($this->badWords, $badWords);
@@ -122,6 +122,6 @@ class Scanner
     {
         $text = preg_replace('/\\s{2,}/', ' ', preg_replace("/[\r\n\t]+/", ' ', $text));
 
-        return str_replace(' / ', null, $text);
+        return str_replace(' / ', '', $text);
     }
 }

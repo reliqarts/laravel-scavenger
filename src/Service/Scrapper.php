@@ -218,7 +218,7 @@ class Scrapper extends Communicator
     {
         // preprocess and remap scrap data parts
         foreach ($data as $attr => $value) {
-            $data[$attr] = $this->encodeAttribute($data, $attr);
+            $data[$attr] = $this->encodeAttribute($attr, (string)$value);
 
             // preprocess
             if (!empty($target->getPreprocess()[$attr])) {
@@ -263,12 +263,10 @@ class Scrapper extends Communicator
         return $data;
     }
 
-    private function encodeAttribute(array $data, string $attr): string
+    private function encodeAttribute(string $attributeName, string $attributeText): string
     {
-        $attributeText = (string)$data[$attr];
-
         // ensure title has UC words
-        if ($attr === TargetKey::TITLE) {
+        if ($attributeName === TargetKey::TITLE) {
             return utf8_encode(ucwords(mb_strtolower($attributeText)));
         }
 

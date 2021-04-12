@@ -10,15 +10,18 @@ jobs:
       matrix:
         laravel-version: ['^6.0', '^7.0', '^8.0']
         preference: ['stable']
-        php-versions: ['7.4']
-    name: Laravel ${{ matrix.laravel-version }} (${{ matrix.preference }}) on PHP ${{ matrix.php-versions }}
+        php-version: ['7.4', '8.0']
+        exclude:
+          - laravel-version: ^7.0
+            php-version: 8.0
+    name: Laravel ${{ matrix.laravel-version }} (${{ matrix.preference }}) on PHP ${{ matrix.php-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-version }}
           extensions: mbstring, xdebug
           coverage: xdebug
       - name: Install dependencies

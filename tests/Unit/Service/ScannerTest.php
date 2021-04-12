@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Tests\Unit\Service;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use ReliqArts\Scavenger\Helper\TargetKey;
 use ReliqArts\Scavenger\Service\Scanner;
@@ -21,6 +22,7 @@ final class ScannerTest extends TestCase
      * @covers ::__construct
      * @covers ::hasBadWords
      * @dataProvider hasBadWordsDataProvider
+     * @throws Exception
      */
     public function testHasBadWords(array $badWords, array $subject, bool $expectedResult): void
     {
@@ -62,6 +64,7 @@ final class ScannerTest extends TestCase
     /**
      * @covers ::pluckDetails
      * @dataProvider pluckDetailsDataProvider
+     * @throws Exception
      */
     public function testPluckDetails(string $subject, array $map, array $expectedResult): void
     {
@@ -88,6 +91,10 @@ final class ScannerTest extends TestCase
     /**
      * @covers ::firstNonEmpty
      * @dataProvider firstNonEmptyDataProvider
+     *
+     * @param mixed $expectedResult
+     *
+     * @throws Exception
      */
     public function testFirstNonEmpty(array $subject, $expectedResult, array $needles = []): void
     {
@@ -133,6 +140,8 @@ final class ScannerTest extends TestCase
      * @dataProvider br2nlDataProvider
      *
      * @param mixed $expectedResult
+     *
+     * @throws Exception
      */
     public function testBr2nl(string $subject, string $expectedResult): void
     {
@@ -157,6 +166,8 @@ final class ScannerTest extends TestCase
      * @dataProvider cleanTextDataProvider
      *
      * @param mixed $expectedResult
+     *
+     * @throws Exception
      */
     public function testCleanText(string $subject, string $expectedResult): void
     {
