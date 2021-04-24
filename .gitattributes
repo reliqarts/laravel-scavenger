@@ -2,4 +2,4 @@
 docs/* linguist-documentation
 
 # tests
-tests/Fixtures/* linguist-vendored
+tests/Fixtures/**/* linguist-vendored
