@@ -12,6 +12,9 @@ use RuntimeException;
  */
 abstract class Exception extends RuntimeException
 {
+    /**
+     * @return static
+     */
     public static function fromResult(Result $result): self
     {
         $errors = implode(' ', $result->getErrors());
