@@ -38,11 +38,6 @@ return [
         ],
     ],
 
-    // guzzle settings
-    'guzzle_settings' => [
-        'timeout' => 60,
-    ],
-
     // hashing algorithm to use
     'hash_algorithm' => 'sha512',
 

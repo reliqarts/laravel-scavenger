@@ -15,8 +15,6 @@ interface ConfigProvider
 
     public function get(): array;
 
-    public function getGuzzleSettings(): array;
-
     /**
      * Get targets.
      */

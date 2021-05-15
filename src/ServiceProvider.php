@@ -6,7 +6,6 @@ namespace ReliqArts\Scavenger;
 
 use Exception;
 use Goutte\Client as GoutteClient;
-use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Monolog\Handler\StreamHandler;
@@ -69,7 +68,7 @@ class ServiceProvider extends BaseServiceProvider
 
                 return new Seeker(
                     $this->getLogger($configProvider),
-                    $this->getGoutteClient($configProvider),
+                    new GoutteClient(),
                     $configProvider,
                     new NodeProximityAssistant()
                 );
@@ -106,9 +105,12 @@ class ServiceProvider extends BaseServiceProvider
         $this->mergeConfigFrom(static::ASSET_DIRECTORY . '/config/config.php', 'scavenger');
 
         // allow publishing config
-        $this->publishes([
-            static::ASSET_DIRECTORY . '/config/config.php' => config_path('scavenger.php'),
-        ], 'scavenger-config');
+        $this->publishes(
+            [
+                static::ASSET_DIRECTORY . '/config/config.php' => config_path('scavenger.php'),
+            ],
+            'scavenger-config'
+        );
     }
 
     /**
@@ -131,9 +133,12 @@ class ServiceProvider extends BaseServiceProvider
         $this->loadMigrationsFrom(static::ASSET_DIRECTORY . '/database/migrations');
 
         // allow publishing of migrations
-        $this->publishes([
-            static::ASSET_DIRECTORY . '/database/migrations/' => database_path('migrations'),
-        ], 'scavenger-migrations');
+        $this->publishes(
+            [
+                static::ASSET_DIRECTORY . '/database/migrations/' => database_path('migrations'),
+            ],
+            'scavenger-migrations'
+        );
     }
 
     /**
@@ -144,20 +149,13 @@ class ServiceProvider extends BaseServiceProvider
         $logFilename = self::LOG_FILE_PREFIX . microtime(true);
         $logger = new Logger(self::LOGGER_NAME);
 
-        $logger->pushHandler(new StreamHandler(
-            storage_path('logs/' . $configProvider->getLogDir() . "/{$logFilename}.log"),
-            $configProvider->isLoggingEnabled() ? Logger::DEBUG : Logger::CRITICAL
-        ));
+        $logger->pushHandler(
+            new StreamHandler(
+                storage_path('logs/' . $configProvider->getLogDir() . "/{$logFilename}.log"),
+                $configProvider->isLoggingEnabled() ? Logger::DEBUG : Logger::CRITICAL
+            )
+        );
 
         return $logger;
-    }
-
-    private function getGoutteClient(ConfigProvider $configProvider): GoutteClient
-    {
-        $goutteClient = new GoutteClient();
-
-        return $goutteClient->setClient(
-            new GuzzleClient($configProvider->getGuzzleSettings())
-        );
     }
 }

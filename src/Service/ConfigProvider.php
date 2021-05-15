@@ -13,21 +13,12 @@ use ReliqArts\Scavenger\Exception\BadDaemonConfig;
 
 final class ConfigProvider implements ConfigProviderContract
 {
-    private const DEFAULT_GUZZLE_SETTINGS = [
-        'timeout' => 60,
-    ];
-
     /**
      * Get config.
      */
     public function get(): array
     {
         return Config::get('scavenger', []);
-    }
-
-    public function getGuzzleSettings(): array
-    {
-        return Config::get('scavenger.guzzle_settings', self::DEFAULT_GUZZLE_SETTINGS);
     }
 
     /**
