@@ -16,6 +16,7 @@ use ReliqArts\Scavenger\Helper\TargetKey;
 use ReliqArts\Scavenger\Model\Scrap;
 use ReliqArts\Scavenger\Model\Target;
 use ReliqArts\Scavenger\TitleLink;
+use RuntimeException;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Scrapper extends Communicator
@@ -27,10 +28,6 @@ class Scrapper extends Communicator
     private const KEY_SERP_RESULT = self::KEY_PREFIX . 'serp_result';
     private const ENCODE_CHARSET = 'UTF-8';
 
-    /**
-     * @var array[]
-     */
-    private array $raw;
     private LoggerInterface $logger;
     private int $newScrapsCount;
     private Collection $relatedObjects;
@@ -52,7 +49,6 @@ class Scrapper extends Communicator
     ) {
         parent::__construct($callingCommand);
 
-        $this->raw = [];
         $this->logger = $logger;
         $this->scanner = new Scanner();
         $this->hashAlgorithm = $hashAlgorithm;
@@ -65,7 +61,7 @@ class Scrapper extends Communicator
     /**
      * Collect scrap array from crawler using markup.
      *
-     * @throws JsonException
+     * @throws JsonException|RuntimeException
      */
     public function collect(TitleLink $titleLink, Target $target, Crawler $crawler): void
     {
@@ -84,13 +80,12 @@ class Scrapper extends Communicator
 
         $data = $this->finalizeData($data, $target);
 
-        $this->raw[$data[self::KEY_ID]] = $data;
         $this->scraps->push($this->buildScrapFromData($data));
 
         // feedback
         $this->tell(
             FormattedMessage::get(FormattedMessage::SCRAP_GATHERED, $data[self::KEY_ID])
-            . ($this->verbosity >= self::VERBOSITY_HIGH ? '-- ' . json_encode($data, JSON_THROW_ON_ERROR, 512) : null)
+            . ($this->verbosity >= self::VERBOSITY_HIGH ? '-- ' . json_encode($data, JSON_THROW_ON_ERROR) : null)
         );
     }
 
@@ -155,6 +150,8 @@ class Scrapper extends Communicator
      * Initialize data.
      *
      * @noinspection PhpTooManyParametersInspection
+     * @noinspection SlowArrayOperationsInLoopInspection
+     * @throws RuntimeException
      */
     private function initializeData(
         TitleLink $titleLink,
@@ -285,7 +282,7 @@ class Scrapper extends Communicator
         if ($this->scanner->hasBadWords($data, $target->getBadWords())) {
             $badWordMessage = sprintf(
                 FormattedMessage::SCRAP_CONTAINS_BAD_WORD,
-                json_encode($data, JSON_THROW_ON_ERROR, 512)
+                json_encode($data, JSON_THROW_ON_ERROR)
             );
             $this->logger->notice($badWordMessage);
             if ($this->verbosity >= self::VERBOSITY_HIGH) {
@@ -300,10 +297,11 @@ class Scrapper extends Communicator
 
     /**
      * Finalize scrap.
+     * @throws JsonException
      */
     private function finalizeData(array $data, Target $target): array
     {
-        $data[self::KEY_ID] = hash($this->hashAlgorithm, json_encode($data, JSON_THROW_ON_ERROR, 512));
+        $data[self::KEY_ID] = hash($this->hashAlgorithm, json_encode($data, JSON_THROW_ON_ERROR));
         $data[self::KEY_SERP_RESULT] = $target->isSearchEngineRequestPages();
         $data[self::KEY_TARGET] = $target->getName();
 
@@ -312,6 +310,9 @@ class Scrapper extends Communicator
         return $data;
     }
 
+    /**
+     * @throws JsonException
+     */
     private function buildScrapFromData(array $data): Scrap
     {
         $scrap = Scrap::firstOrNew(
@@ -322,7 +323,7 @@ class Scrapper extends Communicator
                 'model' => $data[TargetKey::special(TargetKey::MODEL)],
                 'source' => $data[TargetKey::special(TargetKey::SOURCE)],
                 'title' => $data[TargetKey::TITLE],
-                'data' => json_encode($data),
+                'data' => json_encode($data, JSON_THROW_ON_ERROR),
             ]
         );
 

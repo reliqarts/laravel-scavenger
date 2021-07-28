@@ -83,7 +83,7 @@ class Scanner
      * @param array $haystack array to search
      * @param array $needles  optional list of items to check for
      */
-    public static function firstNonEmpty(array &$haystack, array $needles = [])
+    public static function firstNonEmpty(array $haystack, array $needles = [])
     {
         if (!empty($needles)) {
             foreach ($needles as $value) {

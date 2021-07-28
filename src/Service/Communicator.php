@@ -81,7 +81,7 @@ abstract class Communicator
 
         if ($this->callingCommand !== null && app()->runningInConsole()) {
             if ($direction === self::COMM_DIRECTION_OUT) {
-                $this->callingCommand->line("<info>\\<\\< {$text}</info>");
+                $this->callingCommand->line("<info>\\<\\< $text</info>");
             } else {
                 $this->callingCommand->line($dirSymbol . $text);
             }
