@@ -23,7 +23,7 @@
   ],
   "require": {
     "php": "^7.4 || ^8.0",
-    "illuminate/support": "9",
+    "illuminate/support": "6 - 9",
     "monolog/monolog": "1.24 - 2",
     "fabpot/goutte": "^4.0",
     "ext-iconv": "*",
