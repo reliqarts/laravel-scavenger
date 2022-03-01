@@ -8,12 +8,16 @@ jobs:
     strategy:
       max-parallel: 10
       matrix:
-        laravel-version: ['^6.0', '^7.0', '^8.0']
+        laravel-version: ['^6.0', '^7.0', '^8.0', '^9.0']
         preference: ['stable']
-        php-version: ['7.4', '8.0']
+        php-version: ['7.4', '8.0', '8.1']
         exclude:
+          - laravel-version: ^6.0
+            php-version: 8.1
           - laravel-version: ^7.0
-            php-version: 8.0
+            php-version: 8.1
+          - laravel-version: ^9.0
+            php-version: 7.4
     name: Laravel ${{ matrix.laravel-version }} (${{ matrix.preference }}) on PHP ${{ matrix.php-version }}
     steps:
       - name: Checkout
