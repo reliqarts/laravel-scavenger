@@ -14,8 +14,8 @@ jobs:
         exclude:
           - laravel-version: ^6.0
             php-version: 8.1
-          - laravel-version: ^7.0
-            php-version: 8.1
+#          - laravel-version: ^7.0
+#            php-version: 8.1
           - laravel-version: ^9.0
             php-version: 7.4
     name: Laravel ${{ matrix.laravel-version }} (${{ matrix.preference }}) on PHP ${{ matrix.php-version }}
