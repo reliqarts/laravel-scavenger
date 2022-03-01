@@ -61,8 +61,7 @@ final class SeekerTest extends TestCase
         $this->goutteClient = $this->prophesize(Client::class);
 
         $logger
-            ->info(Argument::cetera())
-            ->willReturn();
+            ->info(Argument::cetera());
 
         $this->subject = new Seeker(
             $logger->reveal(),
