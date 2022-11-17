@@ -73,7 +73,7 @@ Scavenger is highly configurable. Once configured, the settings will be used for
 
 ### Structure
 
-Below is an example of a typical config file structure, with comments explaining the settings.
+Below is an example of a typical config file structure, with comments explaining each setting.
 
 ```php
 <?php
