@@ -276,7 +276,7 @@ The `targets` array contains a list of entities (to be scraped from) keyed by a 
 - `dissect`: Split compound attributes into smaller attributes via REGEX. (optional)
 - `preprocess`: Array of attributes which need to be preprocessed. `[attributeName => callable]` (optional)
 - `remap`: Array of attributes which need to be renamed in order to be saved as target objects. `[attributeName => newName]` (optional)
-- `bad_words`: Any scrapes found containing these words will be discarded. (optional)
+- `bad_words`: Any scrap found containing these words will be discarded. (optional)
 
 ## Glossary of Terms
 The following words may appear in context above.
