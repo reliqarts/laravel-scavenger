@@ -47,6 +47,12 @@
       "ReliqArts\\Scavenger\\Tests\\": "tests/"
     }
   },
+  "config": {
+    "allow-plugins": {
+      "phpro/grumphp": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
   "scripts": {
     "test": "phpunit",
     "test:ci": "phpunit --verbose --colors=auto --coverage-clover=coverage.xml",
