@@ -2,7 +2,7 @@
 
 ![Laravel Scavenger](./docs/images/inline-preview.png "Laravel Scavenger")
 
-The most integrated web scraper package for Laravel.
+The most integrated web scraping package for Laravel.
 
 [![Build Status](https://img.shields.io/github/workflow/status/reliqarts/laravel-scavenger/PHP?style=flat-square)](https://github.com/reliqarts/laravel-scavenger/actions?query=workflow%3APHP)
 [![Codecov](https://img.shields.io/codecov/c/github/reliqarts/laravel-scavenger.svg?style=flat-square)](https://codecov.io/gh/reliqarts/laravel-scavenger)
@@ -16,25 +16,25 @@ The most integrated web scraper package for Laravel.
 Scavenger provides the following features and more out-the-box.
 
 - Ease of use
-    - Scavenger is super-easy to configure. Simple publish the config file and set your targets.
+    - Scavenger is super-easy to configure. Simply publish the config file and set your targets.
 - Scrape data from multiple sources at once.
 - Convert scraped data into usable Laravel model objects.
-    - eg. You may scrape an article and have it converted into an object of your choice and saved in your database. Immediately available to your viewers.
-- You can easily perform one or more operations to each property of any scraped entity.
+    - eg. You may scrape an article, have it converted into an object of your choice, and save it in your database. Immediately available to your viewers.
+- You can easily perform one or more operations, on each property, of any scraped entity.
     - eg. You may call a paraphrase service from a model or package of your choice on data attributes before saving them to your database.
 - Data integrity constraints
     - Scavenger uses a hashing algorithm of your choice to maintain data integrity. This hash is used to ensure that one scrap (source article) is not converted to multiple output objects (model duplicates).
 - Console Command
-    - Once scavenger is configured, a simple artisan command launches the seeker. Since this is a console command it is more efficient and timeouts are less likely to occur.
+    - Once Scavenger is configured, a simple artisan command launches the seeker. Since this is a console command it is more efficient and timeouts are less likely to occur.
     - Artisan command: `php artisan scavenger:seek`
 - Schedule ready
-    - Scavenger can easily be set to scrape on a schedule. Hence, creating a someone autonomous website is super easy!
+    - Scavenger can easily be set to scrape on a schedule. Hence, creating a somewhat autonomous website is super easy!
 - SERP
     - Scavenger can be used to flexibly scrape Search Engine Result Pages.
 
 ## Installation
 
-1. Install via composer; in console: 
+1. Install via composer; in your terminal: 
    ```
    composer require reliqarts/laravel-scavenger
    ``` 
@@ -68,12 +68,12 @@ Scavenger provides the following features and more out-the-box.
 
 ## Configuration
 
-Scavenger is highly configurable. These configurations remain for use the next time around. 
+Scavenger is highly configurable. Once configured, the settings will be used for every scrape.
 
 
 ### Structure
 
-Below is an example of a typical config file structure, with explaining comments.
+Below is an example of a typical config file structure, with comments explaining each setting.
 
 ```php
 <?php
@@ -261,7 +261,7 @@ return [
 
 #### Target Breakdown
 
-The `targets` array is to contain a list of entities (to be scraped from) keyed by a unique target identifier. The structure is as follows.
+The `targets` array contains a list of entities (to be scraped from) keyed by a unique target identifier. The structure is as follows.
 
 - `model`: Laravel DB model to create from target.
 - `source`: Source URL to scrape.
@@ -276,18 +276,18 @@ The `targets` array is to contain a list of entities (to be scraped from) keyed 
 - `dissect`: Split compound attributes into smaller attributes via REGEX. (optional)
 - `preprocess`: Array of attributes which need to be preprocessed. `[attributeName => callable]` (optional)
 - `remap`: Array of attributes which need to be renamed in order to be saved as target objects. `[attributeName => newName]` (optional)
-- `bad_words`: Any scraps found containing these words will be discarded. (optional)
+- `bad_words`: Any scrap found containing these words will be discarded. (optional)
 
 ## Glossary of Terms
 The following words may appear in context above.
 
-- `Daemon`: User instance to be used by the scavenger service.
+- `Daemon`: User instance to be used by the Scavenger service.
 - `Scrap`: Scraped data before being converted to the target object.
 - `Target`: Configured source-model mapping for a single entity. 
-- `Target Object`: Eloquent model object to be generated from scrap. 
+- `Target Object`: Eloquent model object to be generated from scrape. 
 ----
 
 ### Acknowledgements
 
-This library is heavily inspired by and dependent on the [Guzzle](https://github.com/guzzle/guzzle)
+This library is heavily inspired by, and dependent on, the [Guzzle](https://github.com/guzzle/guzzle)
 library, although several concepts may have been adjusted.
