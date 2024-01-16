@@ -4,12 +4,13 @@
 
 The most integrated web scraping package for Laravel.
 
-[![Build Status](https://img.shields.io/github/workflow/status/reliqarts/laravel-scavenger/PHP?style=flat-square)](https://github.com/reliqarts/laravel-scavenger/actions?query=workflow%3APHP)
+[![Unit Tests](https://github.com/reliqarts/laravel-scavenger/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/reliqarts/laravel-scavenger/actions/workflows/unit-tests.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/reliqarts/laravel-scavenger.svg?style=flat-square)](https://codecov.io/gh/reliqarts/laravel-scavenger)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/reliqarts/laravel-scavenger.svg?style=flat-square)](https://scrutinizer-ci.com/g/reliqarts/laravel-scavenger/)
 [![License](https://poser.pugx.org/reliqarts/laravel-scavenger/license?format=flat-square)](https://packagist.org/packages/reliqarts/laravel-scavenger)
 [![Latest Stable Version](https://poser.pugx.org/reliqarts/laravel-scavenger/version?format=flat-square)](https://packagist.org/packages/reliqarts/laravel-scavenger)
 [![Latest Unstable Version](https://poser.pugx.org/reliqarts/laravel-scavenger/v/unstable?format=flat-square)](//packagist.org/packages/reliqarts/laravel-scavenger)
+[![Maintainability](https://api.codeclimate.com/v1/badges/10ad2ea9c016876c78bc/maintainability)](https://codeclimate.com/github/reliqarts/laravel-scavenger/maintainability)
 
 ## Top Features
 
