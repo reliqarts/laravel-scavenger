@@ -13,45 +13,22 @@ use JsonException;
  */
 final class Result implements Arrayable, Jsonable
 {
-    private bool $success;
-    private string $message;
-    private $data;
-    private $extra;
-
     /**
-     * @var string[]
-     */
-    private array $errors;
-
-    /**
-     * Result constructor.
-     *
-     * @param string[]   $errors
-     * @param null|mixed $data
-     * @param null|mixed $extra
+     * @param  string[]  $errors
      */
     public function __construct(
-        bool $success = false,
-        array $errors = [],
-        string $message = '',
-        $data = null,
-        $extra = null
-    ) {
-        $this->success = $success;
-        $this->errors = $errors;
-        $this->message = $message;
-        $this->data = $data;
-        $this->extra = $extra;
-    }
+        private bool $success = false,
+        private array $errors = [],
+        private string $message = '',
+        private mixed $data = null,
+        private mixed $extra = null
+    ) {}
 
     public function isSuccess(): bool
     {
         return $this->success;
     }
 
-    /**
-     * @return Result
-     */
     public function setSuccess(bool $success): self
     {
         $clone = clone $this;
@@ -68,9 +45,6 @@ final class Result implements Arrayable, Jsonable
         return $this->errors;
     }
 
-    /**
-     * @return Result
-     */
     public function addError(string $error): self
     {
         $clone = clone $this;
@@ -80,9 +54,7 @@ final class Result implements Arrayable, Jsonable
     }
 
     /**
-     * @param string[] $errors
-     *
-     * @return Result
+     * @param  string[]  $errors
      */
     public function addErrors(array $errors): self
     {
@@ -94,15 +66,15 @@ final class Result implements Arrayable, Jsonable
 
     public function hasErrors(): bool
     {
-        return !empty($this->getErrors());
+        return ! empty($this->getErrors());
     }
 
-    public function getExtra()
+    public function getExtra(): mixed
     {
         return $this->extra;
     }
 
-    public function setExtra($extra): self
+    public function setExtra(mixed $extra): self
     {
         $clone = clone $this;
         $clone->extra = $extra;
@@ -123,12 +95,12 @@ final class Result implements Arrayable, Jsonable
         return $clone;
     }
 
-    public function getData()
+    public function getData(): mixed
     {
         return $this->data;
     }
 
-    public function setData($data): self
+    public function setData(mixed $data): self
     {
         $clone = clone $this;
         $clone->data = $data;
@@ -141,13 +113,13 @@ final class Result implements Arrayable, Jsonable
      */
     public function toArray(): array
     {
-        return (array)$this;
+        return (array) $this;
     }
 
     /**
      * {@inheritdoc}
      *
-     * @param int $options
+     * @param  int  $options
      *
      * @throws JsonException
      */

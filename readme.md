@@ -2,7 +2,12 @@
 
 ![Laravel Scavenger](./docs/images/inline-preview.png "Laravel Scavenger")
 
-The most integrated web scraping package for Laravel.
+The most integrated web scraping package for Laravel 12 and 13.
+
+## Requirements
+
+- PHP 8.3 or newer
+- Laravel 12 or 13
 
 [![Unit Tests](https://github.com/reliqarts/laravel-scavenger/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/reliqarts/laravel-scavenger/actions/workflows/unit-tests.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/reliqarts/laravel-scavenger.svg?style=flat-square)](https://codecov.io/gh/reliqarts/laravel-scavenger)
@@ -43,7 +48,7 @@ Scavenger provides the following features and more out-the-box.
    ```json
    {
        "require": {
-           "reliqarts/laravel-scavenger": "^3.1"
+           "reliqarts/laravel-scavenger": "^4.0"
        }
    }
    ```
@@ -98,7 +103,7 @@ return [
     // Daemon config - used to build daemon user
     'daemon' => [
         // Model to use for Daemon identification and login
-        'model' => 'App\\User',
+        'model' => 'App\\Models\\User',
 
         // Model property to check for daemon ID
         'id_prop' => 'email',
@@ -115,7 +120,8 @@ return [
         ],
     ],
 
-    // guzzle settings
+    // HTTP client settings. `timeout` is both the idle timeout and the maximum
+    // request duration passed to Symfony HttpClient, in seconds.
     'guzzle_settings' => [
         'timeout' => 60,
     ],
@@ -290,5 +296,5 @@ The following words may appear in context above.
 
 ### Acknowledgements
 
-This library is heavily inspired by, and dependent on, the [Guzzle](https://github.com/guzzle/guzzle)
-library, although several concepts may have been adjusted.
+This library uses [Symfony BrowserKit](https://symfony.com/doc/current/components/browser_kit.html)
+and [Symfony HttpClient](https://symfony.com/doc/current/http_client.html) to fetch and traverse pages.

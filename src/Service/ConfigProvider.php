@@ -6,6 +6,7 @@ namespace ReliqArts\Scavenger\Service;
 
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use ReliqArts\Scavenger\Contract\ConfigProvider as ConfigProviderContract;
@@ -13,6 +14,8 @@ use ReliqArts\Scavenger\Exception\BadDaemonConfig;
 
 final class ConfigProvider implements ConfigProviderContract
 {
+    private const string HASHED_PASSWORD_CAST = 'hashed';
+
     /**
      * Get config.
      */
@@ -44,7 +47,7 @@ final class ConfigProvider implements ConfigProviderContract
             )
             ->first();
 
-        if (!$daemon) {
+        if (! $daemon) {
             // attempt to create
             try {
                 $daemon = $this->getDaemonModel()
@@ -60,10 +63,18 @@ final class ConfigProvider implements ConfigProviderContract
 
     /**
      * Get daemon model.
+     *
+     * @throws BadDaemonConfig
      */
-    public function getDaemonModel()
+    public function getDaemonModel(): Model
     {
-        return resolve($this->getDaemonModelName());
+        $model = resolve($this->getDaemonModelName());
+
+        if (! $model instanceof Model) {
+            throw new BadDaemonConfig('Scavenger daemon model must be an Eloquent model.');
+        }
+
+        return $model;
     }
 
     /**
@@ -71,7 +82,7 @@ final class ConfigProvider implements ConfigProviderContract
      */
     public function getDaemonModelName(): string
     {
-        return Config::get('scavenger.daemon.model', 'App\\User');
+        return Config::get('scavenger.daemon.model', 'App\\Models\\User');
     }
 
     /**
@@ -92,6 +103,8 @@ final class ConfigProvider implements ConfigProviderContract
 
     /**
      * Get attribute values for daemon.
+     *
+     * @throws BadDaemonConfig
      */
     public function getDaemonInfo(): array
     {
@@ -99,7 +112,7 @@ final class ConfigProvider implements ConfigProviderContract
         $info = array_merge($infoConfig, [
             $this->getDaemonModelIdProp() => $this->getDaemonModelId(),
         ]);
-        if (!empty($infoConfig['password'])) {
+        if (! empty($infoConfig['password']) && ! $this->daemonModelHashesPassword()) {
             // hash password
             $info['password'] = Hash::make($infoConfig['password']);
         }
@@ -128,7 +141,7 @@ final class ConfigProvider implements ConfigProviderContract
 
     public function getVerbosity(): int
     {
-        $verbosity = (int)Config::get('scavenger.verbosity');
+        $verbosity = (int) Config::get('scavenger.verbosity');
 
         if ($verbosity === 0) {
             return self::DEFAULT_VERBOSITY;
@@ -142,7 +155,7 @@ final class ConfigProvider implements ConfigProviderContract
      */
     public function isLoggingEnabled(): bool
     {
-        return (bool)Config::get('scavenger.log');
+        return (bool) Config::get('scavenger.log');
     }
 
     /**
@@ -158,7 +171,7 @@ final class ConfigProvider implements ConfigProviderContract
      */
     public static function specialKey(string $keyName): string
     {
-        return self::SPECIAL_KEY_PREFIX . $keyName;
+        return self::SPECIAL_KEY_PREFIX.$keyName;
     }
 
     /**
@@ -170,6 +183,14 @@ final class ConfigProvider implements ConfigProviderContract
             return false;
         }
 
-        return strpos($keyName, self::SPECIAL_KEY_PREFIX) === 0;
+        return str_starts_with($keyName, self::SPECIAL_KEY_PREFIX);
+    }
+
+    /**
+     * @throws BadDaemonConfig
+     */
+    private function daemonModelHashesPassword(): bool
+    {
+        return ($this->getDaemonModel()->getCasts()['password'] ?? null) === self::HASHED_PASSWORD_CAST;
     }
 }

@@ -4,27 +4,17 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger\Tests\Unit\Service;
 
-use Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReliqArts\Scavenger\Helper\TargetKey;
 use ReliqArts\Scavenger\Service\Scanner;
 
-/**
- * Class ScannerTest.
- *
- * @coversDefaultClass \ReliqArts\Scavenger\Service\Scanner
- *
- * @internal
- */
+#[CoversClass(Scanner::class)]
 final class ScannerTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::hasBadWords
-     * @dataProvider hasBadWordsDataProvider
-     * @throws Exception
-     */
-    public function testHasBadWords(array $badWords, array $subject, bool $expectedResult): void
+    #[DataProvider('hasBadWordsDataProvider')]
+    public function test_has_bad_words(array $badWords, array $subject, bool $expectedResult): void
     {
         $scanner = new Scanner($badWords);
         $result = $scanner->hasBadWords($subject);
@@ -32,7 +22,7 @@ final class ScannerTest extends TestCase
         self::assertSame($expectedResult, $result);
     }
 
-    public function hasBadWordsDataProvider(): array
+    public static function hasBadWordsDataProvider(): array
     {
         return [
             'no bad words' => [
@@ -61,19 +51,15 @@ final class ScannerTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::pluckDetails
-     * @dataProvider pluckDetailsDataProvider
-     * @throws Exception
-     */
-    public function testPluckDetails(string $subject, array $map, array $expectedResult): void
+    #[DataProvider('pluckDetailsDataProvider')]
+    public function test_pluck_details(string $subject, array $map, array $expectedResult): void
     {
         $result = Scanner::pluckDetails($subject, $map, true);
 
         self::assertSame($expectedResult, $result);
     }
 
-    public function pluckDetailsDataProvider(): array
+    public static function pluckDetailsDataProvider(): array
     {
         return [
             'simple phone number' => [
@@ -88,22 +74,15 @@ final class ScannerTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::firstNonEmpty
-     * @dataProvider firstNonEmptyDataProvider
-     *
-     * @param mixed $expectedResult
-     *
-     * @throws Exception
-     */
-    public function testFirstNonEmpty(array $subject, $expectedResult, array $needles = []): void
+    #[DataProvider('firstNonEmptyDataProvider')]
+    public function test_first_non_empty(array $subject, mixed $expectedResult, array $needles = []): void
     {
         $result = Scanner::firstNonEmpty($subject, $needles);
 
         self::assertSame($expectedResult, $result);
     }
 
-    public function firstNonEmptyDataProvider(): array
+    public static function firstNonEmptyDataProvider(): array
     {
         return [
             'simple' => [
@@ -135,22 +114,15 @@ final class ScannerTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::br2nl
-     * @dataProvider br2nlDataProvider
-     *
-     * @param mixed $expectedResult
-     *
-     * @throws Exception
-     */
-    public function testBr2nl(string $subject, string $expectedResult): void
+    #[DataProvider('br2nlDataProvider')]
+    public function test_br2nl(string $subject, string $expectedResult): void
     {
         $result = Scanner::br2nl($subject);
 
         self::assertSame($expectedResult, $result);
     }
 
-    public function br2nlDataProvider(): array
+    public static function br2nlDataProvider(): array
     {
         return [
             [
@@ -160,23 +132,15 @@ final class ScannerTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::cleanText
-     * @covers ::removeReturnsAndTabs
-     * @dataProvider cleanTextDataProvider
-     *
-     * @param mixed $expectedResult
-     *
-     * @throws Exception
-     */
-    public function testCleanText(string $subject, string $expectedResult): void
+    #[DataProvider('cleanTextDataProvider')]
+    public function test_clean_text(string $subject, string $expectedResult): void
     {
         $result = Scanner::cleanText($subject);
 
         self::assertSame($expectedResult, $result);
     }
 
-    public function cleanTextDataProvider(): array
+    public static function cleanTextDataProvider(): array
     {
         return [
             [

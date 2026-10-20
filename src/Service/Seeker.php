@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ReliqArts\Scavenger\Service;
 
 use Exception;
-use Goutte\Client as GoutteClient;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -21,6 +20,7 @@ use ReliqArts\Scavenger\Model\Target;
 use ReliqArts\Scavenger\OptionSet;
 use ReliqArts\Scavenger\Result;
 use ReliqArts\Scavenger\TitleLink;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Form;
 
@@ -28,15 +28,14 @@ final class Seeker extends Communicator implements SeekerInterface
 {
     use Timed;
 
-    private const INITIAL_PAGE = 1;
+    private const int INITIAL_PAGE = 1;
 
     protected OptionSet $optionSet;
-    protected GoutteClient $client;
 
     private array $targetDefinitions;
-    private LoggerInterface $logger;
-    private NodeProximityAssistant $nodeProximityAssistant;
+
     private int $pageLimit;
+
     private Scrapper $scrapper;
 
     /**
@@ -45,17 +44,14 @@ final class Seeker extends Communicator implements SeekerInterface
      * @throws Exception
      */
     public function __construct(
-        LoggerInterface $logger,
-        GoutteClient $client,
+        private LoggerInterface $logger,
+        private AbstractBrowser $client,
         ConfigProviderContract $config,
-        NodeProximityAssistant $nodeProximityAssistant
+        private NodeProximityAssistant $nodeProximityAssistant
     ) {
         parent::__construct();
 
-        $this->logger = $logger;
-        $this->client = $client;
         $this->targetDefinitions = $config->getTargets();
-        $this->nodeProximityAssistant = $nodeProximityAssistant;
         $this->verbosity = $config->getVerbosity();
         $this->hashAlgorithm = $config->getHashAlgorithm();
         $this->scrapper = new Scrapper(
@@ -79,7 +75,7 @@ final class Seeker extends Communicator implements SeekerInterface
 
         $targetDefinitions = $this->targetDefinitions;
         $targetBuilder = $this->getTargetBuilder();
-        $result = new Result();
+        $result = new Result;
 
         $this->startTimer();
 
@@ -122,7 +118,7 @@ final class Seeker extends Communicator implements SeekerInterface
             $this->scrapper->convertScraps(false, true);
         }
 
-        $extra = (object)[
+        $extra = (object) [
             'total' => $this->scrapper->getScraps()->count(),
             'executionTime' => $this->elapsedTime(),
             'new' => $this->scrapper->getNewScrapsCount(),
@@ -132,7 +128,7 @@ final class Seeker extends Communicator implements SeekerInterface
             'scrapsConverted' => $this->optionSet->isConvertScraps(),
         ];
 
-        if (!$result->hasErrors()) {
+        if (! $result->hasErrors()) {
             return $result
                 ->setSuccess(true)
                 ->setExtra($extra);
@@ -171,18 +167,18 @@ final class Seeker extends Communicator implements SeekerInterface
         $form = null;
 
         // check if submit button was defined
-        if (!empty($searchFormSubmitButtonConfig[TargetKey::SEARCH_FORM_SUBMIT_BUTTON_ID])) {
+        if (! empty($searchFormSubmitButtonConfig[TargetKey::SEARCH_FORM_SUBMIT_BUTTON_ID])) {
             $submitButtonIdentifier = $searchFormSubmitButtonConfig[TargetKey::SEARCH_FORM_SUBMIT_BUTTON_ID];
-        } elseif (!empty($searchFormSubmitButtonConfig[TargetKey::SEARCH_FORM_SUBMIT_BUTTON_TEXT])) {
+        } elseif (! empty($searchFormSubmitButtonConfig[TargetKey::SEARCH_FORM_SUBMIT_BUTTON_TEXT])) {
             $submitButtonIdentifier = $searchFormSubmitButtonConfig[TargetKey::SEARCH_FORM_SUBMIT_BUTTON_TEXT];
         }
 
         try {
             $form = empty($submitButtonIdentifier)
                 ? $formCrawler->form()
-                : $formCrawler->selectButton((string)$submitButtonIdentifier)->form();
+                : $formCrawler->selectButton((string) $submitButtonIdentifier)->form();
         } catch (InvalidArgumentException $e) {
-            $this->logger->error($e);
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
         }
 
         if ($form instanceof Form) {
@@ -227,11 +223,11 @@ final class Seeker extends Communicator implements SeekerInterface
         $markup = $target->getMarkup();
         $titleLinkSelector = $markup[TargetKey::MARKUP_TITLE];
         $markupInside = $markup[TargetKey::special(TargetKey::MARKUP_INSIDE)] ?? [];
-        $markupHasInside = !empty($markupInside);
+        $markupHasInside = ! empty($markupInside);
         $markupHasItemWrapper = false;
 
         // choose link as title link selector if it is not empty and it is not set to a special key
-        if (!(empty($markup[TargetKey::MARKUP_LINK]) || ConfigProvider::isSpecialKey(
+        if (! (empty($markup[TargetKey::MARKUP_LINK]) || ConfigProvider::isSpecialKey(
             $markup[TargetKey::MARKUP_LINK]
         ))) {
             $titleLinkSelector = $markup[TargetKey::MARKUP_LINK];
@@ -247,7 +243,7 @@ final class Seeker extends Communicator implements SeekerInterface
                 TargetKey::special(TargetKey::WRAPPER),
             ]
         );
-        if (!empty($markup[TargetKey::special(TargetKey::ITEM_WRAPPER)])) {
+        if (! empty($markup[TargetKey::special(TargetKey::ITEM_WRAPPER)])) {
             $markupHasItemWrapper = true;
         }
 
@@ -267,7 +263,7 @@ final class Seeker extends Communicator implements SeekerInterface
                 $items = $crawler->filter($markup[TargetKey::special(TargetKey::ITEM_WRAPPER)]);
             }
 
-            if (!$items->count()) {
+            if (! $items->count()) {
                 $this->tell(
                     FormattedMessage::get(FormattedMessage::NO_ITEMS_FOUND_ON_PAGE_N, $page)
                 );
@@ -289,7 +285,7 @@ final class Seeker extends Communicator implements SeekerInterface
 
                         // link crawler is empty in this case the link may be a parent element
                         // so we must find closest link:
-                        if (!count($linkCrawler)) {
+                        if (! count($linkCrawler)) {
                             $linkCrawler = $this->nodeProximityAssistant->closest('a[href]', $titleLinkCrawler);
                         }
 
@@ -306,7 +302,7 @@ final class Seeker extends Communicator implements SeekerInterface
                                 $cursor + 1
                             )
                         );
-                        $this->logger->error($e);
+                        $this->logger->error($e->getMessage(), ['exception' => $e]);
 
                         // escape 'each' block
                         return;
@@ -317,7 +313,7 @@ final class Seeker extends Communicator implements SeekerInterface
                     if ($markupHasInside) {
                         // grab handle on detail
                         $itemCrawler = $this->client->click($link);
-                        $markupHasFocus = !empty($markupInside[TargetKey::special(TargetKey::MARKUP_FOCUS)]);
+                        $markupHasFocus = ! empty($markupInside[TargetKey::special(TargetKey::MARKUP_FOCUS)]);
 
                         // focus detail crawler on section if specified
                         if ($markupHasFocus) {
@@ -363,7 +359,7 @@ final class Seeker extends Communicator implements SeekerInterface
                     }
                 }
 
-                ++$page;
+                $page++;
             } else {
                 $crawler = null;
             }

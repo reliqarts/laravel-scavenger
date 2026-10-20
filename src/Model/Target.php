@@ -6,60 +6,28 @@ namespace ReliqArts\Scavenger\Model;
 
 class Target
 {
-    private const INITIAL_CURSOR = 0;
+    private const int INITIAL_CURSOR = 0;
 
-    private string $name;
-    private bool $example;
-    private bool $searchEngineRequestPages;
-    private string $model;
-    private string $source;
-    private array $search;
-    private int $pages;
-    private array $pager;
-    private array $markup;
-    private array $dissect;
-    private array $preprocess;
-    private array $remap;
     private int $cursor;
 
     /**
-     * @var string[]
-     */
-    private array $badWords;
-
-    /**
-     * Definition constructor.
-     *
-     * @param string[] $badWords
+     * @param  string[]  $badWords
      */
     public function __construct(
-        string $name,
-        string $model,
-        string $source,
-        array $markup,
-        array $pager = [],
-        int $pages = 0,
-        array $dissect = [],
-        array $preprocess = [],
-        array $remap = [],
-        array $badWords = [],
-        array $search = [],
-        bool $searchEngineRequestPages = false,
-        bool $example = false
+        private string $name,
+        private string $model,
+        private string $source,
+        private array $markup,
+        private array $pager = [],
+        private int $pages = 0,
+        private array $dissect = [],
+        private array $preprocess = [],
+        private array $remap = [],
+        private array $badWords = [],
+        private array $search = [],
+        private bool $searchEngineRequestPages = false,
+        private bool $example = false
     ) {
-        $this->name = $name;
-        $this->example = $example;
-        $this->searchEngineRequestPages = $searchEngineRequestPages;
-        $this->model = $model;
-        $this->source = $source;
-        $this->search = $search;
-        $this->pages = $pages;
-        $this->pager = $pager;
-        $this->markup = $markup;
-        $this->dissect = $dissect;
-        $this->preprocess = $preprocess;
-        $this->remap = $remap;
-        $this->badWords = $badWords;
         $this->cursor = self::INITIAL_CURSOR;
     }
 
@@ -95,7 +63,7 @@ class Target
 
     public function hasSearch(): bool
     {
-        return !empty($this->search);
+        return ! empty($this->search);
     }
 
     public function getPages(): int
@@ -105,7 +73,7 @@ class Target
 
     public function hasPages(): bool
     {
-        return !empty($this->pages);
+        return ! empty($this->pages);
     }
 
     public function getPager(): array
@@ -115,7 +83,7 @@ class Target
 
     public function hasPager(): bool
     {
-        return !empty($this->pager);
+        return ! empty($this->pager);
     }
 
     public function getMarkup(): array
@@ -130,7 +98,7 @@ class Target
 
     public function hasDissect(): bool
     {
-        return !empty($this->dissect);
+        return ! empty($this->dissect);
     }
 
     public function getPreprocess(): array
@@ -140,7 +108,7 @@ class Target
 
     public function hasPreprocess(): bool
     {
-        return !empty($this->preprocess);
+        return ! empty($this->preprocess);
     }
 
     public function getRemap(): array
@@ -150,7 +118,7 @@ class Target
 
     public function hasRemap(): bool
     {
-        return !empty($this->remap);
+        return ! empty($this->remap);
     }
 
     /**
@@ -163,7 +131,7 @@ class Target
 
     public function hasBadWords(): bool
     {
-        return !empty($this->badWords);
+        return ! empty($this->badWords);
     }
 
     public function getCursor(): int
@@ -181,6 +149,6 @@ class Target
      */
     public function incrementCursor(): void
     {
-        ++$this->cursor;
+        $this->cursor++;
     }
 }

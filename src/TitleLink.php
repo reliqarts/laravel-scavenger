@@ -7,19 +7,9 @@ namespace ReliqArts\Scavenger;
 /**
  * A simple combination of **title** and **link**.
  */
-final class TitleLink
+final readonly class TitleLink
 {
-    private string $title;
-    private string $link;
-
-    /**
-     * TitleLink constructor.
-     */
-    public function __construct(string $title, string $link)
-    {
-        $this->title = $title;
-        $this->link = $link;
-    }
+    public function __construct(private string $title, private string $link) {}
 
     public function getTitle(): string
     {

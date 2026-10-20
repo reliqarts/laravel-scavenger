@@ -9,11 +9,11 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class NodeProximityAssistant
 {
-    private const CURRENT_NODE_LIST_EMPTY = 'The current node list is empty.';
+    private const string CURRENT_NODE_LIST_EMPTY = 'The current node list is empty.';
 
     public function closest(string $selector, Crawler $crawler): ?Crawler
     {
-        if (!count($crawler)) {
+        if (! count($crawler)) {
             throw new InvalidArgumentException(self::CURRENT_NODE_LIST_EMPTY);
         }
 
@@ -21,7 +21,7 @@ class NodeProximityAssistant
 
         if ($node !== null) {
             while ($node = $node->parentNode) {
-                if (XML_ELEMENT_NODE === $node->nodeType) {
+                if ($node->nodeType === XML_ELEMENT_NODE) {
                     $parentCrawler = new Crawler($node, $crawler->getUri(), $crawler->getBaseHref());
                     $descendantMatchingSelector = $parentCrawler->filter($selector);
                     if ($descendantMatchingSelector->count()) {

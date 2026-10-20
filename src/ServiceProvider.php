@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace ReliqArts\Scavenger;
 
 use Exception;
-use Goutte\Client as GoutteClient;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Override;
 use Psr\Log\LoggerInterface;
 use ReliqArts\Scavenger\Console\Command\Seek;
 use ReliqArts\Scavenger\Contract\ConfigProvider as ConfigProviderContract;
@@ -18,6 +18,8 @@ use ReliqArts\Scavenger\Facade\Scavenger;
 use ReliqArts\Scavenger\Helper\NodeProximityAssistant;
 use ReliqArts\Scavenger\Service\ConfigProvider;
 use ReliqArts\Scavenger\Service\Seeker;
+use Symfony\Component\BrowserKit\HttpBrowser;
+use Symfony\Component\HttpClient\HttpClient;
 
 /**
  *  Service Provider.
@@ -26,17 +28,16 @@ use ReliqArts\Scavenger\Service\Seeker;
  */
 class ServiceProvider extends BaseServiceProvider
 {
-    /**
-     * @var string
-     */
-    protected const ASSET_DIRECTORY = __DIR__ . '/..';
-    private const LOG_FILE_PREFIX = 'scavenger-';
-    private const LOGGER_NAME = 'Scavenger.Seeker';
+    protected const string ASSET_DIRECTORY = __DIR__.'/..';
+
+    private const string LOG_FILE_PREFIX = 'scavenger-';
+
+    private const string LOGGER_NAME = 'Scavenger.Seeker';
+
+    private const float DEFAULT_HTTP_TIMEOUT = 60;
 
     /**
      * List of commands.
-     *
-     * @var array
      */
     protected array $commands = [
         Seek::class,
@@ -56,6 +57,7 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Register bindings in the container.
      */
+    #[Override]
     public function register(): void
     {
         $loader = AliasLoader::getInstance();
@@ -68,9 +70,9 @@ class ServiceProvider extends BaseServiceProvider
 
                 return new Seeker(
                     $this->getLogger($configProvider),
-                    new GoutteClient(),
+                    new HttpBrowser(HttpClient::create($this->httpClientOptions($configProvider))),
                     $configProvider,
-                    new NodeProximityAssistant()
+                    new NodeProximityAssistant
                 );
             }
         );
@@ -81,6 +83,7 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Get the services provided by the provider.
      */
+    #[Override]
     public function provides(): array
     {
         return [
@@ -102,12 +105,12 @@ class ServiceProvider extends BaseServiceProvider
     protected function handleConfig(): void
     {
         // merge config
-        $this->mergeConfigFrom(static::ASSET_DIRECTORY . '/config/config.php', 'scavenger');
+        $this->mergeConfigFrom(static::ASSET_DIRECTORY.'/config/config.php', 'scavenger');
 
         // allow publishing config
         $this->publishes(
             [
-                static::ASSET_DIRECTORY . '/config/config.php' => config_path('scavenger.php'),
+                static::ASSET_DIRECTORY.'/config/config.php' => config_path('scavenger.php'),
             ],
             'scavenger-config'
         );
@@ -130,15 +133,29 @@ class ServiceProvider extends BaseServiceProvider
     private function handleMigrations(): void
     {
         // Load the migrations...
-        $this->loadMigrationsFrom(static::ASSET_DIRECTORY . '/database/migrations');
+        $this->loadMigrationsFrom(static::ASSET_DIRECTORY.'/database/migrations');
 
         // allow publishing of migrations
         $this->publishes(
             [
-                static::ASSET_DIRECTORY . '/database/migrations/' => database_path('migrations'),
+                static::ASSET_DIRECTORY.'/database/migrations/' => database_path('migrations'),
             ],
             'scavenger-migrations'
         );
+    }
+
+    /**
+     * @return array{timeout: float, max_duration: float}
+     */
+    private function httpClientOptions(ConfigProviderContract $configProvider): array
+    {
+        $timeout = $configProvider->get()['guzzle_settings']['timeout'] ?? self::DEFAULT_HTTP_TIMEOUT;
+        $timeout = is_numeric($timeout) ? (float) $timeout : self::DEFAULT_HTTP_TIMEOUT;
+
+        return [
+            'timeout' => $timeout,
+            'max_duration' => $timeout,
+        ];
     }
 
     /**
@@ -146,12 +163,12 @@ class ServiceProvider extends BaseServiceProvider
      */
     private function getLogger(ConfigProvider $configProvider): LoggerInterface
     {
-        $logFilename = self::LOG_FILE_PREFIX . microtime(true);
+        $logFilename = self::LOG_FILE_PREFIX.microtime(true);
         $logger = new Logger(self::LOGGER_NAME);
 
         $logger->pushHandler(
             new StreamHandler(
-                storage_path('logs/' . $configProvider->getLogDir() . "/{$logFilename}.log"),
+                storage_path('logs/'.$configProvider->getLogDir()."/{$logFilename}.log"),
                 $configProvider->isLoggingEnabled() ? Logger::DEBUG : Logger::CRITICAL
             )
         );

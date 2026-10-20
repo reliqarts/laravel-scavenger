@@ -19,6 +19,6 @@ abstract class Exception extends RuntimeException
     {
         $errors = implode(' ', $result->getErrors());
 
-        return new static("The following errors occurred: ${errors}");
+        return new static("The following errors occurred: {$errors}");
     }
 }

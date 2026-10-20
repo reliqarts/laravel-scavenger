@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace ReliqArts\Scavenger\Contract;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use ReliqArts\Scavenger\Exception\BadDaemonConfig;
 
 interface ConfigProvider
 {
-    public const SPECIAL_KEY_PREFIX = '__';
-    public const DEFAULT_VERBOSITY = 0;
-    public const DEFAULT_HASH_ALGORITHM = 'sha512';
+    public const string SPECIAL_KEY_PREFIX = '__';
+
+    public const int DEFAULT_VERBOSITY = 0;
+
+    public const string DEFAULT_HASH_ALGORITHM = 'sha512';
 
     public function get(): array;
 
@@ -28,7 +31,7 @@ interface ConfigProvider
     /**
      * Get daemon model.
      */
-    public function getDaemonModel();
+    public function getDaemonModel(): Model;
 
     /**
      * Get ID property  for daemon.
