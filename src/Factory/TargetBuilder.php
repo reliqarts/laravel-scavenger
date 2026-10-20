@@ -15,17 +15,9 @@ use ReliqArts\Scavenger\Service\Scanner;
 final class TargetBuilder
 {
     /**
-     * @var array
-     */
-    private array $globalKeywords;
-
-    /**
      * TargetBuilder constructor.
      */
-    public function __construct(array $globalKeywords = [])
-    {
-        $this->globalKeywords = $globalKeywords;
-    }
+    public function __construct(private array $globalKeywords = []) {}
 
     /**
      * @throws Exception
@@ -33,12 +25,12 @@ final class TargetBuilder
     public function createFromDefinition(array $definition): Target
     {
         $validityResult = $this->validateDefinition($definition);
-        if (!$validityResult->isSuccess()) {
+        if (! $validityResult->isSuccess()) {
             throw InvalidTargetDefinition::fromResult($validityResult);
         }
 
         // aggregate keywords
-        if (!(empty($this->globalKeywords) || empty($definition[TargetKey::SEARCH]))) {
+        if (! (empty($this->globalKeywords) || empty($definition[TargetKey::SEARCH]))) {
             $definition[TargetKey::SEARCH][TargetKey::SEARCH_KEYWORDS] = array_merge(
                 $this->globalKeywords,
                 $definition[TargetKey::SEARCH][TargetKey::SEARCH_KEYWORDS]
@@ -77,7 +69,7 @@ final class TargetBuilder
 
         $targetName = $definition[TargetKey::NAME];
 
-        if (!empty($definition['example']) && $definition['example']) {
+        if (! empty($definition['example']) && $definition['example']) {
             return $result->setSuccess(false)->addError(
                 FormattedMessage::get(FormattedMessage::EXAMPLE_TARGET, $targetName)
             );
@@ -127,10 +119,10 @@ final class TargetBuilder
             return $result;
         }
 
-        $titleOrLinkExists = !empty(
+        $titleOrLinkExists = ! empty(
             Scanner::firstNonEmpty($markupDefinition, [TargetKey::MARKUP_TITLE, TargetKey::MARKUP_LINK])
         );
-        if (!$titleOrLinkExists) {
+        if (! $titleOrLinkExists) {
             $result = $result->setSuccess(false)->addError(
                 FormattedMessage::get(
                     FormattedMessage::TARGET_MISSING_TITLE_LINK,

@@ -1,15 +1,12 @@
 grumphp:
+  extensions:
+    - YieldStudio\GrumPHPLaravelPint\ExtensionLoader
   tasks:
-    ecs:
-      config: ~
-      level: ~
-      paths: [ ]
-      files_on_pre_commit: false
-      triggered_by: [ 'php' ]
-      clear-cache: false
-      no-progress-bar: true
+    laravel_pint:
+      config: pint.json
+      preset: laravel
     phpunit:
       config_file: ~
-      testsuite: Unit
+      testsuite: ~
       group: [ ]
       always_execute: false

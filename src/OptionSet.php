@@ -4,32 +4,20 @@ declare(strict_types=1);
 
 namespace ReliqArts\Scavenger;
 
-final class OptionSet
+final readonly class OptionSet
 {
-    private const DEFAULT_PAGE_LIMIT = 999999;
-
-    private bool $saveScraps;
-    private bool $convertScraps;
-    private int $backOff;
-    private int $pages;
-    private ?string $keywords;
+    private const int DEFAULT_PAGE_LIMIT = 999999;
 
     /**
      * @codeCoverageIgnore
      */
     public function __construct(
-        bool $saveScraps = true,
-        bool $convertScraps = true,
-        int $backOff = 3,
-        int $pages = self::DEFAULT_PAGE_LIMIT,
-        ?string $keywords = null
-    ) {
-        $this->saveScraps = $saveScraps;
-        $this->convertScraps = $convertScraps;
-        $this->backOff = $backOff;
-        $this->pages = $pages;
-        $this->keywords = $keywords;
-    }
+        private bool $saveScraps = true,
+        private bool $convertScraps = true,
+        private int $backOff = 3,
+        private int $pages = self::DEFAULT_PAGE_LIMIT,
+        private ?string $keywords = null
+    ) {}
 
     public function isSaveScraps(): bool
     {

@@ -5,26 +5,28 @@ declare(strict_types=1);
 namespace ReliqArts\Scavenger\Model;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
 use JsonException;
+use Override;
 use ReliqArts\Scavenger\Service\ConfigProvider;
 
 /**
  * Scavenger Scrap.
  *
- * @property string      $hash
- * @property string      $model
- * @property string      $source
+ * @property string $hash
+ * @property string $model
+ * @property string $source
  * @property bool|string $data
- * @property string      $title
- * @property mixed       $related
+ * @property string $title
+ * @property mixed $related
  *
  * @method static firstOrCreate(array $array, array $array1 = [])
  * @method static firstOrNew(array $array, array $array1 = [])
  */
 class Scrap extends EloquentModel
 {
-    private const SOFT_DELETES_TRAIT = 'Illuminate\Database\Eloquent\SoftDeletes';
+    private const string SOFT_DELETES_TRAIT = 'Illuminate\Database\Eloquent\SoftDeletes';
 
     /**
      * @var array
@@ -34,6 +36,7 @@ class Scrap extends EloquentModel
     /**
      * Get the scraps table.
      */
+    #[Override]
     public function getTable(): string
     {
         return ConfigProvider::getScrapsTable();
@@ -42,9 +45,9 @@ class Scrap extends EloquentModel
     /**
      * Convert scrap to target model.
      *
-     * @param bool $convertDuplicates     whether to force conversion even if model already exists
-     * @param bool $storeRelatedReference Whether to update relation field on scrap (self)
-     *                                    N.B. if reference is stored the scrap will be saved.
+     * @param  bool  $convertDuplicates  whether to force conversion even if model already exists
+     * @param  bool  $storeRelatedReference  Whether to update relation field on scrap (self)
+     *                                       N.B. if reference is stored the scrap will be saved.
      *
      * @throws JsonException
      */
@@ -53,21 +56,21 @@ class Scrap extends EloquentModel
         $targetObject = null;
         $convert = true;
 
-        if (!empty($this->model)) {
+        if (! empty($this->model)) {
             $existingRelated = $this->getRelated();
 
-            if ($existingRelated !== null && !$convertDuplicates) {
+            if ($existingRelated !== null && ! $convertDuplicates) {
                 return $existingRelated;
             }
 
             if ($convert) {
                 /** @var EloquentModel $targetObject */
-                $targetObject = new $this->model();
+                $targetObject = new $this->model;
                 $targetTable = $targetObject->getTable();
 
                 // Fill model data with scrap data if attributes exist
                 foreach (json_decode($this->data, true, 512, JSON_THROW_ON_ERROR) as $attr => $val) {
-                    if (!ConfigProvider::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
+                    if (! ConfigProvider::isSpecialKey($attr) && Schema::hasColumn($targetTable, $attr)) {
                         $targetObject->{$attr} = $val;
                     }
                 }
@@ -105,7 +108,7 @@ class Scrap extends EloquentModel
     /**
      * Whether related model uses eloquent's SoftDeletes trait.
      *
-     * @see \Illuminate\Database\Eloquent\SoftDeletes
+     * @see SoftDeletes
      */
     public function relatedModelUsesSoftDeletes(): bool
     {

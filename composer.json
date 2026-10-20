@@ -7,7 +7,6 @@
     "generation",
     "laravel",
     "scavenger",
-    "laravel5",
     "seek",
     "content",
     "data",
@@ -22,20 +21,26 @@
     }
   ],
   "require": {
-    "php": "^7.4 || ^8.0",
-    "illuminate/support": "6 - 10",
-    "monolog/monolog": "1.24 - 3",
-    "fabpot/goutte": "^4.0",
+    "php": "^8.3",
+    "ext-dom": "*",
     "ext-iconv": "*",
     "ext-json": "*",
-    "ext-dom": "*"
+    "ext-mbstring": "*",
+    "illuminate/support": "^12.0 || ^13.0",
+    "monolog/monolog": "^3.5",
+    "symfony/browser-kit": "^7.2 || ^8.0",
+    "symfony/css-selector": "^7.2 || ^8.0",
+    "symfony/dom-crawler": "^7.2 || ^8.0",
+    "symfony/http-client": "^7.2 || ^8.0",
+    "symfony/mime": "^7.2 || ^8.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.3",
-    "orchestra/testbench": "4 - 8",
-    "phpro/grumphp": "^1.0",
-    "symplify/easy-coding-standard": ">=8.2",
-    "phpspec/prophecy-phpunit": "^2.0"
+    "laravel/pint": "^1.15",
+    "orchestra/testbench": "^10.0 || ^11.0",
+    "phpro/grumphp": "^2.5",
+    "phpspec/prophecy-phpunit": "^2.0",
+    "phpunit/phpunit": "^11.0",
+    "yieldstudio/grumphp-laravel-pint": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -47,23 +52,23 @@
       "ReliqArts\\Scavenger\\Tests\\": "tests/"
     }
   },
-  "config": {
-    "allow-plugins": {
-      "phpro/grumphp": true,
-      "dealerdirect/phpcodesniffer-composer-installer": true
-    }
-  },
   "scripts": {
     "test": "phpunit",
-    "test:ci": "phpunit --verbose --colors=auto --coverage-clover=coverage.xml",
-    "test:unit": "phpunit --testsuite=Unit --verbose --coverage-clover=coverage.xml",
-    "test:integration": "phpunit --testsuite=Integration --verbose"
+    "test:ci": "phpunit --colors=auto --coverage-clover=build/coverage.xml",
+    "test:unit": "phpunit --testsuite=Unit --coverage-clover=build/coverage.xml",
+    "test:integration": "phpunit --testsuite=Integration"
+  },
+  "config": {
+    "allow-plugins": {
+      "phpro/grumphp": true
+    },
+    "sort-packages": true
   },
   "extra": {
     "laravel": {
-      "providers": ["ReliqArts\\Scavenger\\ServiceProvider"]
+      "providers": [
+        "ReliqArts\\Scavenger\\ServiceProvider"
+      ]
     }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+  }
 }

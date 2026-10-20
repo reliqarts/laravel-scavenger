@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use ReliqArts\Scavenger\Service\ConfigProvider;
 
-class CreateScavengerScrapsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,7 @@ class CreateScavengerScrapsTable extends Migration
     public function up(): void
     {
         $table = ConfigProvider::getScrapsTable();
-        if (!Schema::hasTable($table)) {
+        if (! Schema::hasTable($table)) {
             Schema::create($table, static function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('hash', 128)->unique(); // a hash
@@ -38,4 +38,4 @@ class CreateScavengerScrapsTable extends Migration
 
         Schema::dropIfExists($table);
     }
-}
+};

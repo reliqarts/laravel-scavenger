@@ -21,7 +21,7 @@ return [
     // Daemon config - used to build daemon user
     'daemon' => [
         // Model to use for Daemon identification and login
-        'model' => 'App\\User',
+        'model' => 'App\\Models\\User',
 
         // Model property to check for daemon ID
         'id_prop' => 'email',
@@ -36,6 +36,12 @@ return [
             'name' => 'Scavenger Daemon',
             'password' => 'pass',
         ],
+    ],
+
+    // HTTP client settings. `timeout` is both the idle timeout and the maximum
+    // request duration passed to Symfony HttpClient, in seconds.
+    'guzzle_settings' => [
+        'timeout' => 60,
     ],
 
     // hashing algorithm to use

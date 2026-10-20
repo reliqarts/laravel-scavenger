@@ -21,16 +21,22 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class Scrapper extends Communicator
 {
-    private const ERROR_INVALID_SPECIAL_KEY = '!#ERR - S.Key not valid!';
-    private const KEY_PREFIX = ConfigProvider::SPECIAL_KEY_PREFIX;
-    private const KEY_TARGET = self::KEY_PREFIX . 'target';
-    private const KEY_ID = self::KEY_PREFIX . 'id';
-    private const KEY_SERP_RESULT = self::KEY_PREFIX . 'serp_result';
-    private const ENCODE_CHARSET = 'UTF-8';
+    private const string ERROR_INVALID_SPECIAL_KEY = '!#ERR - S.Key not valid!';
 
-    private LoggerInterface $logger;
+    private const string KEY_PREFIX = ConfigProvider::SPECIAL_KEY_PREFIX;
+
+    private const string KEY_TARGET = self::KEY_PREFIX.'target';
+
+    private const string KEY_ID = self::KEY_PREFIX.'id';
+
+    private const string KEY_SERP_RESULT = self::KEY_PREFIX.'serp_result';
+
+    private const string ENCODE_CHARSET = 'UTF-8';
+
     private int $newScrapsCount;
+
     private Collection $relatedObjects;
+
     private Scanner $scanner;
 
     /**
@@ -42,15 +48,14 @@ class Scrapper extends Communicator
      * Scrapper constructor.
      */
     public function __construct(
-        LoggerInterface $logger,
+        private LoggerInterface $logger,
         ?Command $callingCommand = null,
         string $hashAlgorithm = self::HASH_ALGORITHM,
         int $verbosity = self::VERBOSITY_LOW
     ) {
         parent::__construct($callingCommand);
 
-        $this->logger = $logger;
-        $this->scanner = new Scanner();
+        $this->scanner = new Scanner;
         $this->hashAlgorithm = $hashAlgorithm;
         $this->scraps = collect([]);
         $this->relatedObjects = collect([]);
@@ -74,7 +79,7 @@ class Scrapper extends Communicator
         );
         $data = $this->preprocess($data, $target);
 
-        if (!$this->verifyData($data, $target)) {
+        if (! $this->verifyData($data, $target)) {
             return;
         }
 
@@ -85,7 +90,7 @@ class Scrapper extends Communicator
         // feedback
         $this->tell(
             FormattedMessage::get(FormattedMessage::SCRAP_GATHERED, $data[self::KEY_ID])
-            . ($this->verbosity >= self::VERBOSITY_HIGH ? '-- ' . json_encode($data, JSON_THROW_ON_ERROR) : null)
+            .($this->verbosity >= self::VERBOSITY_HIGH ? '-- '.json_encode($data, JSON_THROW_ON_ERROR) : null)
         );
     }
 
@@ -99,7 +104,7 @@ class Scrapper extends Communicator
                         $this->relatedObjects->push($relatedObject);
                     }
                 } catch (QueryException $e) {
-                    $this->logger->warning($e, ['scrap' => $scrap]);
+                    $this->logger->warning($e->getMessage(), ['exception' => $e, 'scrap' => $scrap]);
                 }
             }
         );
@@ -128,7 +133,7 @@ class Scrapper extends Communicator
                         $e->getMessage()
                     );
                     if ($this->verbosity >= self::VERBOSITY_HIGH) {
-                        $errorMessage .= ' -- ' . $scrap->toJson();
+                        $errorMessage .= ' -- '.$scrap->toJson();
                     }
 
                     $this->tell($errorMessage);
@@ -151,6 +156,7 @@ class Scrapper extends Communicator
      *
      * @noinspection PhpTooManyParametersInspection
      * @noinspection SlowArrayOperationsInLoopInspection
+     *
      * @throws RuntimeException
      */
     private function initializeData(
@@ -159,7 +165,7 @@ class Scrapper extends Communicator
         Crawler $crawler,
         array $markupOverride = []
     ): array {
-        $markup = !empty($markupOverride) ? $markupOverride : $target->getMarkup();
+        $markup = ! empty($markupOverride) ? $markupOverride : $target->getMarkup();
 
         $data[TargetKey::TITLE] = $titleLink->getTitle();
         $data[TargetKey::special(TargetKey::LINK)] = $titleLink->getLink();
@@ -171,14 +177,14 @@ class Scrapper extends Communicator
         foreach ($markup as $attr => $path) {
             if (ConfigProvider::isSpecialKey($path)) {
                 // path is special key, use special key value from scrap
-                $data[$attr] = !empty($data[$path]) ? $data[$path] : self::ERROR_INVALID_SPECIAL_KEY;
-            } elseif (!ConfigProvider::isSpecialKey($attr)) {
+                $data[$attr] = ! empty($data[$path]) ? $data[$path] : self::ERROR_INVALID_SPECIAL_KEY;
+            } elseif (! ConfigProvider::isSpecialKey($attr)) {
                 try {
                     $attrCrawler = $crawler->filter($path);
                     $data[$attr] = $attr === TargetKey::TITLE ? $attrCrawler->text() : $attrCrawler->html();
 
                     // split single attributes into multiple based on regex
-                    if (!empty($target->getDissect()[$attr])) {
+                    if (! empty($target->getDissect()[$attr])) {
                         $dissectMap = $target->getDissect()[$attr];
 
                         // check _retain meta property
@@ -215,10 +221,10 @@ class Scrapper extends Communicator
     {
         // preprocess and remap scrap data parts
         foreach ($data as $attr => $value) {
-            $data[$attr] = $this->encodeAttribute($attr, (string)$value);
+            $data[$attr] = $this->encodeAttribute($attr, (string) $value);
 
             // preprocess
-            if (!empty($target->getPreprocess()[$attr])) {
+            if (! empty($target->getPreprocess()[$attr])) {
                 $preprocess = $target->getPreprocess()[$attr];
                 // check for optional third parameter of array, which indicates that callable method needs an instance
                 if (is_array($preprocess) && isset($preprocess[2])) {
@@ -233,7 +239,7 @@ class Scrapper extends Communicator
                     try {
                         $data[$attr] = $preprocess($data[$attr]);
                     } catch (Exception $e) {
-                        $this->logger->error($e);
+                        $this->logger->error($e->getMessage(), ['exception' => $e]);
                     }
                 } else {
                     $this->logger->warning(
@@ -247,9 +253,9 @@ class Scrapper extends Communicator
             }
 
             // remap entity attribute name if specified
-            if (!empty($target->getRemap()[$attr])) {
+            if (! empty($target->getRemap()[$attr])) {
                 $newAttrName = $target->getRemap()[$attr];
-                $data[$newAttrName] = !empty($data[$attr]) ? $data[$attr] : null;
+                $data[$newAttrName] = ! empty($data[$attr]) ? $data[$attr] : null;
 
                 if ($attr !== TargetKey::TITLE) {
                     unset($data[$attr]);
@@ -264,14 +270,19 @@ class Scrapper extends Communicator
     {
         // ensure title has UC words
         if ($attributeName === TargetKey::TITLE) {
-            return utf8_encode(ucwords(mb_strtolower($attributeText)));
+            $encoded = mb_convert_encoding(ucwords(mb_strtolower($attributeText)), 'UTF-8', 'ISO-8859-1');
+
+            return $encoded === false ? $attributeText : $encoded;
         }
 
-        return iconv(
-            mb_detect_encoding($attributeText, mb_detect_order(), true),
-            self::ENCODE_CHARSET,
-            $attributeText
-        );
+        $encoding = mb_detect_encoding($attributeText, mb_detect_order(), true);
+        if ($encoding === false) {
+            return $attributeText;
+        }
+
+        $converted = iconv($encoding, self::ENCODE_CHARSET, $attributeText);
+
+        return $converted === false ? $attributeText : $converted;
     }
 
     /**
@@ -297,6 +308,7 @@ class Scrapper extends Communicator
 
     /**
      * Finalize scrap.
+     *
      * @throws JsonException
      */
     private function finalizeData(array $data, Target $target): array
@@ -327,8 +339,8 @@ class Scrapper extends Communicator
             ]
         );
 
-        if (!$scrap->exists) {
-            ++$this->newScrapsCount;
+        if (! $scrap->exists) {
+            $this->newScrapsCount++;
         }
 
         return $scrap;

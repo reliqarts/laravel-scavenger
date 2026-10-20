@@ -7,24 +7,16 @@ namespace ReliqArts\Scavenger\Service;
 class Scanner
 {
     /**
-     * List of words (regex) we don't want in our scraps.'.
-     *
-     * @var array
-     */
-    protected array $badWords = [];
-
-    /**
      * Scanner constructor.
+     *
+     * @param  array  $badWords  List of words (regex) we don't want in our scraps.
      */
-    public function __construct(array $badWords = [])
-    {
-        $this->badWords = $badWords;
-    }
+    public function __construct(protected array $badWords = []) {}
 
     /**
      * Determine whether a scrap data has bad words and therefore is unwanted.
      *
-     * @param array $badWords List of words (regex) we don't want in our scraps.'.
+     * @param  array  $badWords  List of words (regex) we don't want in our scraps.'.
      */
     public function hasBadWords(array $scrapData, array $badWords = []): bool
     {
@@ -36,7 +28,7 @@ class Scanner
 
             // check for bad words
             foreach ($scrapData as $attr => $value) {
-                if (!ConfigProvider::isSpecialKey($attr) && preg_match($badWordsRegex, $value)) {
+                if (! ConfigProvider::isSpecialKey($attr) && preg_match($badWordsRegex, $value)) {
                     $invalid = true;
 
                     break;
@@ -50,9 +42,9 @@ class Scanner
     /**
      * Scour a string and pluck details.
      *
-     * @param string $string the string to be scoured
-     * @param array  $map    map to use for detail scouring
-     * @param bool   $retain whether to leave match in source string
+     * @param  string  $string  the string to be scoured
+     * @param  array  $map  map to use for detail scouring
+     * @param  bool  $retain  whether to leave match in source string
      */
     public static function pluckDetails(string &$string, array $map = [], bool $retain = false): array
     {
@@ -80,20 +72,20 @@ class Scanner
      * Searches array for needles. The first one found is returned.
      * If needles aren't supplied the first non-empty item in array is returned.
      *
-     * @param array $haystack array to search
-     * @param array $needles  optional list of items to check for
+     * @param  array  $haystack  array to search
+     * @param  array  $needles  optional list of items to check for
      */
     public static function firstNonEmpty(array $haystack, array $needles = [])
     {
-        if (!empty($needles)) {
+        if (! empty($needles)) {
             foreach ($needles as $value) {
-                if (!empty($haystack[$value])) {
+                if (! empty($haystack[$value])) {
                     return $haystack[$value];
                 }
             }
         } else {
             foreach ($haystack as $value) {
-                if (!empty($value)) {
+                if (! empty($value)) {
                     return $value;
                 }
             }
